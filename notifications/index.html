@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#090d17" />
+    <meta name="robots" content="noindex" />
+    <link rel="icon" href="/images/favicon.png" type="image/png" />
+    <link rel="stylesheet" href="/yapern.css" />
+    <script type="module" src="/src/notifications.js"></script>
+    <script type="module" src="/src/auth-nav.js"></script>
+    <script type="module" src="/src/create.js"></script>
+    <title>Notifications · Yapern</title>
+  </head>
+  <body class="board-page">
+    <a class="skip-link" href="#main">Skip to content</a>
+    <!-- site-header -->
+    <main id="main" class="live-messages-section detail-board-layout shell">
+      <aside class="detail-board-navigation" aria-label="Sub-yap navigation">
+        <nav aria-label="Message views">
+          <a class="detail-nav-link" href="/all">All messages</a>
+        </nav>
+        <details class="detail-board-menu" open>
+          <summary>Sub-yaps</summary>
+          <p id="boards-status" class="detail-sidebar-status" role="status">Loading sub-yaps…</p>
+          <ul id="board-navigation" aria-label="Sub-yaps" aria-busy="true"></ul>
+          <button id="boards-retry" class="messages-retry" type="button" hidden>Retry sub-yaps</button>
+        </details>
+      </aside>
+      <section class="live-messages-feed" aria-labelledby="notifications-title">
+        <h1 id="notifications-title">Notifications</h1>
+        <ul class="notifications-list" aria-labelledby="notifications-title">
+          <li>You have a new reply to one of your messages.</li>
+        </ul>
+      </section>
+    </main>
+    <footer class="site-footer shell">
+      <a class="brand footer-brand" href="/">yapern<span class="brand-dot">.</span></a>
+      <nav aria-label="Footer"><a href="/blog/">Blog</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a></nav>
+    </footer>
+  </body>
+</html>
