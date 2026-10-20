@@ -80,7 +80,7 @@
             </label>
             <div class="create-editor-toolbar" role="group" aria-label="Message formatting">
               <button class="create-toolbar-icon create-toolbar-link" id="create-link-toggle" type="button" aria-label="Add link" aria-expanded="false" aria-controls="create-link-panel" title="Add link"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M8 12 12 8M7 7l-2 2a3 3 0 0 0 4 4l2-2M13 13l2-2a3 3 0 0 0-4-4l-2 2" /></svg></button>
-              <span class="create-toolbar-icon" role="img" aria-label="Image" title="Image"><svg viewBox="0 0 20 20" aria-hidden="true"><rect x="2.5" y="3.5" width="15" height="13" rx="2"/><circle cx="7" cy="8" r="1.5"/><path d="m3 14 4-4 3 3 2-2 5 5"/></svg></span>
+              <button class="create-toolbar-icon create-toolbar-image" id="create-image-choose" type="button" aria-label="Add image" title="Add image"><svg viewBox="0 0 20 20" aria-hidden="true"><rect x="2.5" y="3.5" width="15" height="13" rx="2"/><circle cx="7" cy="8" r="1.5"/><path d="m3 14 4-4 3 3 2-2 5 5"/></svg></button>
               <span class="create-toolbar-icon" role="img" aria-label="Video" title="Video"><svg viewBox="0 0 20 20" aria-hidden="true"><rect x="2.5" y="4" width="11" height="12" rx="2"/><path d="m13.5 8 4-2v8l-4-2z"/></svg></span>
               <span class="create-toolbar-divider" aria-hidden="true"></span>
               <span class="create-toolbar-icon create-toolbar-letter" role="img" aria-label="Bold" title="Bold"><strong>B</strong></span>
@@ -101,6 +101,16 @@
               <span class="create-toolbar-icon create-toolbar-letter" role="img" aria-label="More formatting" title="More formatting">•••</span>
             </div>
           </div>
+          <input id="create-image" name="image" type="file" accept="image/png,image/jpeg,image/webp,image/gif" aria-label="Message image" hidden />
+          <div class="create-image-draft" id="create-image-draft" hidden>
+            <img id="create-image-preview" alt="Selected image preview" />
+            <div class="create-image-actions">
+              <span class="create-field-meta" id="create-image-status" role="status"></span>
+              <button class="create-text-button" id="create-image-replace" type="button">Replace image</button>
+              <button class="create-text-button" id="create-image-remove" type="button">Remove image</button>
+            </div>
+          </div>
+          <p class="create-link-error" id="create-image-error" role="alert"></p>
           <p class="create-field-meta" id="create-body-count" aria-live="polite">0/2000</p>
           <p class="create-error" id="create-message-error" role="alert"></p>
           <div class="create-actions">

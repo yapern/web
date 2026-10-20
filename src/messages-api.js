@@ -1,5 +1,6 @@
 import { messageBoardConfig } from "./config.js";
 import { readStoredSession, storeSession } from "./auth.js";
+import { serializeMessageBody } from "./message-text.js";
 
 const isMessage = (message) => message &&
   ["id", "board_id", "user_id", "title", "body", "created_at"].every(key => typeof message[key] === "string") &&
@@ -11,6 +12,21 @@ const isReply = (reply) => reply &&
 const boardLogoPathPattern = /^\/board-logos\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.(?:png|jpg|gif|webp)$/i;
 const acceptedBoardLogoTypes = new Set(["image/png", "image/jpeg", "image/webp", "image/gif"]);
 const maxBoardLogoBytes = 5 * 1024 * 1024;
+const messageImagePathPattern = /^\/board-messages\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.(?:png|jpg|gif|webp)$/;
+
+export function messageImageError(file) {
+  if (!(file instanceof File) || !acceptedBoardLogoTypes.has(file.type) || file.size < 1) {
+    return "Choose a PNG, JPEG, WebP, or GIF image.";
+  }
+  return file.size > maxBoardLogoBytes ? "Choose an image smaller than 5 MB." : "";
+}
+
+export function messageBodyLength(text, image) {
+  if (!image) return text.trim().length;
+  const extension = { "image/png": "png", "image/jpeg": "jpg", "image/gif": "gif", "image/webp": "webp" }[image.type];
+  const url = new URL(`/board-messages/00000000-0000-0000-0000-000000000000.${extension}`, messageBoardConfig.apiOrigin);
+  return serializeMessageBody(text, "", url.href).trim().length;
+}
 const isBoard = (board) => board && typeof board.id === "string" &&
   typeof board.slug === "string" && /^[a-z0-9]+(?:[a-z0-9-]*[a-z0-9])?$/.test(board.slug) &&
   typeof board.name === "string" && typeof board.description === "string" &&
@@ -364,18 +380,27 @@ export async function fetchBoardPage(slug, messageId, fetcher = fetch) {
   return { board, messages };
 }
 
-async function insertRow(table, values, validate, fetcher) {
+async function insertRow(table, values, validate, fetcher, { image } = {}) {
   const session = readStoredSession();
   if (!session) throw new Error("Your session has expired. Open Account and sign in again to continue.");
   const { apiOrigin } = messageBoardConfig;
   const url = new URL(`/tables/${encodeURIComponent(table)}`, apiOrigin);
+  const headers = { authorization: `Bearer ${session.token}` };
+  let body;
+  if (image) {
+    body = new FormData();
+    for (const [key, value] of Object.entries({ ...values, user_id: session.session.user_id })) body.set(key, value);
+    body.set("image", image);
+  } else {
+    headers["content-type"] = "application/json";
+    body = JSON.stringify({ ...values, user_id: session.session.user_id });
+  }
   let response;
   try {
     response = await fetcher(url, {
       method: "POST", mode: "cors", credentials: "omit", redirect: "error",
       signal: AbortSignal.timeout(15_000),
-      headers: { authorization: `Bearer ${session.token}`, "content-type": "application/json" },
-      body: JSON.stringify({ ...values, user_id: session.session.user_id }),
+      headers, body,
     });
   } catch {
     throw new Error("Could not confirm creation. Check your connection and the sub-yap before trying again.");
@@ -387,11 +412,22 @@ async function insertRow(table, values, validate, fetcher) {
       ? "You don’t have permission to reply to this message."
       : "You don’t have permission to post to this sub-yap.");
   if (response.status === 409 && table === "boards") throw new Error("A sub-yap with that name already exists. Choose another name.");
+  if (image && response.status === 404) throw new Error("This sub-yap is no longer available.");
+  if (image && response.status === 413) throw new Error("Choose an image smaller than 5 MB.");
+  if (image && response.status === 415) throw new Error("Choose a valid PNG, JPEG, WebP, or GIF image.");
+  if (image && response.status === 503) throw new Error("Image uploads are unavailable right now. Please try again.");
   if (!response.ok) throw new Error("Could not create this right now. Please try again.");
   const payload = await response.json().catch(() => null);
   const row = payload?.data?.[0];
+  let expected = values;
+  if (image) {
+    if (typeof row?.image_url !== "string" || !messageImagePathPattern.test(row.image_url)) {
+      throw new Error("Could not confirm creation. Check the sub-yap before trying again.");
+    }
+    expected = { ...values, body: serializeMessageBody(values.body, "", new URL(row.image_url, apiOrigin).href).trim() };
+  }
   if (!Array.isArray(payload?.data) || payload.data.length !== 1 || !validate(row) || !row.id ||
-    row.user_id !== session.session.user_id || Object.entries(values).some(([key, value]) => row[key] !== value)) {
+    row.user_id !== session.session.user_id || Object.entries(expected).some(([key, value]) => row[key] !== value)) {
     throw new Error("Could not confirm creation. Check the sub-yap before trying again.");
   }
   return row;
@@ -478,13 +514,14 @@ export async function updateBoardDescription(board, description, fetcher = fetch
   return updateBoard(board, { description }, fetcher);
 }
 
-export async function createMessage(boardId, title, body, fetcher = fetch) {
+export async function createMessage(boardId, title, body, fetcher = fetch, { image } = {}) {
   const cleanTitle = title.trim();
-  const cleanBody = body.trim();
+  const cleanBody = body.replace(/\r\n?/g, "\n").trim();
   if (!boardId.trim()) throw new Error("Choose a sub-yap for your message.");
   if (!cleanTitle || cleanTitle.length > 200) throw new Error("Enter a title of 1–200 characters.");
-  if (!cleanBody || cleanBody.length > 2000) throw new Error("Enter a message of 1–2000 characters.");
-  return insertRow(messageBoardConfig.table, { board_id: boardId, title: cleanTitle, body: cleanBody }, isMessage, fetcher);
+  if (image && messageImageError(image)) throw new Error(messageImageError(image));
+  if ((!cleanBody && !image) || messageBodyLength(cleanBody, image) > 2000) throw new Error("Enter a message of 1–2000 characters, including its image URL.");
+  return insertRow(messageBoardConfig.table, { board_id: boardId, title: cleanTitle, body: cleanBody }, isMessage, fetcher, { image });
 }
 
 export async function deleteMessage(message, fetcher = fetch) {

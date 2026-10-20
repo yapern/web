@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { storeSession } from "../src/auth.js";
-import { createBoard, createMessage } from "../src/messages-api.js";
+import { createBoard, createMessage, messageBodyLength } from "../src/messages-api.js";
 import { messageBoardConfig } from "../src/config.js";
 
 const session = {
@@ -80,5 +80,58 @@ test("successful HTTP responses must confirm the exact row and author before nav
   }
   for (const override of [{ board_id: "wrong" }, { title: "Wrong" }, { body: "Wrong" }, { user_id: "wrong" }, { created_at: "invalid" }]) {
     await assert.rejects(createMessage("general", "Title", "Body", async () => Response.json({ data: [{ ...message, ...override }] })), /confirm creation/);
+  }
+});
+
+test("message image uploads use multipart and confirm the exact saved image and normalized body", async t => {
+  t.after(() => storeSession(null));
+  storeSession(session);
+  const image = new File(["png"], "photo.png", { type: "image/png" });
+  const imagePath = "/board-messages/123e4567-e89b-12d3-a456-426614174000.png";
+  for (const text of ["", "  First\r\n\r\nLast  "]) {
+    const cleanBody = text.replace(/\r\n?/g, "\n").trim();
+    const savedBody = `${messageBoardConfig.apiOrigin}${imagePath}${cleanBody ? `\n${cleanBody}` : ""}`;
+    const message = await createMessage("general", " Photo ", text, async (url, options) => {
+      assert.equal(url.pathname, "/tables/messages");
+      assert.equal(options.headers.authorization, `Bearer ${session.token}`);
+      assert.equal(options.headers["content-type"], undefined);
+      assert.ok(options.body instanceof FormData);
+      assert.equal(options.body.get("board_id"), "general");
+      assert.equal(options.body.get("title"), "Photo");
+      assert.equal(options.body.get("body"), cleanBody);
+      assert.equal(options.body.get("user_id"), "real-user");
+      assert.equal(await options.body.get("image").text(), "png");
+      return Response.json({ data: [{ ...row, board_id: "general", title: "Photo", body: savedBody, image_url: imagePath }] }, { status: 201 });
+    }, { image });
+    assert.equal(message.body, savedBody);
+    assert.equal(messageBodyLength(cleanBody, image), savedBody.length);
+  }
+});
+
+test("message image validation prevents invalid files and oversized final bodies from uploading", async t => {
+  t.after(() => storeSession(null));
+  storeSession(session);
+  const neverFetch = () => assert.fail("must validate before uploading");
+  for (const image of [
+    new File([], "empty.png", { type: "image/png" }),
+    new File(["svg"], "unsafe.svg", { type: "image/svg+xml" }),
+    new File([new Uint8Array(5 * 1024 * 1024 + 1)], "large.png", { type: "image/png" }),
+    { type: "image/png", size: 1 },
+  ]) await assert.rejects(createMessage("general", "Photo", "", neverFetch, { image }), /Choose/);
+  const image = new File(["png"], "photo.png", { type: "image/png" });
+  await assert.rejects(createMessage("general", "Photo", "a".repeat(1990), neverFetch, { image }), /including its image URL/);
+});
+
+test("image errors preserve the draft and untrusted upload confirmations cannot report success", async t => {
+  t.after(() => storeSession(null));
+  storeSession(session);
+  const image = new File(["png"], "photo.png", { type: "image/png" });
+  for (const [status, pattern] of [[404, /no longer available/], [413, /smaller than 5 MB/], [415, /valid PNG/], [503, /unavailable/]]) {
+    await assert.rejects(createMessage("general", "Photo", "", async () => new Response(null, { status }), { image }), pattern);
+  }
+  for (const image_url of [null, "https://other.example/photo.png", "/board-logos/123e4567-e89b-12d3-a456-426614174000.png", "/board-messages/../../photo.png"]) {
+    await assert.rejects(createMessage("general", "Photo", "", async () => Response.json({ data: [{
+      ...row, board_id: "general", title: "Photo", body: "", image_url,
+    }] }), { image }), /confirm creation/);
   }
 });

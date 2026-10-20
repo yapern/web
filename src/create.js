@@ -1,6 +1,6 @@
 import { readStoredSession } from "./auth.js";
 import { closeHeaderMenu } from "./auth-nav.js";
-import { fetchBoards, createBoard, createMessage, fetchOgImage } from "./messages-api.js";
+import { fetchBoards, createBoard, createMessage, fetchOgImage, messageImageError, messageBodyLength } from "./messages-api.js";
 import { boardHref, messageHref, parseBoardRoute } from "./board-routes.js";
 import { serializeMessageBody } from "./message-text.js";
 
@@ -27,6 +27,14 @@ const linkError = document.querySelector("#create-link-error");
 const linkPreviewLoading = document.querySelector("#create-link-loading");
 const linkPreview = document.querySelector("#create-link-preview");
 const bodyRequirement = document.querySelector("#create-body-requirement");
+const imageInput = document.querySelector("#create-image");
+const imageChoose = document.querySelector("#create-image-choose");
+const imageDraft = document.querySelector("#create-image-draft");
+const imagePreview = document.querySelector("#create-image-preview");
+const imageStatus = document.querySelector("#create-image-status");
+const imageError = document.querySelector("#create-image-error");
+const imageReplace = document.querySelector("#create-image-replace");
+const imageRemove = document.querySelector("#create-image-remove");
 const name = document.querySelector("#new-board-name");
 const description = document.querySelector("#new-board-description");
 let boards = [];
@@ -42,6 +50,21 @@ let linkPreviewLookupPending = false;
 let linkPreviewPromise = null;
 let linkPreviewUrl = "";
 let fetchedImageUrl = "";
+let pickedImage = null;
+let imagePreviewUrl = null;
+
+function clearImageDraft() {
+  if (imagePreviewUrl) URL.revokeObjectURL(imagePreviewUrl);
+  imagePreviewUrl = null;
+  pickedImage = null;
+  imageInput.value = "";
+  imagePreview.removeAttribute("src");
+  imageDraft.hidden = true;
+  imageStatus.textContent = "";
+  imageError.textContent = "";
+  imageChoose.setAttribute("aria-label", "Add image");
+  imageChoose.title = "Add image";
+}
 
 function logLinkPreview(level, event, details = {}) {
   console[level]("[link-preview]", event, details);
@@ -102,7 +125,7 @@ function clearLinkPreview() {
 
 function scheduleLinkPreview() {
   const value = linkUrl.value.trim();
-  if (!messageDialog.open || linkPanel.hidden) {
+  if (!messageDialog.open || linkPanel.hidden || pickedImage) {
     clearLinkPreview();
     return;
   }
@@ -197,7 +220,7 @@ function startLinkPreview() {
 }
 
 function serializedMessageBody() {
-  return linkPanel.hidden ? body.value : serializeMessageBody(body.value, linkUrl.value, fetchedImageUrl);
+  return serializeMessageBody(body.value, linkPanel.hidden ? "" : linkUrl.value, pickedImage ? "" : fetchedImageUrl);
 }
 
 function syncLinkValidation() {
@@ -212,8 +235,6 @@ function setLinkPanelOpen(open) {
   linkPanel.hidden = !open;
   linkToggle.setAttribute("aria-expanded", String(open));
   linkUrl.required = open;
-  body.required = !open;
-  bodyRequirement.textContent = open ? "(optional)" : "(required)";
   if (!open) {
     clearLinkPreview();
     linkUrl.value = "";
@@ -275,16 +296,19 @@ syncSession();
 function updateForms() {
   const selected = boards.find(board => board.id === boardSelect.value);
   const serializedBody = serializedMessageBody();
+  const bodyLength = messageBodyLength(serializedBody, pickedImage);
   const linkInvalid = !linkPanel.hidden && Boolean(syncLinkValidation());
+  body.required = linkPanel.hidden && !pickedImage;
+  bodyRequirement.textContent = body.required ? "(required)" : "(optional)";
   boardSelect.disabled = saving || boardsLoading || boardsFailed || !boards.length;
   linkUrl.disabled = saving || linkPanel.hidden;
   messageForm.querySelector("[type=submit]").disabled = saving || boardsLoading || boardsFailed || !selected ||
     !title.value.trim() || title.value.length > 200 || (!linkPanel.hidden && linkInvalid) ||
-    (linkPanel.hidden && !body.value.trim()) || serializedBody.length > 2000;
+    (body.required && !body.value.trim()) || bodyLength > 2000;
   boardForm.querySelector("[type=submit]").disabled = saving || !name.value.trim() || name.value.length > 80 || description.value.length > 2000;
   const bodyCount = document.querySelector("#create-body-count");
-  const tooLong = serializedBody.length > 2000;
-  bodyCount.textContent = `${serializedBody.length}/2000${tooLong ? " · Shorten the message or link" : ""}`;
+  const tooLong = bodyLength > 2000;
+  bodyCount.textContent = `${bodyLength}/2000${tooLong ? " · Shorten the message or link" : ""}`;
   bodyCount.classList.toggle("is-over-limit", tooLong);
   body.setAttribute("aria-invalid", String(tooLong));
   document.querySelector("#create-selected-board").hidden = !selected || boardsLoading || boardsFailed;
@@ -292,6 +316,37 @@ function updateForms() {
   document.querySelector("#create-selected-description").textContent = selected?.description ?? "";
 }
 messageForm.addEventListener("input", updateForms);
+for (const button of [imageChoose, imageReplace]) {
+  button.addEventListener("click", () => { if (!saving) imageInput.click(); });
+}
+imageInput.addEventListener("change", () => {
+  if (saving) return;
+  const file = imageInput.files?.[0];
+  if (!file) return;
+  const error = messageImageError(file);
+  if (error) {
+    imageInput.value = "";
+    imageError.textContent = error;
+    return;
+  }
+  clearImageDraft();
+  pickedImage = file;
+  imagePreviewUrl = URL.createObjectURL(file);
+  imagePreview.src = imagePreviewUrl;
+  imageDraft.hidden = false;
+  imageStatus.textContent = file.name;
+  imageChoose.setAttribute("aria-label", "Replace image");
+  imageChoose.title = "Replace image";
+  clearLinkPreview();
+  updateForms();
+});
+imageRemove.addEventListener("click", () => {
+  if (saving) return;
+  clearImageDraft();
+  scheduleLinkPreview();
+  updateForms();
+  imageChoose.focus();
+});
 linkToggle.addEventListener("click", () => setLinkPanelOpen(true));
 linkRemove.addEventListener("click", () => setLinkPanelOpen(false));
 linkUrl.addEventListener("input", scheduleLinkPreview);
@@ -302,6 +357,7 @@ linkUrl.addEventListener("blur", () => {
 });
 messageForm.addEventListener("reset", () => {
   clearLinkPreview();
+  clearImageDraft();
   linkPanel.hidden = true;
   linkToggle.setAttribute("aria-expanded", "false");
   linkUrl.required = false;
@@ -415,8 +471,8 @@ async function submit(event, dialog, action, pendingLabel, defaultLabel) {
 messageForm.addEventListener("submit", event => void submit(event, messageDialog, async () => {
   const board = boards.find(row => row.id === boardSelect.value);
   // Finish the current lookup, including a queued debounce, before saving.
-  if (!linkPanel.hidden) await startLinkPreview();
-  const message = await createMessage(board.id, title.value, serializedMessageBody());
+  if (!linkPanel.hidden && !pickedImage) await startLinkPreview();
+  const message = await createMessage(board.id, title.value, serializedMessageBody(), fetch, { image: pickedImage });
   return messageHref(board.slug, message.id);
 }, "Posting…", "Post"));
 boardForm.addEventListener("submit", event => void submit(event, boardDialog, async () => {
