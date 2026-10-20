@@ -29,9 +29,12 @@
       </aside>
       <section class="live-messages-feed" aria-labelledby="notifications-title">
         <h1 id="notifications-title">Notifications</h1>
-        <ul class="notifications-list" aria-labelledby="notifications-title">
-          <li>You have a new reply to one of your messages.</li>
-        </ul>
+        <p class="messages-status" id="notifications-status" role="status">Checking your session…</p>
+        <ul class="notifications-list" id="notifications-list" aria-labelledby="notifications-title" aria-live="polite" aria-busy="true" hidden></ul>
+        <a class="messages-retry" id="notifications-login" href="/login/" hidden>Log in</a>
+        <p class="messages-status" id="notifications-read-status" role="status" hidden></p>
+        <button class="messages-retry" id="notifications-read-retry" type="button" hidden>Retry marking as read</button>
+        <button class="messages-retry" id="notifications-retry" type="button" hidden>Retry</button>
       </section>
     </main>
     <footer class="site-footer shell">

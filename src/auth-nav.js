@@ -1,9 +1,21 @@
 import { readStoredSession } from "./auth.js";
+import { notificationsLive } from "./notifications-live.js";
 
 const header = document.querySelector(".site-header");
 const headerMenu = document.querySelector("#header-menu");
 const headerToggle = document.querySelector("#header-toggle");
 const mobileNavigation = window.matchMedia("(max-width: 900px)");
+const notificationLink = document.querySelector('.header-icon-button[href="/notifications/"]');
+const notificationDot = notificationLink?.querySelector("[data-notification-unread-dot]");
+
+notificationsLive.subscribe(({ snapshot }) => {
+  const unread = Number.isSafeInteger(snapshot?.unread_count) && snapshot.unread_count > 0;
+  if (notificationDot) notificationDot.hidden = !unread;
+  if (notificationLink) {
+    notificationLink.setAttribute("aria-label", unread ? "Notifications (unread replies)" : "Notifications");
+    notificationLink.title = unread ? "Notifications (unread replies)" : "Notifications";
+  }
+});
 
 function setMobileMenuOpen(open, restoreFocus = false) {
   if (!headerMenu || !headerToggle) return;
@@ -38,7 +50,8 @@ function syncNavigationMode() {
 }
 
 export function syncSession() {
-  const signedIn = Boolean(readStoredSession());
+  const session = readStoredSession();
+  const signedIn = Boolean(session);
   document.querySelectorAll("[data-login-link]").forEach(link => {
     const label = link.querySelector("[data-login-label]");
     if (label) label.textContent = signedIn ? "Account" : "Login";
@@ -57,6 +70,11 @@ export function syncSession() {
     else link.removeAttribute("aria-current");
   });
   document.querySelectorAll("[data-auth-only]").forEach(element => { element.hidden = !signedIn; });
+  if (signedIn) notificationsLive.start(session);
+  else {
+    notificationsLive.syncSession(null);
+    notificationsLive.stop();
+  }
   if (!signedIn) closeHeaderMenu();
 }
 

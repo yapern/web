@@ -257,6 +257,17 @@ a {
   cursor: pointer;
   transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease;
 }
+.header-icon-button { position: relative; }
+.notification-unread-dot {
+  position: absolute;
+  top: 7px;
+  right: 7px;
+  width: 8px;
+  height: 8px;
+  border: 1px solid #090d17;
+  border-radius: 50%;
+  background: #ef4444;
+}
 .header-icon-button:hover,
 .header-icon-button:focus-visible,
 .header-icon-button[aria-current="page"],
@@ -1240,6 +1251,15 @@ h1 span,
   font-size: 14px;
   overflow-wrap: anywhere;
 }
+.notification-item-link {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 3px;
+  min-height: 44px;
+}
+.notification-item-heading { font-weight: 550; }
+.notification-item-link time { color: var(--muted); font-size: 12px; }
 .detail-board-navigation {
   position: sticky;
   top: 24px;
@@ -2304,6 +2324,11 @@ a.detail-recent-post:hover .detail-recent-title {
     border-radius: 6px;
     font-size: 14px;
     text-align: left;
+  }
+  .site-header.navigation-ready .header-icon-button .notification-unread-dot {
+    top: 8px;
+    left: 27px;
+    right: auto;
   }
   .site-header.navigation-ready .header-actions .header-icon-button svg,
   .site-header.navigation-ready .header-actions .header-account svg { width: 20px; height: 20px; }

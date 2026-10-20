@@ -58,6 +58,16 @@ delete their own messages. Board descriptions can be edited from the right
 sidebar on board and message pages; names and URLs stay unchanged. Deletion
 requires confirmation and also removes the message's replies.
 
+The bell opens `/notifications/` and shows a red dot for unread replies to your
+messages. Notifications persist in the API database while you are away. A
+per-user Durable Object sends the unread state on reconnect and pushes changes
+over a hibernating WebSocket to every signed-in tab. Browser connections use
+short-lived, single-use tickets rather than bearer tokens in WebSocket URLs.
+The page shows real reply links and marks displayed notifications read while
+visible; its ID cutoff leaves newer replies unread. Self-replies do not notify.
+Deploy backend migration `010_reply_notifications.sql` and the updated Worker
+before deploying this frontend.
+
 Link previews use `POST /og-image` with `{ "url": "https://example.com" }` and
 the current bearer token. The API returns final Open Graph, Twitter, favicon,
 or no-image metadata. There are no screenshot jobs or preview-status polling
