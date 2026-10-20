@@ -51,6 +51,15 @@ The API clients call `/tables/users`, `/tables/boards`, `/tables/messages`, and
 limit/offset pagination, with `{ "data": [...] }` responses. Writes carry the
 current bearer token; the backend enforces ownership.
 
+The shared header submits public searches to `/search/?q=...`. The search page
+calls the API's `/search` endpoint and switches between messages and sub-yaps,
+with relevance/newest ordering and 20 results per page. Search URLs preserve
+the query, type, sort, optional board slug, and page for sharing and browser
+navigation. The last query word supports prefix matching. Snippets render as
+plain text. The former center navigation links are in each shared page's footer;
+the search field stays visible outside the account menu on mobile. Deploy backend
+migration `011_full_text_search.sql` and the API before this frontend.
+
 The account page at `/account/` reads and updates the signed-in user's display
 name. Messages and replies load current author names. Signed-in users can create
 boards, edit the description of boards they created, post messages, reply, and

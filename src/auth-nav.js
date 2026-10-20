@@ -45,7 +45,7 @@ function syncNavigationMode() {
     headerToggle.setAttribute("aria-expanded", "false");
     headerToggle.setAttribute("aria-label", "Open menu");
     header?.classList.add("navigation-ready");
-    if (toggleHadFocus) headerMenu.querySelector("nav a")?.focus();
+    if (toggleHadFocus) headerMenu.querySelector("[data-login-link]")?.focus();
   }
 }
 
@@ -98,7 +98,7 @@ header?.addEventListener("focusout", event => {
     closeHeaderMenu();
   }
 });
-headerMenu?.querySelectorAll("nav a").forEach(link => link.addEventListener("click", () => closeHeaderMenu()));
+headerMenu?.querySelectorAll("a").forEach(link => link.addEventListener("click", () => closeHeaderMenu()));
 mobileNavigation.addEventListener("change", syncNavigationMode);
 window.addEventListener("pageshow", syncSession);
 window.addEventListener("focus", syncSession);

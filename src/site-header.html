@@ -5,18 +5,18 @@
           >.</span
         ></a
       >
+      <form class="header-search" role="search" action="/search/" method="get">
+        <label class="sr-only" for="site-search">Search Yapern</label>
+        <input id="site-search" name="q" type="search" placeholder="Search Yapern" maxlength="200" required enterkeyhint="search" />
+        <button type="submit" aria-label="Search">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" /><path d="m16 16 4.5 4.5" /></svg>
+        </button>
+      </form>
       <button class="header-toggle" id="header-toggle" type="button" aria-expanded="false" aria-controls="header-menu" aria-label="Open menu">
         <svg class="header-toggle-open" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" /></svg>
         <svg class="header-toggle-close" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" /></svg>
       </button>
       <div class="header-menu" id="header-menu">
-        <nav aria-label="Main navigation">
-          <a href="/#features">Features</a
-          ><a href="/#communities">Sub-yaps &amp; moderators</a
-          ><a href="/#open-source">Open source</a
-          ><a href="/blog/">Blog</a
-          ><a href="/about/">About</a>
-        </nav>
         <div class="header-actions">
           <div class="create-menu" id="create-menu" hidden data-auth-only>
             <button id="create-toggle" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="create-options">

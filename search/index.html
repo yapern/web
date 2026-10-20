@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#090d17" />
+    <meta name="robots" content="noindex" />
+    <link rel="icon" href="/images/favicon.png" type="image/png" />
+    <link rel="stylesheet" href="/yapern.css" />
+    <script type="module" src="/src/search.js"></script>
+    <script type="module" src="/src/auth-nav.js"></script>
+    <script type="module" src="/src/create.js"></script>
+    <title>Search · Yapern</title>
+  </head>
+  <body class="search-page">
+    <a class="skip-link" href="#main">Skip to content</a>
+    <!-- site-header -->
+    <main id="main" class="search-main shell">
+      <h1>Search</h1>
+      <div class="search-controls">
+        <nav class="search-types" aria-label="Search in">
+          <a href="/search/" data-search-type="messages" aria-current="page">Messages</a>
+          <a href="/search/?type=boards" data-search-type="boards">Sub-yaps</a>
+        </nav>
+        <label class="search-sort" for="search-sort">Sort
+          <select id="search-sort"><option value="relevance">Relevance</option><option value="newest">Newest</option></select>
+        </label>
+      </div>
+      <p id="search-scope" class="search-scope" hidden><span></span> <a>Search all sub-yaps</a></p>
+      <p id="search-status" class="messages-status" role="status"></p>
+      <button id="search-retry" class="messages-retry" type="button" hidden>Try again</button>
+      <ul id="search-results" aria-label="Search results" aria-busy="false"></ul>
+      <nav id="search-pagination" class="messages-pagination" aria-label="Search result pages" hidden></nav>
+      <noscript><p class="messages-status">Enable JavaScript to search Yapern.</p></noscript>
+    </main>
+    <footer class="site-footer shell">
+      <a class="brand footer-brand" href="/">yapern<span class="brand-dot">.</span></a>
+      <nav aria-label="Footer"><a href="/#features">Features</a><a href="/#communities">Sub-yaps &amp; moderators</a><a href="/#open-source">Open source</a><a href="/blog/">Blog</a><a href="/about/">About</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a></nav>
+    </footer>
+  </body>
+</html>
