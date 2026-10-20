@@ -67,7 +67,7 @@ function boardPageRoutes(server) {
 
 function pageRedirects(server) {
   server.middlewares.use((request, response, next) => {
-    const match = request.url?.match(/^\/(privacy|terms|download|login|account|blog|blog\/building-yapern|blog\/turso-vs-layerbase-free-plan-sqlite-systems)(\?.*)?$/);
+    const match = request.url?.match(/^\/(about|privacy|terms|download|login|account|blog|blog\/building-yapern|blog\/turso-vs-layerbase-free-plan-sqlite-systems)(\?.*)?$/);
     if (!match) {
       next();
       return;
@@ -88,6 +88,7 @@ export default defineConfig({
       transformIndexHtml(html, context) {
         if (!html.includes("<!-- site-header -->")) return html;
         let header = readFileSync(new URL("./src/site-header.html", import.meta.url), "utf8");
+        if (context.path.startsWith("/about/")) header = header.replace('href="/about/"', 'href="/about/" aria-current="page"');
         if (context.path.startsWith("/blog/")) header = header.replace('href="/blog/"', 'href="/blog/" aria-current="page"');
         return html.replace("    <!-- site-header -->\n", header);
       },
@@ -110,6 +111,7 @@ export default defineConfig({
     rollupOptions: {
       input: {
         main: fileURLToPath(new URL("./index.html", import.meta.url)),
+        about: fileURLToPath(new URL("./about/index.html", import.meta.url)),
         login: fileURLToPath(new URL("./login/index.html", import.meta.url)),
         account: fileURLToPath(new URL("./account/index.html", import.meta.url)),
         board: fileURLToPath(new URL("./board.html", import.meta.url)),

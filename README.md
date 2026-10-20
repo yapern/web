@@ -64,6 +64,9 @@ as the first line of the message body and rendered with a clickable fallback.
 
 ## Static routes and blog
 
+The about page at `/about/` uses the blog article layout to explain Yapern’s
+aim to build a better Reddit in the open, its current state, and how to contribute.
+
 All messages use `/all`, board links use `/y/:slug`, and message links use
 `/y/:slug/:id`. These routes load `board.html` and fetch data in the browser.
 `public/_redirects` rewrites `/all`, `/all/`, and `/y/*` to `/board` with a 200

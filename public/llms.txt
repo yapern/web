@@ -3,6 +3,7 @@
 > An open source sub-yap with sub-yaps and community moderators.
 
 - Homepage: https://yapern.com/
+- About: https://yapern.com/about/
 - Blog: https://yapern.com/blog/
 - Source code: https://github.com/yapern/web
 - License: GNU General Public License v3.0 (GPL v3)
