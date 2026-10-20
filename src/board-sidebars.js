@@ -8,6 +8,11 @@ export function mountBoardSidebars(activeSlug, recentLimit = 20) {
   const recentList = document.querySelector("#recent-posts");
   const recentStatus = document.querySelector("#recent-status");
   const recentRetry = document.querySelector("#recent-retry");
+  const boardInfo = document.querySelector(".detail-board-info");
+  const boardInfoTitle = document.querySelector("#board-info-title");
+  const boardInfoDescription = document.querySelector("#board-info-description");
+  const boardInfoStatus = document.querySelector("#board-info-status");
+  const boardInfoRetry = document.querySelector("#board-info-retry");
   const dateFormat = new Intl.DateTimeFormat(undefined, { dateStyle: "medium" });
   let boards = [];
   let recentMessages = [];
@@ -15,6 +20,11 @@ export function mountBoardSidebars(activeSlug, recentLimit = 20) {
   let boardsSettled = false;
 
   const menu = document.querySelector(".detail-board-menu");
+  const showingBoardInfo = Boolean(activeSlug && boardInfo);
+  if (boardInfo) boardInfo.hidden = !showingBoardInfo;
+  if (recentList?.closest(".detail-recent-posts")) {
+    recentList.closest(".detail-recent-posts").hidden = showingBoardInfo;
+  }
   const narrowScreen = window.matchMedia("(max-width: 700px)");
   menu.open = !narrowScreen.matches;
   narrowScreen.addEventListener("change", event => { menu.open = !event.matches; });
@@ -39,6 +49,21 @@ export function mountBoardSidebars(activeSlug, recentLimit = 20) {
       return item;
     }));
     boardStatus.textContent = boards.length ? "" : "No sub-yaps yet.";
+  }
+
+  function renderBoardInfo() {
+    const board = boards.find(candidate => candidate.slug === activeSlug);
+    if (board) {
+      boardInfoTitle.textContent = board.name;
+      boardInfoDescription.textContent = board.description ?? "";
+      boardInfoStatus.textContent = "";
+      boardInfoRetry.hidden = true;
+    } else {
+      boardInfoTitle.textContent = "";
+      boardInfoDescription.textContent = "";
+      boardInfoStatus.textContent = boardsSettled ? "Sub-yap unavailable." : "Loading sub-yap…";
+      boardInfoRetry.hidden = !boardsSettled || boards.length > 0;
+    }
   }
 
   function renderRecent() {
@@ -75,15 +100,24 @@ export function mountBoardSidebars(activeSlug, recentLimit = 20) {
     navigation.setAttribute("aria-busy", "true");
     boardRetry.hidden = true;
     boardStatus.textContent = "Loading sub-yaps…";
+    if (showingBoardInfo) {
+      boardInfoStatus.textContent = "Loading sub-yap…";
+      boardInfoRetry.hidden = true;
+    }
     try {
       boards = await fetchBoards();
       boardsSettled = true;
       renderBoards();
+      if (showingBoardInfo) renderBoardInfo();
       if (recentLoaded) renderRecent();
     } catch {
       boardsSettled = true;
       boardStatus.textContent = "Sub-yaps are unavailable.";
       boardRetry.hidden = false;
+      if (showingBoardInfo) {
+        boardInfoStatus.textContent = "Sub-yap details are unavailable.";
+        boardInfoRetry.hidden = false;
+      }
       if (recentLoaded) renderRecent();
     } finally {
       navigation.setAttribute("aria-busy", "false");
@@ -107,7 +141,8 @@ export function mountBoardSidebars(activeSlug, recentLimit = 20) {
   }
 
   boardRetry.addEventListener("click", loadBoards);
+  boardInfoRetry?.addEventListener("click", loadBoards);
   recentRetry.addEventListener("click", loadRecent);
   loadBoards();
-  loadRecent();
+  if (!showingBoardInfo) loadRecent();
 }

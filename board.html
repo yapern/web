@@ -28,7 +28,6 @@
       </aside>
       <section class="live-messages-feed" aria-labelledby="messages-title">
         <h1 id="messages-title">Sub-yap</h1>
-        <p id="board-description" class="board-description"></p>
         <p id="messages-status" class="messages-status" role="status"></p>
         <button id="messages-retry" class="messages-retry" type="button" hidden>Try again</button>
         <ul id="live-messages" aria-labelledby="messages-title" aria-busy="false"></ul>
@@ -62,6 +61,12 @@
         </section>
         <noscript><p class="messages-status">Enable JavaScript to read messages.</p></noscript>
       </section>
+      <aside class="detail-board-info" aria-labelledby="board-info-title" hidden>
+        <h2 id="board-info-title"></h2>
+        <p id="board-info-status" class="detail-sidebar-status" role="status">Loading sub-yap…</p>
+        <p id="board-info-description" class="board-description"></p>
+        <button id="board-info-retry" class="messages-retry" type="button" hidden>Retry sub-yap</button>
+      </aside>
       <aside class="detail-recent-posts" aria-labelledby="recent-title">
         <h2 id="recent-title">Recent posts</h2>
         <p id="recent-status" class="detail-sidebar-status" role="status">Loading posts…</p>

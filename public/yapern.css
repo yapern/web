@@ -1246,7 +1246,8 @@ h1 span,
 .detail-sidebar-status:empty {
   display: none;
 }
-.detail-recent-posts {
+.detail-recent-posts,
+.detail-board-info {
   position: sticky;
   top: 24px;
   min-width: 0;
@@ -1255,9 +1256,17 @@ h1 span,
   border-radius: 8px;
   background: #10131f;
 }
-.detail-recent-posts h2 {
+.detail-recent-posts h2,
+.detail-board-info h2 {
   font-size: 14px;
   font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.detail-board-info .board-description:not(:empty) {
+  margin-top: 12px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
 }
 #recent-posts > li {
   padding-top: 16px;
@@ -1315,7 +1324,8 @@ a.detail-recent-post:hover .detail-recent-title {
   .detail-board-navigation {
     grid-row: span 2;
   }
-  .detail-recent-posts {
+  .detail-recent-posts,
+  .detail-board-info {
     position: static;
     grid-column: 2;
   }
@@ -1341,7 +1351,8 @@ a.detail-recent-post:hover .detail-recent-title {
     overflow-y: auto;
     overscroll-behavior: contain;
   }
-  .detail-recent-posts {
+  .detail-recent-posts,
+  .detail-board-info {
     grid-column: auto;
   }
 }

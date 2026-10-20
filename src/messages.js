@@ -11,7 +11,6 @@ const status = document.querySelector("#messages-status");
 const retry = document.querySelector("#messages-retry");
 const dateFormat = new Intl.DateTimeFormat(undefined, { dateStyle: "medium" });
 const heading = document.querySelector("#messages-title");
-const description = document.querySelector("#board-description");
 const isBoardPage = document.body.classList.contains("board-page");
 const isAllPage = /^\/all\/?$/.test(window.location.pathname);
 const route = isBoardPage ? parseBoardRoute(window.location.pathname) : null;
@@ -275,7 +274,6 @@ async function loadMessages() {
       data = result.messages;
       boards = [result.board];
       heading.textContent = `y/${result.board.slug}`;
-      description.textContent = route.messageId === undefined ? result.board.description : "";
       document.title = `${route.messageId === undefined ? `y/${result.board.slug}` : data[0].title} · Yapern`;
     } else {
       [data, boards] = await Promise.all([fetchMessages(undefined, { limit: 3 }), fetchBoards()]);
