@@ -10,6 +10,7 @@ export function mountBoardEditor(getBoard, onSave) {
   const basics = document.querySelector("#edit-board-basics");
   const messages = document.querySelector("#board-messages-view");
   const view = document.querySelector("#edit-board-view");
+  const heading = document.querySelector("#edit-board-heading");
   const boardInfo = document.querySelector(".detail-board-info");
   const actions = document.querySelector("#edit-board-actions");
   const exit = document.querySelector("#edit-board-exit");
@@ -38,7 +39,12 @@ export function mountBoardEditor(getBoard, onSave) {
     const url = new URL(window.location.href);
     const route = parseBoardRoute(url.pathname);
     edit.hidden = !canEdit();
-    if (board) edit.href = `${boardHref(board.slug)}?edit=true`;
+    if (board) {
+      const editUrl = new URL(url);
+      editUrl.pathname = boardHref(board.slug);
+      editUrl.searchParams.set("edit", "true");
+      edit.href = editUrl.pathname + editUrl.search + editUrl.hash;
+    }
     const showEditor = !edit.hidden && route?.slug === board.slug &&
       route.messageId === undefined && url.searchParams.get("edit") === "true";
     if (showEditor && (!editing || editingUserId !== userId)) {
@@ -46,6 +52,7 @@ export function mountBoardEditor(getBoard, onSave) {
       error.textContent = "";
       feedback.textContent = "";
     }
+    const changed = editing !== showEditor;
     editing = showEditor;
     editingUserId = editing ? userId : undefined;
     browseNavigation.hidden = editing;
@@ -59,6 +66,24 @@ export function mountBoardEditor(getBoard, onSave) {
     exit.href = url.pathname + url.search + url.hash;
     document.body.classList.toggle("is-editing-board", editing);
     updateSubmit();
+    if (changed) {
+      const focusTarget = editing ? heading : edit.hidden ? document.querySelector("[data-login-link]") : edit;
+      focusTarget?.focus({ preventScroll: true });
+    }
+  }
+
+  for (const link of [edit, exit, basics]) {
+    link.addEventListener("click", event => {
+      if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      event.preventDefault();
+      if (link === edit && !canEdit()) {
+        syncSession();
+        return;
+      }
+      if (link.href !== window.location.href) window.history.pushState(null, "", link.href);
+      syncSession();
+      window.dispatchEvent(new Event("boardroutechange"));
+    });
   }
 
   description.addEventListener("input", () => {
@@ -91,7 +116,7 @@ export function mountBoardEditor(getBoard, onSave) {
       syncSession();
     }
   });
-  for (const event of ["pageshow", "focus", "storage"]) window.addEventListener(event, syncSession);
+  for (const event of ["pageshow", "focus", "storage", "popstate"]) window.addEventListener(event, syncSession);
   syncSession();
   return syncSession;
 }

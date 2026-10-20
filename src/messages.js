@@ -13,7 +13,8 @@ const dateFormat = new Intl.DateTimeFormat(undefined, { dateStyle: "medium" });
 const heading = document.querySelector("#messages-title");
 const isBoardPage = document.body.classList.contains("board-page");
 const isAllPage = /^\/all\/?$/.test(window.location.pathname);
-const route = isBoardPage ? parseBoardRoute(window.location.pathname) : null;
+let route = isBoardPage ? parseBoardRoute(window.location.pathname) : null;
+let messageLoad = 0;
 const requestedPage = Number(new URLSearchParams(window.location.search).get("page"));
 const page = Number.isSafeInteger(requestedPage) && requestedPage > 0 ? requestedPage : 1;
 const pagination = document.querySelector("#messages-pagination");
@@ -248,6 +249,8 @@ function actionIcon(name, label) {
 }
 
 async function loadMessages() {
+  const load = ++messageLoad;
+  const requestedRoute = route;
   list.setAttribute("aria-busy", "true");
   retry.hidden = true;
   if (pagination) pagination.hidden = true;
@@ -262,7 +265,8 @@ async function loadMessages() {
       hasNext = result.hasNext;
       boards = allBoards;
     } else if (isBoardPage) {
-      const result = route && await fetchBoardPage(route.slug, route.messageId);
+      const result = requestedRoute && await fetchBoardPage(requestedRoute.slug, requestedRoute.messageId);
+      if (load !== messageLoad) return;
       if (!result) {
         const resource = route?.messageId === undefined ? "Sub-yap" : "Message";
         heading.textContent = `${resource} not found`;
@@ -280,22 +284,38 @@ async function loadMessages() {
     }
     // Keep posts readable if profile lookups are temporarily unavailable.
     const authors = await fetchMessageAuthors(data).catch(() => new Map());
+    if (load !== messageLoad) return;
     const byId = new Map(boards.map(board => [board.id, board]));
     list.replaceChildren(...data.map(message => messageRow(message, byId.get(message.board_id), authors)));
     syncDeleteAction();
     status.textContent = data.length ? "" : isAllPage && page > 1 ? "No messages on this page." : "No messages yet.";
     renderPagination(hasNext);
-    if (route?.messageId !== undefined && data.length) {
+    const showingMessage = route?.messageId !== undefined && data.length > 0;
+    const replies = document.querySelector("#message-replies-section");
+    if (replies) replies.hidden = !showingMessage;
+    if (showingMessage) {
       mountReplies(data[0].id, (reply, replyAuthors) => messageRow(reply, null, replyAuthors));
     }
   } catch {
+    if (load !== messageLoad) return;
     status.textContent = "Messages are unavailable right now. Please try again.";
     retry.hidden = false;
   } finally {
-    list.setAttribute("aria-busy", "false");
+    if (load === messageLoad) list.setAttribute("aria-busy", "false");
   }
 }
 
+function syncBoardRoute() {
+  if (!isBoardPage || isAllPage) return;
+  const nextRoute = parseBoardRoute(window.location.pathname);
+  if (nextRoute?.slug === route?.slug && nextRoute?.messageId === route?.messageId) return;
+  route = nextRoute;
+  list.replaceChildren();
+  document.querySelector("#message-replies-section").hidden = true;
+  loadMessages();
+}
+
+for (const event of ["boardroutechange", "popstate"]) window.addEventListener(event, syncBoardRoute);
 retry.addEventListener("click", loadMessages);
 for (const event of ["pageshow", "focus", "storage"]) window.addEventListener(event, syncDeleteAction);
 if (route) heading.textContent = `y/${route.slug}`;
