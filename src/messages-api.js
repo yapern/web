@@ -43,10 +43,60 @@ function previewLog(level, event, details = {}) {
   console[level]("[link-preview]", event, details);
 }
 
+function safeUrl(value) {
+  if (typeof value !== "string") return undefined;
+  try {
+    const url = new URL(value);
+    return `${url.origin}${url.pathname}`;
+  } catch {
+    return undefined;
+  }
+}
+
+function safeException(error, token) {
+  const rawMessage = typeof error?.message === "string" ? error.message : "";
+  const redactedMessage = rawMessage
+    .replace(/Bearer\s+\S+/gi, "Bearer [redacted]")
+    .split(token).join("[redacted]")
+    .replace(/https?:\/\/[^\s"'<>]+/gi, value => safeUrl(value) ?? "[redacted URL]");
+  const message = redactedMessage.slice(0, 240) || undefined;
+  return { exceptionName: error?.name || "Error", ...(message ? { exceptionMessage: message } : {}) };
+}
+
 function previewFailureKind(error) {
+  if (typeof error?.previewReason === "string") return error.previewReason;
   if (error?.name === "TimeoutError") return "timeout";
   if (error?.name === "TypeError") return "network-or-cors";
   return "request-error";
+}
+
+function previewDetails(payload, target, previewId, httpStatus, startedAt) {
+  return {
+    target: safeUrl(target.href),
+    ...(typeof payload?.source === "string" ? { source: payload.source } : {}),
+    ...(typeof payload?.error === "string" ? { error: payload.error.slice(0, 160) } : {}),
+    ...(payload?.diagnostics && typeof payload.diagnostics === "object" ? { diagnostics: payload.diagnostics } : {}),
+    ...(typeof (payload?.previewId ?? previewId) === "string" ? { previewId: payload.previewId ?? previewId } : {}),
+    httpStatus,
+    elapsedMs: Math.max(0, Math.round(performance.now() - startedAt)),
+  };
+}
+
+async function responsePayload(response) {
+  try {
+    const payload = await response.json();
+    if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
+      throw Object.assign(new Error("Preview API returned an invalid response shape."), { previewReason: "invalid-response" });
+    }
+    return payload;
+  } catch (error) {
+    if (error?.previewReason || error?.name === "AbortError" || error?.name === "TimeoutError") throw error;
+    throw Object.assign(new Error("Preview API returned malformed JSON."), { previewReason: "malformed-json", cause: error });
+  }
+}
+
+function previewError(message, reason) {
+  return Object.assign(new Error(message), { previewReason: reason });
 }
 
 function validatedImage(value) {
@@ -121,9 +171,13 @@ export async function fetchOgImage(value, fetcher = fetch, { signal } = {}) {
     timeoutController.abort(new DOMException("The link preview request timed out.", "TimeoutError"));
   }, previewRequestTimeoutMs);
   const combinedSignal = signal ? AbortSignal.any([signal, timeoutController.signal]) : timeoutController.signal;
+  const startedAt = performance.now();
+  let previewId = null;
+  let lastHttpStatus;
+  let lastEndpoint = url.pathname;
   try {
     combinedSignal.throwIfAborted();
-    previewLog("info", "request started", { method: "POST", endpoint: url.pathname, target: target.href });
+    previewLog("info", "request started", { method: "POST", endpoint: url.pathname, target: safeUrl(target.href) });
     const requestOptions = {
       mode: "cors", credentials: "omit", redirect: "error", cache: "no-store",
       headers: { authorization: `Bearer ${session.token}` },
@@ -137,37 +191,61 @@ export async function fetchOgImage(value, fetcher = fetch, { signal } = {}) {
     });
     let payload;
     let statusUrl = null;
-    let previewId = null;
     while (true) {
       combinedSignal.throwIfAborted();
-      if (response.status !== 200 && response.status !== 202) throw new Error("Link preview unavailable.");
-      payload = await response.json();
-      previewLog("info", "response received", { httpStatus: response.status, status: payload?.status });
+      lastHttpStatus = response.status;
+      lastEndpoint = response.url ? safeUrl(response.url) : (statusUrl?.pathname ?? url.pathname);
+      if (response.status !== 200 && response.status !== 202) {
+        let errorPayload = null;
+        try { errorPayload = await responsePayload(response); } catch {}
+        const details = previewDetails(errorPayload, target, previewId, response.status, startedAt);
+        previewLog("warn", "API request failed", { reason: "api-error", ...details });
+        throw previewError("Link preview API request failed.", "api-error");
+      }
+      payload = await responsePayload(response);
+      const details = previewDetails(payload, target, previewId, response.status, startedAt);
+      previewLog("info", "response received", { status: payload.status, ...details });
       if (response.status === 200) {
-        if (!["ready", "failed"].includes(payload?.status)) return null;
+        if (!["ready", "failed"].includes(payload.status)) {
+          throw previewError("Preview API returned an invalid terminal status.", "invalid-response-status");
+        }
         const image = validatedImage(payload.image);
-        if (!image) previewLog("info", "terminal response has no usable image");
+        if (!image) previewLog("info", "terminal response has no usable image", {
+          reason: payload.image == null ? "missing-image" : "invalid-image-url", ...details,
+        });
         return image;
       }
 
-      if (payload?.status !== "pending" || typeof payload.previewId !== "string" || !previewIdPattern.test(payload.previewId)) {
-        throw new Error("Link preview unavailable.");
+      if (payload.status !== "pending" || typeof payload.previewId !== "string" || !previewIdPattern.test(payload.previewId)) {
+        throw previewError("Preview API returned an invalid pending response.", "invalid-response-status");
       }
-      if (previewId !== null && payload.previewId !== previewId) throw new Error("Link preview unavailable.");
+      if (previewId !== null && payload.previewId !== previewId) throw previewError("Preview API changed the preview ID while polling.", "invalid-response-status");
       previewId = payload.previewId;
       const validatedUrl = validatedPreviewUrl(payload.statusUrl, previewId);
-      if (!validatedUrl || (statusUrl && validatedUrl.href !== statusUrl.href)) throw new Error("Link preview unavailable.");
+      if (!validatedUrl || (statusUrl && validatedUrl.href !== statusUrl.href)) {
+        const unsafeDetails = previewDetails(payload, target, previewId, response.status, startedAt);
+        previewLog("warn", "polling URL rejected", { reason: "unsafe-polling-url", ...unsafeDetails });
+        throw previewError("Preview API returned an unsafe polling URL.", "unsafe-polling-url");
+      }
       statusUrl = validatedUrl;
       await waitForRetry(retryDelay(response), combinedSignal);
+      lastEndpoint = statusUrl.pathname;
+      lastHttpStatus = undefined;
       response = await fetcher(statusUrl, { ...requestOptions, method: "GET" });
     }
   } catch (error) {
-    if (signal?.aborted || error?.name === "AbortError") {
+    const failure = timeoutController.signal.aborted && !signal?.aborted ? timeoutController.signal.reason : error;
+    if (signal?.aborted || failure?.name === "AbortError") {
       previewLog("info", "lookup cancelled");
     } else {
-      previewLog("warn", "lookup failed", { reason: previewFailureKind(error) });
+      previewLog("warn", "lookup failed", {
+        reason: previewFailureKind(failure), target: safeUrl(target.href), endpoint: lastEndpoint,
+        ...(lastHttpStatus === undefined ? {} : { httpStatus: lastHttpStatus }),
+        ...(previewId ? { previewId } : {}), elapsedMs: Math.max(0, Math.round(performance.now() - startedAt)),
+        ...safeException(failure, session.token),
+      });
     }
-    throw error;
+    throw failure;
   } finally {
     clearTimeout(deadlineTimer);
   }

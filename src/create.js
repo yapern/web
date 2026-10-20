@@ -48,9 +48,29 @@ function logLinkPreview(level, event, details = {}) {
 }
 
 function linkPreviewErrorKind(error) {
+  if (typeof error?.previewReason === "string") return error.previewReason;
   if (error?.name === "TimeoutError") return "timeout";
   if (error?.name === "TypeError") return "network-or-cors";
   return "request-error";
+}
+
+function safeLogUrl(value) {
+  try {
+    const url = new URL(value);
+    return `${url.origin}${url.pathname}`;
+  } catch {
+    return undefined;
+  }
+}
+
+function safeExceptionMessage(error) {
+  if (typeof error?.message !== "string") return undefined;
+  const token = readStoredSession()?.token;
+  let message = error.message.replace(/Bearer\s+\S+/gi, "Bearer [redacted]");
+  if (token) message = message.split(token).join("[redacted]");
+  return message
+    .replace(/https?:\/\/[^\s"'<>]+/gi, value => safeLogUrl(value) ?? "[redacted URL]")
+    .slice(0, 240);
 }
 
 function linkUrlError() {
@@ -116,11 +136,14 @@ function startLinkPreview() {
   if (!controller || controller.signal.aborted) return;
   linkPreviewLookupPending = true;
   linkPreviewPromise = (async () => {
+    const startedAt = performance.now();
     try {
       const imageUrl = await fetchOgImage(value, fetch, { signal: controller.signal });
       if (controller.signal.aborted || linkPreviewController !== controller) return;
       if (!imageUrl) {
-        logLinkPreview("info", "lookup completed without image");
+        logLinkPreview("info", "lookup completed without image", {
+          target: safeLogUrl(value), elapsedMs: Math.max(0, Math.round(performance.now() - startedAt)),
+        });
         linkPreviewLoading.hidden = true;
         linkPreview.setAttribute("aria-busy", "false");
         return;
@@ -133,7 +156,7 @@ function startLinkPreview() {
       image.decoding = "async";
       image.addEventListener("load", () => {
         if (!controller.signal.aborted && linkPreviewController === controller) {
-          logLinkPreview("info", "image loaded");
+          logLinkPreview("info", "image loaded", { target: safeLogUrl(value), imageUrl: safeLogUrl(imageUrl) });
           linkPreviewLoading.hidden = true;
           linkPreview.setAttribute("aria-busy", "false");
           linkPreview.hidden = false;
@@ -141,7 +164,9 @@ function startLinkPreview() {
       }, { once: true });
       image.addEventListener("error", () => {
         if (!controller.signal.aborted && linkPreviewController === controller) {
-          logLinkPreview("warn", "image failed to load");
+          logLinkPreview("warn", "image failed to load", {
+            reason: "image-load-failed", target: safeLogUrl(value), imageUrl: safeLogUrl(imageUrl),
+          });
           linkPreviewLoading.hidden = true;
           linkPreview.setAttribute("aria-busy", "false");
           linkPreview.replaceChildren();
@@ -153,7 +178,12 @@ function startLinkPreview() {
       if (controller.signal.aborted || error?.name === "AbortError") {
         logLinkPreview("info", "lookup cancelled", { reason: "request-aborted" });
       } else if (linkPreviewController === controller) {
-        logLinkPreview("warn", "lookup exception", { reason: linkPreviewErrorKind(error) });
+        logLinkPreview("warn", "lookup exception", {
+          reason: linkPreviewErrorKind(error), target: safeLogUrl(value),
+          elapsedMs: Math.max(0, Math.round(performance.now() - startedAt)),
+          exceptionName: error?.name || "Error",
+          ...(safeExceptionMessage(error) ? { exceptionMessage: safeExceptionMessage(error) } : {}),
+        });
       }
       if (linkPreviewController === controller) {
         linkPreviewLoading.hidden = true;

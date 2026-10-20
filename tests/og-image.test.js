@@ -15,6 +15,19 @@ function signIn(t) {
   t.after(() => storeSession(null));
 }
 
+async function capturePreviewLogs(action) {
+  const entries = [];
+  const original = { info: console.info, warn: console.warn, error: console.error };
+  for (const level of Object.keys(original)) {
+    console[level] = (...args) => entries.push({ level, event: args[1], details: args[2] });
+  }
+  try {
+    return { result: await action(), entries };
+  } finally {
+    Object.assign(console, original);
+  }
+}
+
 test("posts only a fragment-free URL to Yapern with the bearer session and no cookies", async t => {
   signIn(t);
   const image = await fetchOgImage("https://example.com/a?x=1#section", async (url, options) => {
@@ -51,15 +64,149 @@ test("metadata and favicon results finish in one request", async t => {
   }
 });
 
-test("missing, malformed, unsafe, and unknown-state images return null", async t => {
+test("terminal no-image failures log curated diagnostics and retain source and target", async t => {
   signIn(t);
-  for (const payload of [null, {}, { image: null, status: "failed" }, { image: null, status: "ready" },
-    { image: "https://example.com/image.jpg", status: "pending" },
+  const payload = {
+    image: null, source: "placeholder", status: "failed", error: "preview_blank_page",
+    diagnostics: { metadata: { code: "preview_metadata_missing", message: "Metadata did not contain a usable image." } },
+  };
+  const { result, entries } = await capturePreviewLogs(() => fetchOgImage("https://example.com/path?secret=hidden", async () => Response.json(payload)));
+  assert.equal(result, null);
+  const response = entries.find(entry => entry.event === "response received");
+  const empty = entries.find(entry => entry.event === "terminal response has no usable image");
+  for (const entry of [response, empty]) {
+    assert.equal(entry.details.source, payload.source);
+    assert.equal(entry.details.error, payload.error);
+    assert.deepEqual(entry.details.diagnostics, payload.diagnostics);
+    assert.equal(entry.details.target, "https://example.com/path");
+    assert.equal(entry.details.httpStatus, 200);
+    assert.equal(typeof entry.details.elapsedMs, "number");
+  }
+});
+
+test("diagnostics from a pending response and terminal failure survive polling logs", async t => {
+  signIn(t);
+  const previewId = "b7e4cf02-cdb8-47b0-87ed-942c09ce5025";
+  const statusUrl = `${messageBoardConfig.apiOrigin}/previews/${previewId}`;
+  const { result, entries } = await capturePreviewLogs(() => fetchOgImage("https://example.com", async (url, options) => {
+    if (options.method === "POST") {
+      return Response.json({
+        image: null, source: "placeholder", status: "pending", previewId, statusUrl,
+        diagnostics: { metadata: { code: "preview_metadata_missing", message: "No usable metadata image." } },
+      }, { status: 202, headers: { "retry-after": "0" } });
+    }
+    assert.equal(url.href, statusUrl);
+    return Response.json({
+      image: null, source: "placeholder", status: "failed", previewId, error: "preview_blank_page",
+      diagnostics: { screenshot: { code: "preview_blank_page", message: "Screenshot was blank." } },
+    });
+  }));
+  assert.equal(result, null);
+  const responses = entries.filter(entry => entry.event === "response received");
+  assert.equal(responses.length, 2);
+  assert.deepEqual(responses[0].details.diagnostics, {
+    metadata: { code: "preview_metadata_missing", message: "No usable metadata image." },
+  });
+  assert.deepEqual(responses[1].details.diagnostics, {
+    screenshot: { code: "preview_blank_page", message: "Screenshot was blank." },
+  });
+  assert.equal(responses[1].details.previewId, previewId);
+  assert.equal(responses[1].details.httpStatus, 200);
+});
+
+test("failed status still returns a usable favicon image", async t => {
+  signIn(t);
+  const image = await fetchOgImage("https://example.com", async () => Response.json({
+    image: "https://cdn.example/favicon.ico", source: "favicon", status: "failed",
+    error: "preview_http_error", diagnostics: { screenshot: { code: "preview_http_error", message: "The website returned an unsuccessful HTTP status.", httpStatus: 403 } },
+  }));
+  assert.equal(image, "https://cdn.example/favicon.ico");
+});
+
+test("HTTP API errors preserve their curated error code in logs", async t => {
+  signIn(t);
+  const { entries } = await capturePreviewLogs(() => assert.rejects(
+    fetchOgImage("https://example.com", async () => Response.json({ error: "preview_limit" }, { status: 429 })),
+  ));
+  const failure = entries.find(entry => entry.event === "API request failed");
+  assert.equal(failure.details.reason, "api-error");
+  assert.equal(failure.details.error, "preview_limit");
+  assert.equal(failure.details.httpStatus, 429);
+});
+
+test("transport and invalid response failures log distinct reasons and exception details", async t => {
+  signIn(t);
+  for (const [fetcher, expectedReason] of [
+    [async () => { throw new TypeError("network disconnected"); }, "network-or-cors"],
+    [async () => Response.json({ status: "mystery" }), "invalid-response-status"],
+    [async () => new Response("not-json"), "malformed-json"],
+  ]) {
+    const { entries } = await capturePreviewLogs(() => assert.rejects(fetchOgImage("https://example.com", fetcher)));
+    const failure = entries.find(entry => entry.event === "lookup failed");
+    assert.equal(failure.details.reason, expectedReason);
+    assert.equal(typeof failure.details.exceptionName, "string");
+    assert.equal(typeof failure.details.exceptionMessage, "string");
+    assert.equal(failure.details.target, "https://example.com/");
+    if (expectedReason === "malformed-json") {
+      assert.equal(failure.details.httpStatus, 200);
+      assert.equal(failure.details.endpoint, "/og-image");
+    }
+  }
+});
+
+test("timeouts while parsing a response remain timeout failures", async t => {
+  signIn(t);
+  const response = Response.json({ status: "ready" });
+  Object.defineProperty(response, "json", {
+    value: async () => { throw new DOMException("response read timed out", "TimeoutError"); },
+  });
+  const { entries } = await capturePreviewLogs(() => assert.rejects(
+    fetchOgImage("https://example.com", async () => response),
+  ));
+  const failure = entries.find(entry => entry.event === "lookup failed");
+  assert.equal(failure.details.reason, "timeout");
+  assert.equal(failure.details.exceptionName, "TimeoutError");
+  assert.equal(failure.details.httpStatus, 200);
+});
+
+test("the preview deadline is reported as a timeout even when fetch rejects with AbortError", async t => {
+  signIn(t);
+  t.mock.timers.enable({ apis: ["setTimeout"] });
+  const { entries } = await capturePreviewLogs(async () => {
+    const lookup = fetchOgImage("https://example.com", (_url, { signal }) => new Promise((_resolve, reject) => {
+      signal.addEventListener("abort", () => reject(new DOMException("aborted", "AbortError")), { once: true });
+    }));
+    const rejected = assert.rejects(lookup, { name: "TimeoutError" });
+    t.mock.timers.tick(45_000);
+    await rejected;
+  });
+  assert.equal(entries.find(entry => entry.event === "lookup failed").details.reason, "timeout");
+  assert.ok(!entries.some(entry => entry.event === "lookup cancelled"));
+});
+
+test("exception logs omit session tokens and URL queries", async t => {
+  signIn(t);
+  const { entries } = await capturePreviewLogs(() => assert.rejects(fetchOgImage("https://example.com", async () => {
+    throw new TypeError(`${session.token} ${session.token} https://user:pass@example.com/path?secret=hidden#fragment`);
+  })));
+  const logged = JSON.stringify(entries);
+  for (const secret of [session.token, "secret=hidden", "user:pass", "fragment"]) assert.ok(!logged.includes(secret));
+  assert.match(logged, /https:\/\/example.com\/path/);
+});
+
+test("terminal responses with missing or unsafe images return null", async t => {
+  signIn(t);
+  for (const payload of [{ image: null, status: "failed" }, { image: null, status: "ready" },
     { image: "data:image/png;base64,AA==", status: "ready" },
     { image: "javascript:alert(1)", status: "ready" },
     { image: "https://user:pass@example.com/image", status: "ready" }]) {
     assert.equal(await fetchOgImage("https://example.com", async () => Response.json(payload)), null);
   }
+  await assert.rejects(fetchOgImage("https://example.com", async () => Response.json(null)), { previewReason: "invalid-response" });
+  await assert.rejects(fetchOgImage("https://example.com", async () => Response.json({})), { previewReason: "invalid-response-status" });
+  await assert.rejects(fetchOgImage("https://example.com", async () => Response.json({
+    image: "https://example.com/image.jpg", status: "pending",
+  })), { previewReason: "invalid-response-status" });
 });
 
 test("missing or expired sessions and invalid input skip the request", async t => {
@@ -117,7 +264,7 @@ test("pending responses reject unsafe or inconsistent status URLs before polling
     await assert.rejects(fetchOgImage("https://example.com", async () => {
       calls++;
       return Response.json({ status: "pending", previewId: id, statusUrl }, { status: 202 });
-    }), /preview unavailable/);
+    }), error => ["unsafe-polling-url", "invalid-response-status"].includes(error.previewReason));
     assert.equal(calls, 1);
   }
 });
