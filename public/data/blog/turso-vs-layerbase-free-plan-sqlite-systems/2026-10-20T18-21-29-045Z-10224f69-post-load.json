@@ -1,0 +1,169 @@
+{
+  "sourceReport": "2026-10-20T18-21-29-045Z-10224f69.json",
+  "runId": "2026-10-20T18-21-29-045Z-10224f69",
+  "provider": "layerbase",
+  "startedAt": "2026-10-20T18:21:31.902Z",
+  "finishedAt": "2026-10-20T18:26:47.881Z",
+  "transport": "Hrana v2 JSON over HTTPS/1.1; fresh one-socket client per probe and verification; no retries",
+  "schedule": {
+    "intervalSeconds": 35,
+    "plannedOffsetsSeconds": [
+      0,
+      35,
+      70,
+      105,
+      140,
+      175,
+      210,
+      245,
+      280,
+      315
+    ],
+    "anchor": "2026-10-20T18:21:31.903Z",
+    "anchorReason": "invocation",
+    "relativeTo": "source report finishedAt; when invoked late, probes begin immediately and retain 35-second spacing"
+  },
+  "probes": [
+    {
+      "index": 1,
+      "plannedOffsetSeconds": 0,
+      "elapsedSeconds": 0.058,
+      "startedAt": "2026-10-20T18:21:31.903Z",
+      "ok": false,
+      "error": {
+        "code": "REQUEST_ERROR",
+        "message": "read ECONNRESET"
+      },
+      "elapsedMs": 271.4575,
+      "finishedAt": "2026-10-20T18:21:32.175Z"
+    },
+    {
+      "index": 2,
+      "plannedOffsetSeconds": 35,
+      "elapsedSeconds": 35.059,
+      "startedAt": "2026-10-20T18:22:06.904Z",
+      "value": 1,
+      "ok": true,
+      "elapsedMs": 396.3446250000052,
+      "finishedAt": "2026-10-20T18:22:07.302Z"
+    },
+    {
+      "index": 3,
+      "plannedOffsetSeconds": 70,
+      "elapsedSeconds": 70.059,
+      "startedAt": "2026-10-20T18:22:41.904Z",
+      "value": 1,
+      "ok": true,
+      "elapsedMs": 312.9511249999923,
+      "finishedAt": "2026-10-20T18:22:42.217Z"
+    },
+    {
+      "index": 4,
+      "plannedOffsetSeconds": 105,
+      "elapsedSeconds": 105.057,
+      "startedAt": "2026-10-20T18:23:16.902Z",
+      "value": 1,
+      "ok": true,
+      "elapsedMs": 293.0872090000048,
+      "finishedAt": "2026-10-20T18:23:17.195Z"
+    },
+    {
+      "index": 5,
+      "plannedOffsetSeconds": 140,
+      "elapsedSeconds": 140.059,
+      "startedAt": "2026-10-20T18:23:51.904Z",
+      "value": 1,
+      "ok": true,
+      "elapsedMs": 339.4675840000273,
+      "finishedAt": "2026-10-20T18:23:52.244Z"
+    },
+    {
+      "index": 6,
+      "plannedOffsetSeconds": 175,
+      "elapsedSeconds": 175.06,
+      "startedAt": "2026-10-20T18:24:26.905Z",
+      "value": 1,
+      "ok": true,
+      "elapsedMs": 257.0794590000005,
+      "finishedAt": "2026-10-20T18:24:27.162Z"
+    },
+    {
+      "index": 7,
+      "plannedOffsetSeconds": 210,
+      "elapsedSeconds": 210.059,
+      "startedAt": "2026-10-20T18:25:01.904Z",
+      "value": 1,
+      "ok": true,
+      "elapsedMs": 255.39633400001912,
+      "finishedAt": "2026-10-20T18:25:02.160Z"
+    },
+    {
+      "index": 8,
+      "plannedOffsetSeconds": 245,
+      "elapsedSeconds": 245.059,
+      "startedAt": "2026-10-20T18:25:36.904Z",
+      "value": 1,
+      "ok": true,
+      "elapsedMs": 283.2339579999971,
+      "finishedAt": "2026-10-20T18:25:37.188Z"
+    },
+    {
+      "index": 9,
+      "plannedOffsetSeconds": 280,
+      "elapsedSeconds": 280.059,
+      "startedAt": "2026-10-20T18:26:11.904Z",
+      "value": 1,
+      "ok": true,
+      "elapsedMs": 331.95537500001956,
+      "finishedAt": "2026-10-20T18:26:12.236Z"
+    },
+    {
+      "index": 10,
+      "plannedOffsetSeconds": 315,
+      "elapsedSeconds": 315.059,
+      "startedAt": "2026-10-20T18:26:46.904Z",
+      "value": 1,
+      "ok": true,
+      "elapsedMs": 257.8940419999999,
+      "finishedAt": "2026-10-20T18:26:47.162Z"
+    }
+  ],
+  "diagnosticWrite": {
+    "id": "2026-10-20T18-21-29-045Z-10224f69:post-load-probe",
+    "runId": "2026-10-20T18-21-29-045Z-10224f69",
+    "userId": 1,
+    "createdAt": 1792520807,
+    "payloadBytes": 256,
+    "acknowledged": true,
+    "affectedRows": 1
+  },
+  "verification": {
+    "diagnostic": {
+      "rowCount": 1,
+      "payloadBytes": 256,
+      "payloadMatches": true,
+      "matches": true
+    },
+    "originalRun": {
+      "persistedInserts": 52,
+      "acknowledgedInsertRows": 51,
+      "acknowledgedDiagnosticWrite": 1,
+      "expectedPersisted": 52,
+      "matchesAcknowledged": true
+    },
+    "counterDeltaCheck": {
+      "status": "checked",
+      "actualDelta": 0,
+      "expectedDelta": 0,
+      "matches": true
+    }
+  },
+  "errors": [
+    {
+      "phase": "probe",
+      "index": 1,
+      "code": "REQUEST_ERROR",
+      "message": "read ECONNRESET"
+    }
+  ]
+}

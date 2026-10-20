@@ -13,7 +13,7 @@ import numpy as np
 HERE = Path(__file__).resolve().parent
 SLUG = "turso-vs-layerbase-free-plan-sqlite-systems"
 IMAGE_DIR = HERE / "figures"
-LAYERBASE_REPORT = HERE / "2026-10-20T04-03-40-647Z-4ae9e466.json"
+LAYERBASE_REPORT = HERE / "2026-10-20T18-14-10-474Z-6290593e.json"
 TURSO_REPORT = HERE / "2026-10-20T04-17-22-531Z-11303e64.json"
 
 PAPER = "#f7f4ec"
@@ -94,13 +94,13 @@ def make_plateau(layerbase_report, turso_report):
     turso_insert = ramp_points(turso_report, "single_insert")
     assert [x for x, _ in layerbase_read] == [1, 8, 32, 64]
     assert [x for x, _ in turso_read] == [1, 8, 32, 64, 128]
-    assert [x for x, _ in layerbase_insert] == [1, 8, 32, 64]
+    assert [x for x, _ in layerbase_insert] == [1, 8, 32, 64, 128]
     assert [x for x, _ in turso_insert] == [1, 8, 32, 64, 128]
 
     fig, axes = plt.subplots(1, 2, figsize=(14.4, 7.0), dpi=100)
     fig.text(0.075, 0.955, "Reads scale; writes diverge", fontsize=27,
              fontweight="bold", color=INK, va="top")
-    fig.text(0.075, 0.902, "8s ramps · zero errors · warmup excluded", fontsize=16,
+    fig.text(0.075, 0.902, "8s clean ramps · Layerbase retest Oct 20 · original Turso results", fontsize=15,
              color=MUTED, va="top")
     handles = [
         plt.Line2D([], [], color=TURSO, marker="s", linestyle="-", linewidth=2.5, label="Turso"),
@@ -115,7 +115,7 @@ def make_plateau(layerbase_report, turso_report):
     draw_ramp_panel(axes[1], "Single-row insert", layerbase_insert, turso_insert,
                     [1, 8, 32, 64, 128])
     axes[0].set_ylim(0, 1700)
-    axes[1].set_ylim(0, 140)
+    axes[1].set_ylim(0, 180)
     fig.subplots_adjust(left=0.08, right=0.97, top=0.79, bottom=0.16, wspace=0.27)
     fig.savefig(IMAGE_DIR / "read-versus-write-plateau.png", dpi=100)
     plt.close(fig)
@@ -123,7 +123,7 @@ def make_plateau(layerbase_report, turso_report):
     fig, axes = plt.subplots(2, 1, figsize=(7.2, 10.0), dpi=100)
     fig.text(0.10, 0.973, "Reads scale; writes diverge", fontsize=23,
              fontweight="bold", color=INK, va="top")
-    fig.text(0.10, 0.939, "8s ramps · zero errors · warmup excluded", fontsize=15,
+    fig.text(0.10, 0.939, "8s clean ramps · Layerbase retest Oct 20", fontsize=15,
              color=MUTED, va="top")
     handles = [
         plt.Line2D([], [], color=TURSO, marker="s", linestyle="-", linewidth=3, label="Turso"),
@@ -138,7 +138,7 @@ def make_plateau(layerbase_report, turso_report):
     draw_ramp_panel(axes[1], "Single-row insert", layerbase_insert, turso_insert,
                     [1, 32, 64, 128], mobile=True)
     axes[0].set_ylim(0, 1700)
-    axes[1].set_ylim(0, 140)
+    axes[1].set_ylim(0, 180)
     fig.subplots_adjust(left=0.18, right=0.96, top=0.78, bottom=0.08, hspace=0.43)
     fig.savefig(IMAGE_DIR / "read-versus-write-plateau-mobile.png", dpi=100)
     plt.close(fig)

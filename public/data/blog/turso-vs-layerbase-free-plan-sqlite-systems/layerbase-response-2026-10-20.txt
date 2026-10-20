@@ -1,0 +1,12 @@
+Layerbase response supplied for the October 20, 2026 retest
+
+The following is the provider's explanation, supplied by the account owner.
+It is not a result of the independent benchmark. No patch, server build ID,
+or public upstream issue was supplied with this response.
+
+It was a bug in the open-source libSQL server itself (sqld), not just our migration work. Actually, our migration work may have impacted speeds, but not to the degree that would have caused such a significant divergence. Under a burst of concurrent writes, a timing issue in sqld's write queue could leave its write lock stuck with a request that had already given up. After that, writes stopped going through until the database was restarted. We reproduced it, confirmed it's still present in the latest upstream release, and shipped a fix: sqld now runs a periodic checkpoint that clears the queue safely. With the fix, 45 test runs with up to 128 concurrent writers showed zero stalls and zero lost writes. It's live on every free account now, so feel free to re-run your test.
+
+Client-side pooling clarification from the original benchmark:
+Node's https.Agent used keepAlive: true. Every request executed one SQL
+statement through /v2/pipeline and closed its Hrana stream afterward.
+Layerbase's platform-side pooling setting was not recorded and is unknown.

@@ -1,0 +1,100 @@
+Layerbase October 20 retest — reproducible evidence summary
+
+PROVENANCE AND METHOD
+Source worktree commit: 6f0aacc021b817b79879e42892f6b140e1c6c8bd.
+Full run: 2026-10-20T18-14-10-474Z-6290593e.json, finished 18:21:28.063Z.
+Focused run: 2026-10-20T18-21-29-045Z-10224f69.json, finished 18:21:31.845Z.
+Post-load: 2026-10-20T18-21-29-045Z-10224f69-post-load.json, finished
+18:26:47.881Z. The source reports remain unchanged; public copies replace
+provider origins and hostnames with [database-host] and omit credentials.
+
+The two new Layerbase reports and primary Turso report use schema SHA-256
+43537bf04c8a42aeaeaa4e223a8e4c0c2ba1b369cfacd6d4326c8281f0e632b6 and the
+same client runtime: Node.js 22.22.2, darwin arm64, 16 CPUs. The transport is
+Hrana v2 JSON over HTTPS/1.1, pooled TCP/TLS sockets, one SQL statement and
+stream close per request, no retries. Platform-side pooling is unknown. The
+original Turso report contains no source commit.
+
+The database was reused. Existing tables and rows were retained. Insert counts
+below are scoped to each report's run_id; update counts are checked by counter
+delta because updates do not carry a run_id. SQL payloads were 256 ASCII bytes.
+Full run limits were 8-second ramps, 20-second confirmations, and
+maximum concurrency 128. Elapsed-time rates include draining in-flight requests;
+warmup traffic is excluded from throughput.
+
+FULL RUN: CLEAN 20-SECOND CONFIRMATIONS
+Workload                              Concurrency   SQL requests/s   Rows/s
+Point lookup                                32             74.37        —
+Indexed join (20 rows)                     128            127.61        —
+Single-row INSERT                          128            116.76    116.76
+Single-row UPDATE                          128            118.67    118.67
+80% reads / 20% inserts                     32            109.47     21.87
+100-row atomic INSERT batch                  4             25.27   2526.66
+
+All six confirmations completed with zero errors, including warmup. They are
+the best clean confirmations among the tested stages, not maxima that include
+errors. The full run was not error-free overall: point_read at concurrency 128
+stopped during warmup after 40 REQUEST_ERROR / ECONNRESET responses among 147
+warmup requests, before measurement. batch_insert_100_rows at concurrency 16
+had 29 SQLITE_BUSY errors among 499 measurement requests. Its clean confirmation
+was at concurrency 4. Other full-run ramp measurements and warmups had zero
+errors.
+
+Full-run accounting and verification: 150,850 acknowledged inserts persisted;
+7,139 acknowledged updates matched the counter delta; zero invalid payloads;
+zero foreign-key violations; SQLite quick_check returned ok.
+
+FOCUSED WRITE ATTEMPT
+The focused run requested a 20-second single_insert stage at concurrency 128
+and set a 60-second confirmation. The two-second warmup error storm stopped
+the stage after 96 REQUEST_ERROR / ECONNRESET responses among 147 requests and
+51 acknowledged inserts. The warmup error storm skipped the timed 20-second
+measurement and planned 60-second confirmation, so there is no measured
+throughput result.
+The 51 acknowledged inserts matched the focused report's persistence check.
+
+POST-LOAD HEALTH AND DIAGNOSTIC VERIFICATION
+Ten sequential SELECT 1 probes were scheduled at elapsed offsets 0, 35, 70,
+105, 140, 175, 210, 245, 280, and 315 seconds from the focused report's
+finishedAt (18:21:31.845Z). Actual elapsed times were 0.058, 35.059, 70.059,
+105.057, 140.059, 175.060, 210.059, 245.059, 280.059, and 315.059 seconds.
+Probe 1 returned REQUEST_ERROR / ECONNRESET; probes 2–10 returned 1. The helper
+exited nonzero because one health probe failed.
+
+The final diagnostic INSERT was acknowledged with affected_row_count=1. Its
+separate verification found exactly one row and the exact 256-byte payload.
+The focused run_id had 52 persisted rows: its 51 acknowledged benchmark inserts
+plus the acknowledged diagnostic row. The counter remained 7,139; the checked
+counter delta was 0, matching the focused run's 0 acknowledged updates.
+
+FIGURES AND REPRODUCTION
+Figure 1 uses the new full Layerbase report and the original Turso report
+2026-10-20T04-17-22-531Z-11303e64.json. It includes clean eight-second ramp
+stages only. Layerbase's 128-worker single-insert ramp is included; its
+128-worker point-read ramp is omitted because its warmup failed. Figure 2 and
+both Turso batch images remain unchanged and use the original Turso 20-second
+zero-error confirmations: 55.09 single-row INSERT requests/s and 55.09 rows/s;
+41.69 batch requests/s and 4168.66 rows/s at 100 rows per statement.
+
+The account owner supplied a response claiming 45 vendor test runs with up to
+128 concurrent writers and zero stalls or lost writes. This is vendor-supplied
+information, not an independent test; no patch, server build ID, or public
+upstream issue was provided.
+
+From the Layerbase benchmark repository root, with local provider credentials:
+  node benchmarks/run.mjs --reuse --max-concurrency=128
+  node benchmarks/run.mjs --reuse --max-concurrency=128 --concurrency=128 --duration=20 --confirmation=60 --families=single_insert
+  node benchmarks/post-load.mjs benchmarks/results/NEW_FOCUSED_RUN_ID.json
+
+From the downloaded flat evidence directory, prepare the same local .env and
+run:
+  node run.mjs --provider=layerbase --reuse --max-concurrency=128
+  node run.mjs --provider=layerbase --reuse --max-concurrency=128 --concurrency=128 --duration=20 --confirmation=60 --families=single_insert
+  node post-load.mjs results/NEW_FOCUSED_RUN_ID.json
+
+Replace NEW_FOCUSED_RUN_ID.json with the focused run's newly printed report
+filename. Do not reuse the archived historical report for a new diagnostic
+write.
+
+Primary Turso source report: 2026-10-20T04-17-22-531Z-11303e64.json.
+Figure source code and report selection are documented in the adjacent README.

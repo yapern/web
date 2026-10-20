@@ -6,7 +6,7 @@ export const blogPosts = [
     title: "Turso vs Layerbase Free Plan sqlite Systems",
     published: "2026-10-19",
     author: "Yapern",
-    summary: "Turso led the read test. Layerbase’s short insert run was faster. The same libSQL workload also exposed different behavior after overload.",
+    summary: "Layerbase completed the write test after its sqld fix. Turso still led reads; fresh connection bursts and batched writes exposed remaining limits.",
   },
   {
     slug: "building-yapern",
