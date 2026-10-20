@@ -259,6 +259,7 @@ a {
 }
 .header-icon-button:hover,
 .header-icon-button:focus-visible,
+.header-icon-button[aria-current="page"],
 .header-account[data-signed-in="true"]:hover,
 .header-account[data-signed-in="true"]:focus-visible { background: #1c2434; }
 .header-icon-button svg,
@@ -288,23 +289,6 @@ a {
 .header-actions > .header-account[data-signed-in="true"]:hover { background: #1c2434; box-shadow: none; }
 .header-account[data-signed-in="true"] span { display: none; }
 .header-mobile-label { display: none; }
-.notification-control { position: relative; }
-.notifications-panel {
-  position: absolute;
-  top: calc(100% + 7px);
-  right: 0;
-  z-index: 30;
-  width: max-content;
-  max-width: min(280px, calc(100vw - 48px));
-  padding: 12px 14px;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  background: #141a29;
-  box-shadow: 0 12px 28px #0008;
-  color: #d8ddec;
-  font-size: 13px;
-}
-.notifications-panel[hidden] { display: none; }
 .create-options {
   position: absolute;
   top: calc(100% + 7px);
@@ -1246,6 +1230,15 @@ h1 span,
   min-width: 0;
   width: 100%;
   justify-self: center;
+}
+.notifications-list {
+  margin-top: 16px;
+}
+.notifications-list > li {
+  padding-block: 16px;
+  border-bottom: 1px solid var(--line);
+  font-size: 14px;
+  overflow-wrap: anywhere;
 }
 .detail-board-navigation {
   position: sticky;
@@ -2316,14 +2309,6 @@ a.detail-recent-post:hover .detail-recent-title {
   .site-header.navigation-ready .header-actions .header-account svg { width: 20px; height: 20px; }
   .site-header.navigation-ready .header-mobile-label,
   .site-header.navigation-ready .header-account[data-signed-in="true"] span { display: inline; }
-  .site-header.navigation-ready .notification-control { width: 100%; }
-  .site-header.navigation-ready .notifications-panel {
-    position: static;
-    width: auto;
-    max-width: none;
-    margin: 2px 10px 6px 40px;
-    box-shadow: none;
-  }
   .site-header.navigation-ready .header-actions > [data-login-link] {
     justify-content: flex-start;
     min-height: 44px;

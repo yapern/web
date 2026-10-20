@@ -161,7 +161,7 @@ export function mountBoardSidebars(activeSlug, recentLimit = 20) {
 
   boardRetry.addEventListener("click", loadBoards);
   boardInfoRetry?.addEventListener("click", loadBoards);
-  recentRetry.addEventListener("click", loadRecent);
+  recentRetry?.addEventListener("click", loadRecent);
   loadBoards();
-  if (!showingBoardInfo) loadRecent();
+  if (!showingBoardInfo && recentList) loadRecent();
 }

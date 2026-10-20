@@ -3,20 +3,10 @@ import { readStoredSession } from "./auth.js";
 const header = document.querySelector(".site-header");
 const headerMenu = document.querySelector("#header-menu");
 const headerToggle = document.querySelector("#header-toggle");
-const notificationsToggle = document.querySelector("#notifications-toggle");
-const notificationsPanel = document.querySelector("#notifications-panel");
 const mobileNavigation = window.matchMedia("(max-width: 900px)");
-
-function setNotificationsOpen(open, restoreFocus = false) {
-  if (!notificationsToggle || !notificationsPanel) return;
-  notificationsPanel.hidden = !open;
-  notificationsToggle.setAttribute("aria-expanded", String(open));
-  if (!open && restoreFocus) notificationsToggle.focus();
-}
 
 function setMobileMenuOpen(open, restoreFocus = false) {
   if (!headerMenu || !headerToggle) return;
-  if (!open) setNotificationsOpen(false);
   const wasOpen = !headerMenu.hidden;
   headerMenu.hidden = !open;
   headerToggle.setAttribute("aria-expanded", String(open));
@@ -32,7 +22,6 @@ export function closeHeaderMenu(restoreFocus = false) {
 
 function syncNavigationMode() {
   if (!headerMenu || !headerToggle) return;
-  setNotificationsOpen(false);
   const activeWasInMenu = headerMenu.contains(document.activeElement);
   const toggleHadFocus = document.activeElement === headerToggle;
   if (mobileNavigation.matches) {
@@ -68,32 +57,9 @@ export function syncSession() {
     else link.removeAttribute("aria-current");
   });
   document.querySelectorAll("[data-auth-only]").forEach(element => { element.hidden = !signedIn; });
-  if (!signedIn) {
-    setNotificationsOpen(false);
-    closeHeaderMenu();
-  }
+  if (!signedIn) closeHeaderMenu();
 }
 
-notificationsToggle?.addEventListener("click", () => {
-  setNotificationsOpen(notificationsPanel.hidden);
-});
-document.addEventListener("pointerdown", event => {
-  if (notificationsPanel && !notificationsPanel.hidden && !document.querySelector(".notification-control")?.contains(event.target)) {
-    setNotificationsOpen(false);
-  }
-});
-document.addEventListener("keydown", event => {
-  if (event.key === "Escape" && notificationsPanel && !notificationsPanel.hidden) {
-    event.preventDefault();
-    event.stopImmediatePropagation();
-    setNotificationsOpen(false, true);
-  }
-});
-notificationsToggle?.addEventListener("focusout", event => {
-  if (!event.relatedTarget || !event.currentTarget.parentElement.contains(event.relatedTarget)) {
-    setNotificationsOpen(false);
-  }
-});
 headerToggle?.addEventListener("click", () => {
   if (!mobileNavigation.matches) return;
   setMobileMenuOpen(headerMenu.hidden);
