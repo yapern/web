@@ -1269,11 +1269,18 @@ h1 span,
   gap: 12px;
 }
 .board-edit-button {
+  display: inline-flex;
+  align-items: center;
   flex-shrink: 0;
   min-width: 44px;
   padding-inline: 4px;
   color: var(--accent);
 }
+.board-edit-form { margin-top: 24px; }
+.board-edit-footer { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 12px; }
+.board-edit-footer .detail-sidebar-status { margin: 0 auto 0 0; }
+.board-edit-actions { min-width: 0; }
+.board-edit-exit { display: inline-flex; align-items: center; }
 .detail-board-info .board-description:not(:empty) {
   margin-top: 12px;
   line-height: 1.6;
@@ -1341,6 +1348,7 @@ a.detail-recent-post:hover .detail-recent-title {
     position: static;
     grid-column: 2;
   }
+  .board-edit-actions { grid-column: 2; }
 }
 @media (max-width: 700px) {
   .detail-board-layout {
@@ -1367,6 +1375,10 @@ a.detail-recent-post:hover .detail-recent-title {
   .detail-board-info {
     grid-column: auto;
   }
+  .is-editing-board .detail-board-layout { grid-template-columns: minmax(0, 1fr) auto; }
+  .is-editing-board .detail-board-navigation { grid-column: 1; grid-row: 1; }
+  #edit-board-view { grid-column: 1 / -1; grid-row: 2; }
+  .board-edit-actions { grid-column: 2; grid-row: 1; }
 }
 .live-message-body {
   margin-top: 8px;

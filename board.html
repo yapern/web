@@ -16,17 +16,22 @@
     <!-- site-header -->
     <main id="main" class="live-messages-section detail-board-layout shell">
       <aside class="detail-board-navigation" aria-label="Sub-yap navigation">
-        <nav aria-label="Message views">
-          <a class="detail-nav-link" href="/all">All messages</a>
+        <div id="board-browse-navigation">
+          <nav aria-label="Message views">
+            <a class="detail-nav-link" href="/all">All messages</a>
+          </nav>
+          <details class="detail-board-menu" open>
+            <summary>Sub-yaps</summary>
+            <p id="boards-status" class="detail-sidebar-status" role="status">Loading sub-yaps…</p>
+            <ul id="board-navigation" aria-label="Sub-yaps" aria-busy="true"></ul>
+            <button id="boards-retry" class="messages-retry" type="button" hidden>Retry sub-yaps</button>
+          </details>
+        </div>
+        <nav id="edit-board-navigation" aria-label="Sub-yap settings" hidden>
+          <a id="edit-board-basics" class="detail-nav-link" aria-current="page">Basics</a>
         </nav>
-        <details class="detail-board-menu" open>
-          <summary>Sub-yaps</summary>
-          <p id="boards-status" class="detail-sidebar-status" role="status">Loading sub-yaps…</p>
-          <ul id="board-navigation" aria-label="Sub-yaps" aria-busy="true"></ul>
-          <button id="boards-retry" class="messages-retry" type="button" hidden>Retry sub-yaps</button>
-        </details>
       </aside>
-      <section class="live-messages-feed" aria-labelledby="messages-title">
+      <section id="board-messages-view" class="live-messages-feed" aria-labelledby="messages-title">
         <h1 id="messages-title">Sub-yap</h1>
         <p id="messages-status" class="messages-status" role="status"></p>
         <button id="messages-retry" class="messages-retry" type="button" hidden>Try again</button>
@@ -61,10 +66,24 @@
         </section>
         <noscript><p class="messages-status">Enable JavaScript to read messages.</p></noscript>
       </section>
+      <section id="edit-board-view" class="live-messages-feed" aria-labelledby="edit-board-heading" hidden>
+        <h1 id="edit-board-heading">Basics</h1>
+        <form class="create-form board-edit-form" id="edit-board-form">
+          <label class="create-field" for="edit-board-description">
+            <span>Description</span>
+            <textarea id="edit-board-description" name="description" rows="4" maxlength="2000" aria-describedby="edit-board-error"></textarea>
+          </label>
+          <p class="create-error" id="edit-board-error" role="alert"></p>
+          <div class="board-edit-footer">
+            <p id="edit-board-feedback" class="detail-sidebar-status" role="status"></p>
+            <button class="button button-small" type="submit" disabled>Save changes</button>
+          </div>
+        </form>
+      </section>
       <aside class="detail-board-info" aria-labelledby="board-info-title" hidden>
         <div class="board-info-header">
           <h2 id="board-info-title"></h2>
-          <button id="board-edit" class="create-secondary board-edit-button" type="button" aria-label="Edit sub-yap description" hidden>Edit</button>
+          <a id="board-edit" class="create-secondary board-edit-button" aria-label="Edit sub-yap" hidden>Edit</a>
         </div>
         <p id="board-info-status" class="detail-sidebar-status" role="status">Loading sub-yap…</p>
         <p id="board-info-description" class="board-description"></p>
@@ -76,24 +95,10 @@
         <ul id="recent-posts" aria-labelledby="recent-title" aria-busy="true"></ul>
         <button id="recent-retry" class="messages-retry" type="button" hidden>Retry recent posts</button>
       </aside>
+      <aside id="edit-board-actions" class="board-edit-actions" aria-label="Edit actions" hidden>
+        <a id="edit-board-exit" class="create-secondary board-edit-exit">Exit</a>
+      </aside>
     </main>
-    <dialog class="create-board-dialog" id="edit-board-dialog" aria-labelledby="edit-board-heading">
-      <header class="create-board-dialog-header">
-        <h2 id="edit-board-heading">Edit description</h2>
-        <button class="dialog-close" type="button" aria-label="Close edit description" data-close-edit>×</button>
-      </header>
-      <form class="create-form" id="edit-board-form">
-        <label class="create-field" for="edit-board-description">
-          <span>Description</span>
-          <textarea id="edit-board-description" name="description" rows="4" maxlength="2000" aria-describedby="edit-board-error" autofocus></textarea>
-        </label>
-        <p class="create-error" id="edit-board-error" role="alert"></p>
-        <div class="create-actions">
-          <button class="create-secondary" type="button" data-close-edit>Cancel</button>
-          <button class="button button-small" type="submit" disabled>Save changes</button>
-        </div>
-      </form>
-    </dialog>
     <footer class="site-footer shell">
       <a class="brand footer-brand" href="/">yapern<span class="brand-dot">.</span></a>
       <nav aria-label="Footer"><a href="/blog/">Blog</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a></nav>
