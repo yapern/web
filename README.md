@@ -53,8 +53,10 @@ current bearer token; the backend enforces ownership.
 
 The account page at `/account/` reads and updates the signed-in user's display
 name. Messages and replies load current author names. Signed-in users can create
-boards, post messages, reply, and delete their own messages. Deletion requires
-confirmation and also removes the message's replies.
+boards, edit the description of boards they created, post messages, reply, and
+delete their own messages. Board descriptions can be edited from the right
+sidebar on board and message pages; names and URLs stay unchanged. Deletion
+requires confirmation and also removes the message's replies.
 
 Link previews use `POST /og-image` with `{ "url": "https://example.com" }` and
 the current bearer token. The API returns final Open Graph, Twitter, favicon,

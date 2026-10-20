@@ -62,7 +62,10 @@
         <noscript><p class="messages-status">Enable JavaScript to read messages.</p></noscript>
       </section>
       <aside class="detail-board-info" aria-labelledby="board-info-title" hidden>
-        <h2 id="board-info-title"></h2>
+        <div class="board-info-header">
+          <h2 id="board-info-title"></h2>
+          <button id="board-edit" class="create-secondary board-edit-button" type="button" aria-label="Edit sub-yap description" hidden>Edit</button>
+        </div>
         <p id="board-info-status" class="detail-sidebar-status" role="status">Loading sub-yap…</p>
         <p id="board-info-description" class="board-description"></p>
         <button id="board-info-retry" class="messages-retry" type="button" hidden>Retry sub-yap</button>
@@ -74,6 +77,23 @@
         <button id="recent-retry" class="messages-retry" type="button" hidden>Retry recent posts</button>
       </aside>
     </main>
+    <dialog class="create-board-dialog" id="edit-board-dialog" aria-labelledby="edit-board-heading">
+      <header class="create-board-dialog-header">
+        <h2 id="edit-board-heading">Edit description</h2>
+        <button class="dialog-close" type="button" aria-label="Close edit description" data-close-edit>×</button>
+      </header>
+      <form class="create-form" id="edit-board-form">
+        <label class="create-field" for="edit-board-description">
+          <span>Description</span>
+          <textarea id="edit-board-description" name="description" rows="4" maxlength="2000" aria-describedby="edit-board-error" autofocus></textarea>
+        </label>
+        <p class="create-error" id="edit-board-error" role="alert"></p>
+        <div class="create-actions">
+          <button class="create-secondary" type="button" data-close-edit>Cancel</button>
+          <button class="button button-small" type="submit" disabled>Save changes</button>
+        </div>
+      </form>
+    </dialog>
     <footer class="site-footer shell">
       <a class="brand footer-brand" href="/">yapern<span class="brand-dot">.</span></a>
       <nav aria-label="Footer"><a href="/blog/">Blog</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a></nav>

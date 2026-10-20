@@ -1,5 +1,6 @@
 import { fetchBoards, fetchMessages } from "./messages-api.js";
 import { boardHref, messageHref } from "./board-routes.js";
+import { mountBoardEditor } from "./board-editor.js";
 
 export function mountBoardSidebars(activeSlug, recentLimit = 20) {
   const navigation = document.querySelector("#board-navigation");
@@ -18,6 +19,14 @@ export function mountBoardSidebars(activeSlug, recentLimit = 20) {
   let recentMessages = [];
   let recentLoaded = false;
   let boardsSettled = false;
+  const syncBoardEditor = mountBoardEditor(
+    () => boards.find(board => board.slug === activeSlug),
+    updated => {
+      boards = boards.map(board => board.id === updated.id ? updated : board);
+      renderBoardInfo();
+      boardInfoStatus.textContent = "Description updated.";
+    },
+  );
 
   const menu = document.querySelector(".detail-board-menu");
   const showingBoardInfo = Boolean(activeSlug && boardInfo);
@@ -53,6 +62,7 @@ export function mountBoardSidebars(activeSlug, recentLimit = 20) {
 
   function renderBoardInfo() {
     const board = boards.find(candidate => candidate.slug === activeSlug);
+    syncBoardEditor();
     if (board) {
       boardInfoTitle.textContent = board.name;
       boardInfoDescription.textContent = board.description ?? "";

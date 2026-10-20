@@ -321,7 +321,7 @@ export async function fetchMessageAuthors(messages, fetcher = fetch) {
 
 async function readBoards(params, fetcher) {
   const boards = await readRows("boards", {
-    select: "id,slug,name,description", ...params,
+    select: "id,slug,name,description,user_id", ...params,
   }, fetcher);
   if (!boards.every(isBoard)) {
     throw new Error("Invalid sub-yaps");
@@ -391,6 +391,48 @@ export async function createBoard(name, description, fetcher = fetch) {
     throw new Error("Use letters (a–z), numbers, spaces, or hyphens in the sub-yap name, starting and ending with a letter or number.");
   }
   return insertRow("boards", { slug, name: cleanName, description: cleanDescription }, isBoard, fetcher);
+}
+
+export async function updateBoardDescription(board, description, fetcher = fetch) {
+  if (!isBoard(board) || !board.id.trim() || typeof board.user_id !== "string" || !board.user_id.trim()) {
+    throw new Error("Choose a sub-yap to edit.");
+  }
+  if (typeof description !== "string" || description.trim().length > 2000) {
+    throw new Error("Enter a description of at most 2000 characters.");
+  }
+  const session = readStoredSession();
+  if (!session) throw new Error("Your session has expired. Log in again to edit this sub-yap.");
+  if (board.user_id !== session.user.id) throw new Error("You can only edit sub-yaps you created.");
+  const cleanDescription = description.trim();
+  const url = new URL("/tables/boards", messageBoardConfig.apiOrigin);
+  url.searchParams.set("id", `eq.${board.id}`);
+  url.searchParams.set("user_id", `eq.${session.user.id}`);
+  let response;
+  try {
+    response = await fetcher(url, {
+      method: "PATCH", mode: "cors", credentials: "omit", redirect: "error", cache: "no-store",
+      signal: AbortSignal.timeout(15_000),
+      headers: { authorization: `Bearer ${session.token}`, "content-type": "application/json" },
+      body: JSON.stringify({ description: cleanDescription }),
+    });
+  } catch {
+    throw new Error("Could not confirm your changes. Check your connection and reload the sub-yap before trying again.");
+  }
+  if (response.status === 401) {
+    storeSession(null);
+    throw new Error("Your session has expired. Log in again to edit this sub-yap.");
+  }
+  if (response.status === 403) throw new Error("You don’t have permission to edit this sub-yap.");
+  if (response.status === 404) throw new Error("This sub-yap is no longer available.");
+  if (!response.ok) throw new Error("Could not save your description. Please try again.");
+  const payload = await response.json().catch(() => null);
+  const updated = payload?.data?.[0];
+  if (!Array.isArray(payload?.data) || payload.data.length !== 1 || !isBoard(updated) ||
+    updated.id !== board.id || updated.user_id !== session.user.id || updated.slug !== board.slug ||
+    updated.name !== board.name || updated.description !== cleanDescription) {
+    throw new Error("Could not confirm your changes. Reload the sub-yap to check its description.");
+  }
+  return updated;
 }
 
 export async function createMessage(boardId, title, body, fetcher = fetch) {
