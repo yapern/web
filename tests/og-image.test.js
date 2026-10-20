@@ -76,13 +76,65 @@ test("missing or expired sessions and invalid input skip the request", async t =
   }
 });
 
-test("unexpected pending responses never poll or follow a server-provided status URL", async t => {
+test("valid queued responses poll their same-origin preview endpoint", async t => {
   signIn(t);
+  const previewId = "b7e4cf02-cdb8-47b0-87ed-942c09ce5025";
+  const statusUrl = `${messageBoardConfig.apiOrigin}/previews/${previewId}`;
+  let calls = 0;
+  const image = await fetchOgImage("https://example.com", async (url, options) => {
+    calls++;
+    assert.equal(options.headers.authorization, `Bearer ${session.token}`);
+    assert.equal(options.credentials, "omit");
+    assert.equal(options.redirect, "error");
+    assert.equal(options.mode, "cors");
+    assert.ok(options.signal instanceof AbortSignal);
+    if (calls === 1) {
+      assert.equal(url.pathname, "/og-image");
+      assert.equal(options.method, "POST");
+      return Response.json({ image: null, source: "placeholder", status: "pending", previewId, statusUrl }, {
+        status: 202, headers: { "retry-after": "0" },
+      });
+    }
+    assert.equal(url.href, statusUrl);
+    assert.equal(options.method, "GET");
+    assert.equal(options.body, undefined);
+    return Response.json({ image: `${messageBoardConfig.apiOrigin}/preview-images/${previewId}.jpg`, source: "screenshot", status: "ready" });
+  });
+  assert.equal(image, `${messageBoardConfig.apiOrigin}/preview-images/${previewId}.jpg`);
+  assert.equal(calls, 2);
+});
+
+test("pending responses reject unsafe or inconsistent status URLs before polling", async t => {
+  signIn(t);
+  const previewId = "b7e4cf02-cdb8-47b0-87ed-942c09ce5025";
+  for (const [id, statusUrl] of [
+    [previewId, "https://attacker.example/steal-token"],
+    [previewId, `${messageBoardConfig.apiOrigin}/other/${previewId}`],
+    [previewId, `${messageBoardConfig.apiOrigin}/previews/${previewId}?token=bad`],
+    ["b7e4cf02-cdb8-47b0-87ed-942c09ce5026", `${messageBoardConfig.apiOrigin}/previews/${previewId}`],
+  ]) {
+    let calls = 0;
+    await assert.rejects(fetchOgImage("https://example.com", async () => {
+      calls++;
+      return Response.json({ status: "pending", previewId: id, statusUrl }, { status: 202 });
+    }), /preview unavailable/);
+    assert.equal(calls, 1);
+  }
+});
+
+test("caller cancellation stops polling before another request", async t => {
+  signIn(t);
+  const controller = new AbortController();
+  const previewId = "b7e4cf02-cdb8-47b0-87ed-942c09ce5025";
   let calls = 0;
   await assert.rejects(fetchOgImage("https://example.com", async () => {
     calls++;
-    return Response.json({ status: "pending", statusUrl: "https://attacker.example/steal-token" }, { status: 202 });
-  }), /preview unavailable/);
+    controller.abort();
+    return Response.json({
+      status: "pending", previewId,
+      statusUrl: `${messageBoardConfig.apiOrigin}/previews/${previewId}`,
+    }, { status: 202, headers: { "retry-after": "0" } });
+  }, { signal: controller.signal }), { name: "AbortError" });
   assert.equal(calls, 1);
 });
 

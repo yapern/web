@@ -36,7 +36,8 @@ async function readRows(table, params, fetcher) {
   return payload.data;
 }
 
-const previewRequestTimeoutMs = 10_000;
+const previewRequestTimeoutMs = 45_000;
+const previewIdPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 function previewLog(level, event, details = {}) {
   console[level]("[link-preview]", event, details);
@@ -55,6 +56,45 @@ function validatedImage(value) {
     if (["http:", "https:"].includes(image.protocol) && !image.username && !image.password) return image.href;
   } catch {}
   return null;
+}
+
+function validatedPreviewUrl(value, previewId) {
+  if (typeof value !== "string") return null;
+  try {
+    const statusUrl = new URL(value);
+    const apiOrigin = new URL(messageBoardConfig.apiOrigin);
+    if (
+      statusUrl.origin === apiOrigin.origin &&
+      !statusUrl.username && !statusUrl.password &&
+      statusUrl.pathname === `/previews/${previewId}` &&
+      !statusUrl.search && !statusUrl.hash
+    ) return statusUrl;
+  } catch {}
+  return null;
+}
+
+function retryDelay(response) {
+  const header = response.headers.get("retry-after");
+  if (header && /^\d+(?:\.\d+)?$/.test(header.trim())) {
+    return Math.min(Number(header) * 1000, previewRequestTimeoutMs);
+  }
+  return 1000;
+}
+
+function waitForRetry(delayMs, signal) {
+  return new Promise((resolve, reject) => {
+    signal.throwIfAborted();
+    const timer = setTimeout(() => {
+      signal.removeEventListener("abort", abort);
+      resolve();
+    }, delayMs);
+    const abort = () => {
+      clearTimeout(timer);
+      signal.removeEventListener("abort", abort);
+      reject(signal.reason);
+    };
+    signal.addEventListener("abort", abort, { once: true });
+  });
 }
 
 export async function fetchOgImage(value, fetcher = fetch, { signal } = {}) {
@@ -76,25 +116,51 @@ export async function fetchOgImage(value, fetcher = fetch, { signal } = {}) {
     return null;
   }
   const url = new URL("/og-image", messageBoardConfig.apiOrigin);
-  const requestSignal = AbortSignal.timeout(previewRequestTimeoutMs);
-  const combinedSignal = signal ? AbortSignal.any([signal, requestSignal]) : requestSignal;
+  const timeoutController = new AbortController();
+  const deadlineTimer = setTimeout(() => {
+    timeoutController.abort(new DOMException("The link preview request timed out.", "TimeoutError"));
+  }, previewRequestTimeoutMs);
+  const combinedSignal = signal ? AbortSignal.any([signal, timeoutController.signal]) : timeoutController.signal;
   try {
     combinedSignal.throwIfAborted();
     previewLog("info", "request started", { method: "POST", endpoint: url.pathname, target: target.href });
-    const response = await fetcher(url, {
-      method: "POST", mode: "cors", credentials: "omit", redirect: "error", cache: "no-store",
-      headers: { authorization: `Bearer ${session.token}`, "content-type": "application/json" },
-      body: JSON.stringify({ url: target.href }),
+    const requestOptions = {
+      mode: "cors", credentials: "omit", redirect: "error", cache: "no-store",
+      headers: { authorization: `Bearer ${session.token}` },
       signal: combinedSignal,
+    };
+    let response = await fetcher(url, {
+      ...requestOptions,
+      method: "POST",
+      headers: { ...requestOptions.headers, "content-type": "application/json" },
+      body: JSON.stringify({ url: target.href }),
     });
-    // The standalone API returns a final metadata result, without preview jobs.
-    if (response.status !== 200) throw new Error("Link preview unavailable.");
-    const payload = await response.json();
-    previewLog("info", "response received", { httpStatus: response.status, status: payload?.status });
-    if (!["ready", "failed"].includes(payload?.status)) return null;
-    const image = validatedImage(payload.image);
-    if (!image) previewLog("info", "terminal response has no usable image");
-    return image;
+    let payload;
+    let statusUrl = null;
+    let previewId = null;
+    while (true) {
+      combinedSignal.throwIfAborted();
+      if (response.status !== 200 && response.status !== 202) throw new Error("Link preview unavailable.");
+      payload = await response.json();
+      previewLog("info", "response received", { httpStatus: response.status, status: payload?.status });
+      if (response.status === 200) {
+        if (!["ready", "failed"].includes(payload?.status)) return null;
+        const image = validatedImage(payload.image);
+        if (!image) previewLog("info", "terminal response has no usable image");
+        return image;
+      }
+
+      if (payload?.status !== "pending" || typeof payload.previewId !== "string" || !previewIdPattern.test(payload.previewId)) {
+        throw new Error("Link preview unavailable.");
+      }
+      if (previewId !== null && payload.previewId !== previewId) throw new Error("Link preview unavailable.");
+      previewId = payload.previewId;
+      const validatedUrl = validatedPreviewUrl(payload.statusUrl, previewId);
+      if (!validatedUrl || (statusUrl && validatedUrl.href !== statusUrl.href)) throw new Error("Link preview unavailable.");
+      statusUrl = validatedUrl;
+      await waitForRetry(retryDelay(response), combinedSignal);
+      response = await fetcher(statusUrl, { ...requestOptions, method: "GET" });
+    }
   } catch (error) {
     if (signal?.aborted || error?.name === "AbortError") {
       previewLog("info", "lookup cancelled");
@@ -102,6 +168,8 @@ export async function fetchOgImage(value, fetcher = fetch, { signal } = {}) {
       previewLog("warn", "lookup failed", { reason: previewFailureKind(error) });
     }
     throw error;
+  } finally {
+    clearTimeout(deadlineTimer);
   }
 }
 
