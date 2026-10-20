@@ -70,12 +70,13 @@
         <h1 id="edit-board-heading" tabindex="-1">Basics</h1>
         <form class="create-form board-edit-form" id="edit-board-form">
           <div class="board-edit-logo-field">
-            <span class="board-edit-logo-label">Logo</span>
+            <label class="board-edit-logo-label" for="edit-board-logo">Logo</label>
             <img id="edit-board-logo-preview" class="board-logo-preview" alt="" hidden>
             <button id="edit-board-logo-choose" class="create-secondary board-logo-upload" type="button">Choose image</button>
             <input id="edit-board-logo" class="board-logo-input" name="logo" type="file" accept="image/png,image/jpeg,image/webp,image/gif" hidden>
             <button id="edit-board-logo-remove" class="create-secondary board-logo-remove" type="button" hidden>Remove logo</button>
             <p id="edit-board-logo-status" class="detail-sidebar-status" role="status"></p>
+            <p class="board-logo-help">PNG, JPEG, WebP, or GIF. Maximum 5 MB.</p>
           </div>
           <label class="create-field" for="edit-board-description">
             <span>Description</span>

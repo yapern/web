@@ -126,6 +126,30 @@ test("logo removal uses JSON and confirms the returned removal", async t => {
   }), saved);
 });
 
+test("multipart newline normalization does not report a successful logo save as unconfirmed", async t => {
+  t.after(() => storeSession(null));
+  storeSession(session);
+  const description = "First line\nSecond line\n\nLast line";
+  const logo = new File(["image"], "logo.png", { type: "image/png" });
+  const logoUrl = "/board-logos/123e4567-e89b-12d3-a456-426614174000.png";
+  const updated = await updateBoard(board, { description, logo }, async (url, options) => {
+    const form = await new Request(url, options).formData();
+    assert.equal(form.get("description"), description.replaceAll("\n", "\r\n"));
+    return Response.json({ data: [{ ...board, description: form.get("description"), logo_url: logoUrl }] });
+  });
+  assert.equal(updated.description, description);
+  assert.equal(updated.logo_url, logoUrl);
+});
+
+test("description saves accept the current logo if another edit changed it", async t => {
+  t.after(() => storeSession(null));
+  storeSession(session);
+  for (const logoUrl of [null, "/board-logos/123e4567-e89b-12d3-a456-426614174000.png"]) {
+    const saved = { ...board, description: "Updated", logo_url: logoUrl };
+    assert.deepEqual(await updateBoardDescription(board, "Updated", async () => Response.json({ data: [saved] })), saved);
+  }
+});
+
 test("logo upload limits and API rejection statuses preserve safe errors", async t => {
   t.after(() => storeSession(null));
   storeSession(session);

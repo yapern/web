@@ -399,7 +399,7 @@ async function insertRow(table, values, validate, fetcher) {
 
 export async function createBoard(name, description, fetcher = fetch) {
   const cleanName = name.trim();
-  const cleanDescription = description.trim();
+  const cleanDescription = description.replace(/\r\n?/g, "\n").trim();
   if (!cleanName || cleanName.length > 80) throw new Error("Enter a sub-yap name of 1–80 characters.");
   if (cleanDescription.length > 2000) throw new Error("Enter a description of at most 2000 characters.");
   const slug = cleanName.toLowerCase().replace(/\s+/g, "-");
@@ -413,7 +413,9 @@ export async function updateBoard(board, { description, logo, removeLogo = false
   if (!isBoard(board) || !board.id.trim() || typeof board.user_id !== "string" || !board.user_id.trim()) {
     throw new Error("Choose a sub-yap to edit.");
   }
-  if (typeof description !== "string" || description.trim().length > 2000) {
+  // Multipart uploads normalize newlines to CRLF; compare and keep LF text.
+  const cleanDescription = typeof description === "string" ? description.replace(/\r\n?/g, "\n").trim() : null;
+  if (cleanDescription === null || cleanDescription.length > 2000) {
     throw new Error("Enter a description of at most 2000 characters.");
   }
   const session = readStoredSession();
@@ -424,7 +426,6 @@ export async function updateBoard(board, { description, logo, removeLogo = false
     throw new Error("Choose a PNG, JPEG, WebP, or GIF logo.");
   }
   if (logo?.size > maxBoardLogoBytes) throw new Error("Choose a logo smaller than 5 MB.");
-  const cleanDescription = description.trim();
   const url = new URL("/tables/boards", messageBoardConfig.apiOrigin);
   url.searchParams.set("id", `eq.${board.id}`);
   url.searchParams.set("user_id", `eq.${session.user.id}`);
@@ -465,13 +466,12 @@ export async function updateBoard(board, { description, logo, removeLogo = false
   const updated = payload?.data?.[0];
   if (!Array.isArray(payload?.data) || payload.data.length !== 1 || !isBoard(updated) ||
     updated.id !== board.id || updated.user_id !== session.user.id || updated.slug !== board.slug ||
-    updated.name !== board.name || updated.description !== cleanDescription ||
+    updated.name !== board.name || updated.description.replace(/\r\n?/g, "\n").trim() !== cleanDescription ||
     (removeLogo && updated.logo_url != null) ||
-    (logo && (typeof updated.logo_url !== "string" || !boardLogoPathPattern.test(updated.logo_url))) ||
-    (!removeLogo && !logo && (updated.logo_url ?? null) !== (board.logo_url ?? null))) {
+    (logo && (typeof updated.logo_url !== "string" || !boardLogoPathPattern.test(updated.logo_url)))) {
     throw new Error("Could not confirm your changes. Reload the sub-yap to check it.");
   }
-  return updated;
+  return { ...updated, description: cleanDescription };
 }
 
 export async function updateBoardDescription(board, description, fetcher = fetch) {

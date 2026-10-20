@@ -44,10 +44,12 @@ export function mountBoardEditor(getBoard, onSave) {
       : removeLogo ? null : boardLogoUrl(board?.logo_url);
     logoPreview.hidden = !src;
     logoPreview.alt = src ? `${board?.name ?? "Sub-yap"} logo preview` : "";
+    logoPreview.onerror = () => { logoPreview.hidden = true; };
     logoPreview.removeAttribute("src");
     if (src) logoPreview.src = src;
     logoRemove.hidden = !pickedLogo && !boardLogoUrl(board?.logo_url);
     logoRemove.textContent = removeLogo ? "Keep current logo" : "Remove logo";
+    logoChoose.textContent = pickedLogo || (boardLogoUrl(board?.logo_url) && !removeLogo) ? "Replace image" : "Choose image";
     logoStatus.textContent = pickedLogo ? pickedLogo.name : removeLogo ? "Logo will be removed when you save." : "";
   }
 
@@ -65,7 +67,7 @@ export function mountBoardEditor(getBoard, onSave) {
 
   function updateSubmit() {
     submit.disabled = saving || !canEdit() || description.value.length > 2000 ||
-      (description.value.trim() === getBoard()?.description && !pickedLogo && !removeLogo);
+      (description.value.trim() === getBoard()?.description.replace(/\r\n?/g, "\n").trim() && !pickedLogo && !removeLogo);
   }
 
   function syncSession() {
