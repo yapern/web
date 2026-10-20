@@ -1,0 +1,136 @@
+    <header class="site-header shell">
+      <a class="brand" href="/" aria-label="Yapern home"
+        ><img src="/images/logo.png" alt="" width="36" height="36" />yapern<span
+          class="brand-dot"
+          >.</span
+        ></a
+      >
+      <button class="header-toggle" id="header-toggle" type="button" aria-expanded="false" aria-controls="header-menu" aria-label="Open menu">
+        <svg class="header-toggle-open" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" /></svg>
+        <svg class="header-toggle-close" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" /></svg>
+      </button>
+      <div class="header-menu" id="header-menu">
+        <nav aria-label="Main navigation">
+          <a href="/#features">Features</a
+          ><a href="/#communities">Sub-yaps &amp; moderators</a
+          ><a href="/#open-source">Open source</a
+          ><a href="/blog/">Blog</a>
+        </nav>
+        <div class="header-actions">
+          <div class="create-menu" id="create-menu" hidden data-auth-only>
+            <button class="button button-small" id="create-toggle" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="create-options">
+              <svg class="header-create-icon" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 4v12M4 10h12" /></svg>
+              Create
+              <svg class="header-create-chevron" viewBox="0 0 16 16" aria-hidden="true"><path d="m4 6 4 4 4-4" /></svg>
+            </button>
+            <div class="create-options" id="create-options" role="menu" aria-labelledby="create-toggle" hidden>
+              <button type="button" role="menuitem" tabindex="-1" data-create="message"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M16.5 9.5a6.5 6.5 0 0 1-6.5 6.5H5l-2.5 2v-8.5A6.5 6.5 0 0 1 9 3h1a6.5 6.5 0 0 1 6.5 6.5Z" /><path d="M6.5 9h6M6.5 12h4" /></svg>Create message</button>
+              <button type="button" role="menuitem" tabindex="-1" data-create="board"><svg viewBox="0 0 20 20" aria-hidden="true"><rect x="3" y="3" width="14" height="14" rx="2" /><path d="M3 7h14M7 7v10" /></svg>Create sub-yap</button>
+            </div>
+          </div>
+          <div class="mobile-create-actions" role="group" aria-label="Create" data-auth-only hidden>
+            <button type="button" data-create="message"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M16.5 9.5a6.5 6.5 0 0 1-6.5 6.5H5l-2.5 2v-8.5A6.5 6.5 0 0 1 9 3h1a6.5 6.5 0 0 1 6.5 6.5Z" /><path d="M6.5 9h6M6.5 12h4" /></svg>Create message</button>
+            <button type="button" data-create="board"><svg viewBox="0 0 20 20" aria-hidden="true"><rect x="3" y="3" width="14" height="14" rx="2" /><path d="M3 7h14M7 7v10" /></svg>Create sub-yap</button>
+          </div>
+          <a class="button button-small" href="/login/" data-login-link>Login</a>
+        </div>
+      </div>
+    </header>
+    <dialog class="create-dialog" id="create-message-dialog" aria-labelledby="create-message-heading">
+      <header class="create-dialog-header">
+        <span class="create-dialog-brand">yapern<span aria-hidden="true">.</span></span>
+        <h2 id="create-message-heading">Create a message</h2>
+        <button class="dialog-close" type="button" aria-label="Close create message" data-close-dialog>×</button>
+      </header>
+      <div class="create-dialog-layout">
+        <form class="create-form" id="create-message-form">
+          <label class="create-field" for="create-board">
+            <span>Post to</span>
+            <select id="create-board" name="board" required autofocus disabled><option value="">Loading sub-yaps…</option></select>
+          </label>
+          <div class="create-board-state">
+            <p id="create-boards-status" role="status"></p>
+            <button class="create-text-button" id="create-boards-retry" type="button" hidden>Retry</button>
+          </div>
+          <label class="create-field" for="create-title">
+            <span>Title <span class="required-mark">(required)</span></span>
+            <input id="create-title" name="title" type="text" required maxlength="200" placeholder="Give your message a title" />
+          </label>
+          <section class="create-link-panel" id="create-link-panel" aria-labelledby="create-link-heading" hidden>
+            <div class="create-link-panel-heading">
+              <h3 id="create-link-heading">Add a link</h3>
+              <button class="create-link-remove" id="create-link-remove" type="button" aria-label="Remove link">×</button>
+            </div>
+            <label class="create-field" for="create-link-url">
+              <span>Link URL <span class="required-mark">(required)</span></span>
+              <input id="create-link-url" name="linkUrl" type="url" inputmode="url" placeholder="https://example.com" aria-describedby="create-link-error" />
+            </label>
+            <p class="create-link-error" id="create-link-error" role="alert"></p>
+            <p class="create-link-loading" id="create-link-loading" role="status" hidden>
+              <span class="create-link-spinner" aria-hidden="true"></span>
+              <span>Loading link preview…</span>
+            </p>
+            <div class="create-link-preview" id="create-link-preview" hidden></div>
+          </section>
+          <div class="create-editor">
+            <label class="create-field" for="create-body">
+              <span>Message <span class="required-mark" id="create-body-requirement">(required)</span></span>
+              <textarea id="create-body" name="body" rows="8" required maxlength="2000" aria-describedby="create-body-count" placeholder="Write your message"></textarea>
+            </label>
+            <div class="create-editor-toolbar" role="group" aria-label="Message formatting">
+              <button class="create-toolbar-icon create-toolbar-link" id="create-link-toggle" type="button" aria-label="Add link" aria-expanded="false" aria-controls="create-link-panel" title="Add link"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M8 12 12 8M7 7l-2 2a3 3 0 0 0 4 4l2-2M13 13l2-2a3 3 0 0 0-4-4l-2 2" /></svg></button>
+              <span class="create-toolbar-icon" role="img" aria-label="Image" title="Image"><svg viewBox="0 0 20 20" aria-hidden="true"><rect x="2.5" y="3.5" width="15" height="13" rx="2"/><circle cx="7" cy="8" r="1.5"/><path d="m3 14 4-4 3 3 2-2 5 5"/></svg></span>
+              <span class="create-toolbar-icon" role="img" aria-label="Video" title="Video"><svg viewBox="0 0 20 20" aria-hidden="true"><rect x="2.5" y="4" width="11" height="12" rx="2"/><path d="m13.5 8 4-2v8l-4-2z"/></svg></span>
+              <span class="create-toolbar-divider" aria-hidden="true"></span>
+              <span class="create-toolbar-icon create-toolbar-letter" role="img" aria-label="Bold" title="Bold"><strong>B</strong></span>
+              <span class="create-toolbar-icon create-toolbar-letter" role="img" aria-label="Italic" title="Italic"><em>I</em></span>
+              <span class="create-toolbar-icon create-toolbar-letter" role="img" aria-label="Strikethrough" title="Strikethrough"><s>S</s></span>
+              <span class="create-toolbar-icon create-toolbar-letter" role="img" aria-label="Superscript" title="Superscript"><span>x<sup>2</sup></span></span>
+              <span class="create-toolbar-icon create-toolbar-letter create-toolbar-heading" role="img" aria-label="Text heading" title="Text heading">H</span>
+              <span class="create-toolbar-divider" aria-hidden="true"></span>
+              <span class="create-toolbar-icon" role="img" aria-label="Inline link" title="Inline link"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M8 12 12 8M7 7l-2 2a3 3 0 0 0 4 4l2-2M13 13l2-2a3 3 0 0 0-4-4l-2 2" /></svg></span>
+              <span class="create-toolbar-icon" role="img" aria-label="Bulleted list" title="Bulleted list"><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="4" cy="5" r="1"/><circle cx="4" cy="10" r="1"/><circle cx="4" cy="15" r="1"/><path d="M8 5h9M8 10h9M8 15h9"/></svg></span>
+              <span class="create-toolbar-icon" role="img" aria-label="Numbered list" title="Numbered list"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 3.5h1.5v3M3 6.5h1.5M3 9h1.5l-1.5 2h1.5M3 14h1a1 1 0 1 1 0 2H3M8 5h9M8 10h9M8 15h9"/></svg></span>
+              <span class="create-toolbar-divider" aria-hidden="true"></span>
+              <span class="create-toolbar-icon" role="img" aria-label="Spoiler" title="Spoiler"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M2 10s3-5 8-5 8 5 8 5-3 5-8 5-8-5-8-5Z"/><circle cx="10" cy="10" r="2.5"/></svg></span>
+              <span class="create-toolbar-icon create-toolbar-quote" role="img" aria-label="Quote" title="Quote">“”</span>
+              <span class="create-toolbar-icon create-toolbar-letter" role="img" aria-label="Inline code" title="Inline code">&lt;/&gt;</span>
+              <span class="create-toolbar-icon" role="img" aria-label="Code block" title="Code block"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m7 6-4 4 4 4m6-8 4 4-4 4M11 4l-2 12"/></svg></span>
+              <span class="create-toolbar-icon" role="img" aria-label="Table" title="Table"><svg viewBox="0 0 20 20" aria-hidden="true"><rect x="2.5" y="3.5" width="15" height="13" rx="1"/><path d="M2.5 8h15M2.5 12h15M7.5 3.5v13M12.5 3.5v13"/></svg></span>
+              <span class="create-toolbar-icon create-toolbar-letter" role="img" aria-label="More formatting" title="More formatting">•••</span>
+            </div>
+          </div>
+          <p class="create-field-meta" id="create-body-count" aria-live="polite">0/2000</p>
+          <p class="create-error" id="create-message-error" role="alert"></p>
+          <div class="create-actions">
+            <button class="create-secondary" type="button" data-close-dialog>Cancel</button>
+            <button class="button button-small" type="submit" disabled>Post</button>
+          </div>
+        </form>
+        <aside class="create-board-aside" id="create-selected-board" aria-label="Selected sub-yap" hidden>
+          <h3 id="create-selected-name"></h3>
+          <p id="create-selected-description"></p>
+        </aside>
+      </div>
+    </dialog>
+    <dialog class="create-board-dialog" id="create-board-dialog" aria-labelledby="create-board-heading">
+      <header class="create-board-dialog-header">
+        <h2 id="create-board-heading">Create new sub-yap</h2>
+        <button class="dialog-close" type="button" aria-label="Close create sub-yap" data-close-dialog>×</button>
+      </header>
+      <form class="create-form" id="create-board-form">
+        <label class="create-field" for="new-board-name">
+          <span>Name <span class="required-mark">(required)</span></span>
+          <input id="new-board-name" name="name" type="text" required maxlength="80" autofocus />
+        </label>
+        <label class="create-field" for="new-board-description">
+          <span>Description</span>
+          <textarea id="new-board-description" name="description" rows="4" maxlength="2000"></textarea>
+        </label>
+        <p class="create-error" id="create-board-error" role="alert"></p>
+        <div class="create-actions">
+          <button class="create-secondary" type="button" data-close-dialog>Cancel</button>
+          <button class="button button-small" type="submit" disabled>Create sub-yap</button>
+        </div>
+      </form>
+    </dialog>

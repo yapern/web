@@ -1,0 +1,471 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Find your people on Yapern, an open source sub-yap. Explore sub-yaps, share your interests, and join conversations in community-moderated spaces."
+    />
+    <meta name="theme-color" content="#090d17" />
+    <link rel="canonical" href="https://yapern.com/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Yapern" />
+    <meta property="og:url" content="https://yapern.com/" />
+    <meta
+      property="og:title"
+      content="Yapern — Find your people. Have your say."
+    />
+    <meta
+      property="og:description"
+      content="Find your people on Yapern, an open source sub-yap. Explore sub-yaps, share your interests, and join conversations in community-moderated spaces."
+    />
+    <meta property="og:image" content="https://yapern.com/images/logo.png" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="256" />
+    <meta property="og:image:height" content="256" />
+    <meta property="og:image:alt" content="Yapern logo" />
+    <meta name="twitter:card" content="summary" />
+    <meta
+      name="twitter:title"
+      content="Yapern — Find your people. Have your say."
+    />
+    <meta
+      name="twitter:description"
+      content="Find your people on Yapern, an open source sub-yap. Explore sub-yaps, share your interests, and join conversations in community-moderated spaces."
+    />
+    <meta name="twitter:image" content="https://yapern.com/images/logo.png" />
+    <meta name="twitter:image:alt" content="Yapern logo" />
+    <link rel="icon" href="/images/favicon.png" type="image/png" />
+    <link rel="stylesheet" href="/yapern.css" />
+    <script type="module" src="/homepage.js"></script>
+    <script type="module" src="/src/messages.js"></script>
+    <script type="module" src="/src/auth-nav.js"></script>
+    <script type="module" src="/src/create.js"></script>
+    <title>Yapern — Find your people. Have your say.</title>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <svg
+      class="svg-library"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+    >
+      <defs>
+        <symbol id="chat" viewBox="0 0 24 24">
+          <path
+            d="M20 11.5a8.5 8.5 0 0 1-8.5 8.5H4l-3 3V11.5A8.5 8.5 0 0 1 9.5 3h2a8.5 8.5 0 0 1 8.5 8.5Z"
+          />
+          <path d="M6 10h9M6 14h6" />
+        </symbol>
+        <symbol id="arrow" viewBox="0 0 24 24">
+          <path d="M4 12h16m-6-6 6 6-6 6" />
+        </symbol>
+        <symbol id="up" viewBox="0 0 24 24">
+          <path d="m6 12 6-6 6 6m-6-6v14" />
+        </symbol>
+        <symbol id="down" viewBox="0 0 24 24">
+          <path d="m6 12 6 6 6-6m-6 6V4" />
+        </symbol>
+        <symbol id="check" viewBox="0 0 24 24">
+          <path d="m5 12 4 4L19 6" />
+        </symbol>
+        <symbol id="people" viewBox="0 0 24 24">
+          <circle cx="9" cy="7" r="3" />
+          <path
+            d="M3 21v-4a6 6 0 0 1 12 0v4M17 4a3 3 0 0 1 0 6m1 4a5 5 0 0 1 3 5v2"
+          />
+        </symbol>
+        <symbol id="shield" viewBox="0 0 24 24">
+          <path d="m12 3 8 3v6c0 5-8 9-8 9s-8-4-8-9V6Z" />
+          <path d="m8 12 3 3 5-6" />
+        </symbol>
+        <symbol id="code" viewBox="0 0 24 24">
+          <path d="m7 7-5 5 5 5m10-10 5 5-5 5M14 4l-4 16" />
+        </symbol>
+        <symbol id="bookmark" viewBox="0 0 24 24">
+          <path d="M6 3h12v18l-6-4-6 4Z" />
+        </symbol>
+        <symbol id="search" viewBox="0 0 24 24">
+          <circle cx="10" cy="10" r="6" />
+          <path d="m15 15 6 6" />
+        </symbol>
+        <symbol id="bell" viewBox="0 0 24 24">
+          <path d="M5 17h14l-2-4V9a5 5 0 0 0-10 0v4Zm5 4h4" />
+        </symbol>
+        <symbol id="github" viewBox="0 0 24 24">
+          <path
+            fill="currentColor"
+            stroke="none"
+            d="M12 .8a11.2 11.2 0 0 0-3.54 21.83c.56.1.76-.24.76-.54v-2.08c-3.12.68-3.78-1.32-3.78-1.32-.51-1.3-1.25-1.65-1.25-1.65-1.02-.69.08-.68.08-.68 1.13.08 1.73 1.16 1.73 1.16 1 1.72 2.63 1.22 3.27.93.1-.73.39-1.22.71-1.5-2.49-.29-5.11-1.25-5.11-5.54 0-1.23.44-2.22 1.15-3.01-.12-.28-.5-1.42.11-2.95 0 0 .94-.3 3.08 1.15a10.8 10.8 0 0 1 5.6 0c2.14-1.45 3.08-1.15 3.08-1.15.61 1.53.23 2.67.12 2.95.71.79 1.14 1.78 1.14 3.01 0 4.3-2.63 5.25-5.13 5.53.4.35.76 1.03.76 2.08v3.17c0 .3.2.65.77.54A11.2 11.2 0 0 0 12 .8Z"
+          />
+        </symbol>
+      </defs>
+    </svg>
+    <!-- site-header -->
+    <main id="main">
+      <section class="hero shell" aria-labelledby="hero-title">
+        <div class="hero-copy">
+          <p class="eyebrow">An open source sub-yap</p>
+          <h1 id="hero-title">
+            Find your people.<br /><span>Have your say.</span>
+          </h1>
+          <p class="hero-description">
+            Big interests. Niche obsessions. That one question you can’t stop
+            thinking about. There’s a sub-yap for all of it.
+          </p>
+          <p class="hero-description secondary-description">
+            Share a post, follow a thread, and let the community take it from
+            there.
+          </p>
+          <div class="hero-actions">
+            <a class="button" href="#community-preview"
+              >Take a look around
+              <svg class="icon" aria-hidden="true">
+                <use href="#arrow" /></svg></a
+            ><a class="source-link" href="https://github.com/yapern/web"
+              ><svg class="icon" aria-hidden="true"><use href="#github" /></svg
+              >Explore the code</a
+            >
+          </div>
+          <ul class="trust-list">
+            <li>
+              <svg class="icon" aria-hidden="true"><use href="#check" /></svg
+              >Community moderated
+            </li>
+            <li>
+              <svg class="icon" aria-hidden="true"><use href="#check" /></svg
+              >GPL v3
+            </li>
+          </ul>
+        </div>
+        <div class="preview-area" id="community-preview">
+          <div class="board" aria-label="Interactive sub-yap preview">
+            <header class="board-header">
+              <span class="mini-brand"
+                ><img
+                  src="/images/logo.png"
+                  width="24"
+                  height="24"
+                  alt=""
+                />yapern</span
+              ><label class="board-search"
+                ><svg class="icon" aria-hidden="true">
+                  <use href="#search" /></svg
+                ><span class="sr-only">Search sample posts</span
+                ><input
+                  type="search"
+                  id="post-search"
+                  placeholder="Find your next rabbit hole" /></label
+              ><span class="avatar" aria-label="Sample profile">Y</span>
+            </header>
+            <div class="board-layout">
+              <aside class="board-sidebar" aria-label="Preview sub-yaps">
+                <p class="sidebar-label">YOUR FEED</p>
+                <button
+                  class="community-button active"
+                  type="button"
+                  data-community="all"
+                  aria-pressed="true"
+                >
+                  <svg class="icon" aria-hidden="true"><use href="#chat" /></svg
+                  >All sub-yaps
+                </button>
+                <p class="sidebar-label subyap-label">SUB-YAPS</p>
+                <button
+                  class="community-button"
+                  type="button"
+                  data-community="technology"
+                  aria-pressed="false"
+                >
+                  <span class="community-initial">t/</span>technology</button
+                ><button
+                  class="community-button"
+                  type="button"
+                  data-community="making"
+                  aria-pressed="false"
+                >
+                  <span class="community-initial">m/</span>making</button
+                ><button
+                  class="community-button"
+                  type="button"
+                  data-community="books"
+                  aria-pressed="false"
+                >
+                  <span class="community-initial">b/</span>books</button
+                ><button
+                  class="community-button"
+                  type="button"
+                  data-community="gardening"
+                  aria-pressed="false"
+                >
+                  <span class="community-initial">g/</span>gardening
+                </button>
+                <div class="sidebar-bottom">
+                  <svg class="icon" aria-hidden="true"><use href="#code" /></svg
+                  >Open by nature.
+                </div>
+              </aside>
+              <section class="board-feed" aria-labelledby="feed-title">
+                <div class="feed-title-row">
+                  <div>
+                    <p class="feed-overline">A PLACE FOR YOUR CURIOSITY</p>
+                    <h2 id="feed-title">The conversation starts here.</h2>
+                  </div>
+                  <span class="feed-spark" aria-hidden="true">✳</span>
+                </div>
+                <div class="feed-toolbar">
+                  <div class="feed-filters" aria-label="Sort sample posts">
+                    <button
+                      type="button"
+                      class="active"
+                      data-sort="top"
+                      aria-pressed="true"
+                    >
+                      Top</button
+                    ><button type="button" data-sort="new" aria-pressed="false">
+                      New</button
+                    ><button
+                      type="button"
+                      data-sort="saved"
+                      aria-pressed="false"
+                    >
+                      <svg class="icon" aria-hidden="true">
+                        <use href="#bookmark" /></svg
+                      >Saved
+                    </button>
+                  </div>
+                  <span class="sample-label">Sample posts</span>
+                </div>
+                <div id="posts"></div>
+                <noscript
+                  ><p class="empty-message">
+                    Enable JavaScript to explore the sample community feed.
+                  </p></noscript
+                >
+              </section>
+            </div>
+          </div>
+          <p class="preview-caption">
+            <span class="preview-dot"></span>Interactive preview
+            <span class="caption-separator">/</span> Pick a sub-yap. Vote.
+            Explore the replies.
+          </p>
+          <p class="sr-only" id="preview-status" role="status"></p>
+        </div>
+      </section>
+      <section class="feature-strip" id="features" aria-label="Yapern features">
+        <ul class="features shell">
+          <li>
+            <svg class="feature-icon icon" aria-hidden="true">
+              <use href="#people" />
+            </svg>
+            <div>
+              <h2>Sub-yaps for everything</h2>
+              <p>
+                Find a community.<br />
+                Or start your own.
+              </p>
+            </div>
+          </li>
+          <li>
+            <svg class="feature-icon icon" aria-hidden="true">
+              <use href="#chat" />
+            </svg>
+            <div>
+              <h2>Real conversations</h2>
+              <p>
+                Threaded comments.<br />
+                Room for every reply.
+              </p>
+            </div>
+          </li>
+          <li>
+            <svg class="feature-icon icon" aria-hidden="true">
+              <use href="#up" />
+            </svg>
+            <div>
+              <h2>A community-led feed</h2>
+              <p>
+                Upvotes, downvotes,<br />
+                and karma.
+              </p>
+            </div>
+          </li>
+          <li>
+            <svg class="feature-icon icon" aria-hidden="true">
+              <use href="#shield" />
+            </svg>
+            <div>
+              <h2>Moderators with tools</h2>
+              <p>
+                Your sub-yap.<br />
+                Your community rules.
+              </p>
+            </div>
+          </li>
+          <li>
+            <svg class="feature-icon icon" aria-hidden="true">
+              <use href="#bell" />
+            </svg>
+            <div>
+              <h2>Keep in the loop</h2>
+              <p>
+                Messages, notifications,<br />
+                and saved posts.
+              </p>
+            </div>
+          </li>
+          <li>
+            <svg class="feature-icon icon" aria-hidden="true">
+              <use href="#code" />
+            </svg>
+            <div>
+              <h2>Open source. GPL v3.</h2>
+              <p>Read it. Run it.<br />Make it your own.</p>
+            </div>
+          </li>
+        </ul>
+      </section>
+      <section class="live-messages-section detail-board-layout shell" aria-labelledby="messages-title">
+        <aside class="detail-board-navigation" aria-label="Sub-yap navigation">
+          <nav aria-label="Message views">
+            <a class="detail-nav-link" href="/#messages-title" aria-current="page">All messages</a>
+          </nav>
+          <details class="detail-board-menu" open>
+            <summary>Sub-yaps</summary>
+            <p id="boards-status" class="detail-sidebar-status" role="status">Loading sub-yaps…</p>
+            <ul id="board-navigation" aria-label="Sub-yaps" aria-busy="true"></ul>
+            <button id="boards-retry" class="messages-retry" type="button" hidden>Retry sub-yaps</button>
+          </details>
+        </aside>
+        <div class="live-messages-feed">
+          <h2 id="messages-title">Latest messages</h2>
+          <p id="messages-status" class="messages-status" role="status"></p>
+          <button id="messages-retry" class="messages-retry" type="button" hidden>Try again</button>
+          <ul id="live-messages" aria-labelledby="messages-title" aria-busy="false"></ul>
+          <noscript><p class="messages-status">Enable JavaScript to read the latest messages.</p></noscript>
+        </div>
+        <aside class="detail-recent-posts" aria-labelledby="recent-title">
+          <h2 id="recent-title">Recent posts</h2>
+          <p id="recent-status" class="detail-sidebar-status" role="status">Loading posts…</p>
+          <ul id="recent-posts" aria-labelledby="recent-title" aria-busy="true"></ul>
+          <button id="recent-retry" class="messages-retry" type="button" hidden>Retry recent posts</button>
+        </aside>
+      </section>
+      <section
+        class="community-section shell"
+        id="communities"
+        aria-labelledby="community-title"
+      >
+        <div class="section-intro">
+          <p class="eyebrow">Small communities. Big conversations.</p>
+          <h2 id="community-title">All the ways to yap.</h2>
+          <p>
+            A familiar sub-yap, with the details that make a community
+            feel like home.
+          </p>
+        </div>
+        <div class="community-details">
+          <article>
+            <svg class="icon detail-icon" aria-hidden="true">
+              <use href="#chat" />
+            </svg>
+            <h3>More than a post.</h3>
+            <p>
+              Text, links, images, videos, and polls. Threaded replies,
+              crossposts, post flair, and AMAs keep the conversation going in
+              every direction.
+            </p>
+          </article>
+          <article>
+            <svg class="icon detail-icon" aria-hidden="true">
+              <use href="#people" />
+            </svg>
+            <h3>A feed that feels like you.</h3>
+            <p>
+              Join sub-yaps, follow people, and build custom feeds. Sort by
+              what’s hot, new, or top. Search, save a good find, or take a
+              conversation to private messages and chat.
+            </p>
+          </article>
+          <article>
+            <svg class="icon detail-icon" aria-hidden="true">
+              <use href="#shield" />
+            </svg>
+            <h3>Your community. Your call.</h3>
+            <p>
+              Moderators set the rules, pin important posts, manage flair and
+              wikis, review reports, remove content, and handle bans. Mod mail
+              and moderation logs keep teams on the same page.
+            </p>
+          </article>
+        </div>
+      </section>
+      <section
+        class="open-source-section"
+        id="open-source"
+        aria-labelledby="source-title"
+      >
+        <div class="open-source-layout shell">
+          <div class="open-source-copy">
+            <p class="eyebrow">The code is part of the conversation.</p>
+            <h2 id="source-title">
+              An open source sub-yap.<br /><span>Open to what’s next.</span>
+            </h2>
+            <p>
+              Yapern is licensed under GPL v3. Explore the source, report an
+              issue, contribute a fix, or build something of your own.
+            </p>
+            <a class="source-link" href="https://github.com/yapern/web"
+              >Find Yapern on GitHub
+              <svg class="icon" aria-hidden="true"><use href="#arrow" /></svg
+            ></a>
+          </div>
+          <div class="project-details">
+            <a class="project-row" href="https://github.com/yapern/web"
+              ><svg class="icon" aria-hidden="true"><use href="#github" /></svg>
+              <div>
+                <span class="project-label">THE SOURCE</span
+                ><strong>yapern / web</strong
+                ><span>Every contribution starts with a conversation.</span>
+              </div>
+              <svg class="icon" aria-hidden="true">
+                <use href="#arrow" /></svg></a
+            ><a class="project-row" href="https://github.com/yapern/backend"
+              ><svg class="icon" aria-hidden="true"><use href="#code" /></svg>
+              <div>
+                <span class="project-label">THE BACKEND</span
+                ><strong>Yapern API</strong
+                ><span>The backend behind Yapern.</span>
+              </div>
+              <svg class="icon" aria-hidden="true">
+                <use href="#arrow" /></svg></a
+            ><a
+              class="license-link"
+              href="https://github.com/yapern/web/blob/main/LICENSE"
+              ><svg class="icon" aria-hidden="true"><use href="#code" /></svg
+              >GNU General Public License v3.0
+              <span aria-hidden="true">↗</span></a
+            >
+          </div>
+        </div>
+      </section>
+    </main>
+    <footer class="site-footer shell">
+      <a class="brand footer-brand" href="/"
+        >yapern<span class="brand-dot">.</span></a
+      >
+      <p>A sub-yap for everything you’re into.</p>
+      <nav aria-label="Footer">
+        <a href="/blog/">Blog</a
+        ><a href="https://github.com/yapern/web">GitHub</a
+        ><a href="https://github.com/yapern/web/blob/main/LICENSE"
+          >GPL v3</a
+        ><a href="https://api.yapern.com/docs"
+          >API docs <span aria-hidden="true">↗</span></a
+        ><a href="/terms">Terms</a><a href="/privacy">Privacy</a>
+      </nav>
+    </footer>
+  </body>
+</html>

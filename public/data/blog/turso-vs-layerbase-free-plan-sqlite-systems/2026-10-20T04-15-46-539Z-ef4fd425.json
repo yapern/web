@@ -1,0 +1,587 @@
+{
+  "runId": "2026-10-20T04-15-46-539Z-ef4fd425",
+  "startedAt": "2026-10-20T04:15:46.540Z",
+  "provider": "turso",
+  "endpoint": "[database-host]",
+  "runtime": {
+    "node": "v22.22.2",
+    "platform": "darwin",
+    "arch": "arm64",
+    "cpuCount": 16
+  },
+  "transport": "Hrana v2 JSON over HTTPS/1.1; pooled TCP/TLS sockets; one SQL statement and stream close per request; no retries",
+  "limits": {
+    "durationSeconds": 8,
+    "confirmationSeconds": 20,
+    "maxConcurrency": 256,
+    "maxWriteRows": 1000000,
+    "maxRequests": 250000,
+    "maxSeconds": 600
+  },
+  "schemaSha256": "43537bf04c8a42aeaeaa4e223a8e4c0c2ba1b369cfacd6d4326c8281f0e632b6",
+  "methodology": {
+    "phase": "Closed-loop concurrency; 2-second warmup excluded; all in-flight work drained and included in elapsed time",
+    "payload": "256 ASCII bytes per inserted event; batch is 100 rows in one atomic INSERT statement",
+    "seed": "10,000 users + 2,000 projects + 100,000 events generated server-side; seeding excluded from throughput",
+    "percentiles": "Client end-to-end latency includes JSON encoding/decoding, network, server, and queueing",
+    "limitations": "One remote client, warmed data, bounded stages; these are observed application throughput, not an isolated server maximum"
+  },
+  "stages": [
+    {
+      "name": "point_read",
+      "concurrency": 1,
+      "warmup": {
+        "requestedDurationSeconds": 2,
+        "successes": 27,
+        "errors": 0,
+        "readQueries": 27,
+        "writeQueries": 0,
+        "rowsWritten": 0,
+        "rowsReturned": 27,
+        "latencyMs": {
+          "p50Ms": 68.80958400000054,
+          "p95Ms": 110.41470900000058,
+          "p99Ms": 110.64516700000058,
+          "maxMs": 110.64516700000058
+        },
+        "readLatencyMs": {
+          "p50Ms": 68.80958400000054,
+          "p95Ms": 110.41470900000058,
+          "p99Ms": 110.64516700000058,
+          "maxMs": 110.64516700000058
+        },
+        "writeLatencyMs": {
+          "p50Ms": null,
+          "p95Ms": null,
+          "p99Ms": null,
+          "maxMs": null
+        },
+        "errorCodes": {},
+        "errorSamples": [],
+        "stopReason": null,
+        "attempted": 27,
+        "errorRate": 0,
+        "elapsedSeconds": 2.0247099160000017,
+        "successfulRequestsPerSecond": 13.335243625092206
+      },
+      "requestedDurationSeconds": 8,
+      "successes": 106,
+      "errors": 0,
+      "readQueries": 106,
+      "writeQueries": 0,
+      "rowsWritten": 0,
+      "rowsReturned": 106,
+      "latencyMs": {
+        "p50Ms": 69.00516700000117,
+        "p95Ms": 110.08616699999948,
+        "p99Ms": 113.18349999999919,
+        "maxMs": 163.65620900000067
+      },
+      "readLatencyMs": {
+        "p50Ms": 69.00516700000117,
+        "p95Ms": 110.08616699999948,
+        "p99Ms": 113.18349999999919,
+        "maxMs": 163.65620900000067
+      },
+      "writeLatencyMs": {
+        "p50Ms": null,
+        "p95Ms": null,
+        "p99Ms": null,
+        "maxMs": null
+      },
+      "errorCodes": {},
+      "errorSamples": [],
+      "stopReason": null,
+      "attempted": 106,
+      "errorRate": 0,
+      "elapsedSeconds": 8.003213542000001,
+      "successfulRequestsPerSecond": 13.244679708185148,
+      "eventLoopDelayMs": {
+        "mean": 20.922002477690288,
+        "p99": 21.725183,
+        "max": 21.970943
+      },
+      "cpuUserMs": 59.582,
+      "cpuSystemMs": 16.999,
+      "confirmation": false
+    },
+    {
+      "name": "point_read",
+      "concurrency": 8,
+      "warmup": {
+        "requestedDurationSeconds": 2,
+        "successes": 202,
+        "errors": 0,
+        "readQueries": 202,
+        "writeQueries": 0,
+        "rowsWritten": 0,
+        "rowsReturned": 202,
+        "latencyMs": {
+          "p50Ms": 70.10787499999788,
+          "p95Ms": 109.04529099999854,
+          "p99Ms": 248.29883300000074,
+          "maxMs": 248.89916599999924
+        },
+        "readLatencyMs": {
+          "p50Ms": 70.10787499999788,
+          "p95Ms": 109.04529099999854,
+          "p99Ms": 248.29883300000074,
+          "maxMs": 248.89916599999924
+        },
+        "writeLatencyMs": {
+          "p50Ms": null,
+          "p95Ms": null,
+          "p99Ms": null,
+          "maxMs": null
+        },
+        "errorCodes": {},
+        "errorSamples": [],
+        "stopReason": null,
+        "attempted": 202,
+        "errorRate": 0,
+        "elapsedSeconds": 2.0394060419999986,
+        "successfulRequestsPerSecond": 99.04844638093905
+      },
+      "requestedDurationSeconds": 8,
+      "successes": 817,
+      "errors": 0,
+      "readQueries": 817,
+      "writeQueries": 0,
+      "rowsWritten": 0,
+      "rowsReturned": 817,
+      "latencyMs": {
+        "p50Ms": 70.6438330000019,
+        "p95Ms": 158.12787500000195,
+        "p99Ms": 165.0637910000005,
+        "maxMs": 165.5710829999989
+      },
+      "readLatencyMs": {
+        "p50Ms": 70.6438330000019,
+        "p95Ms": 158.12787500000195,
+        "p99Ms": 165.0637910000005,
+        "maxMs": 165.5710829999989
+      },
+      "writeLatencyMs": {
+        "p50Ms": null,
+        "p95Ms": null,
+        "p99Ms": null,
+        "maxMs": null
+      },
+      "errorCodes": {},
+      "errorSamples": [],
+      "stopReason": null,
+      "attempted": 817,
+      "errorRate": 0,
+      "elapsedSeconds": 8.067146208999999,
+      "successfulRequestsPerSecond": 101.27497120214896,
+      "eventLoopDelayMs": {
+        "mean": 20.86361965714286,
+        "p99": 21.626879,
+        "max": 21.839871
+      },
+      "cpuUserMs": 160.068,
+      "cpuSystemMs": 29.983,
+      "confirmation": false
+    },
+    {
+      "name": "point_read",
+      "concurrency": 32,
+      "warmup": {
+        "requestedDurationSeconds": 2,
+        "successes": 725,
+        "errors": 0,
+        "readQueries": 725,
+        "writeQueries": 0,
+        "rowsWritten": 0,
+        "rowsReturned": 725,
+        "latencyMs": {
+          "p50Ms": 71.18912500000079,
+          "p95Ms": 162.26974999999948,
+          "p99Ms": 328.7933329999978,
+          "maxMs": 330.93520900000294
+        },
+        "readLatencyMs": {
+          "p50Ms": 71.18912500000079,
+          "p95Ms": 162.26974999999948,
+          "p99Ms": 328.7933329999978,
+          "maxMs": 330.93520900000294
+        },
+        "writeLatencyMs": {
+          "p50Ms": null,
+          "p95Ms": null,
+          "p99Ms": null,
+          "maxMs": null
+        },
+        "errorCodes": {},
+        "errorSamples": [],
+        "stopReason": null,
+        "attempted": 725,
+        "errorRate": 0,
+        "elapsedSeconds": 2.0326764999999978,
+        "successfulRequestsPerSecond": 356.67259399122327
+      },
+      "requestedDurationSeconds": 8,
+      "successes": 3173,
+      "errors": 0,
+      "readQueries": 3173,
+      "writeQueries": 0,
+      "rowsWritten": 0,
+      "rowsReturned": 3173,
+      "latencyMs": {
+        "p50Ms": 71.31337500000154,
+        "p95Ms": 159.29416599999968,
+        "p99Ms": 163.9632089999941,
+        "maxMs": 173.6842080000024
+      },
+      "readLatencyMs": {
+        "p50Ms": 71.31337500000154,
+        "p95Ms": 159.29416599999968,
+        "p99Ms": 163.9632089999941,
+        "maxMs": 173.6842080000024
+      },
+      "writeLatencyMs": {
+        "p50Ms": null,
+        "p95Ms": null,
+        "p99Ms": null,
+        "maxMs": null
+      },
+      "errorCodes": {},
+      "errorSamples": [],
+      "stopReason": null,
+      "attempted": 3173,
+      "errorRate": 0,
+      "elapsedSeconds": 8.096668125,
+      "successfulRequestsPerSecond": 391.8895959441341,
+      "eventLoopDelayMs": {
+        "mean": 20.792942845360823,
+        "p99": 21.741567,
+        "max": 21.921791
+      },
+      "cpuUserMs": 430.505,
+      "cpuSystemMs": 68.225,
+      "confirmation": false
+    },
+    {
+      "name": "point_read",
+      "concurrency": 64,
+      "warmup": {
+        "requestedDurationSeconds": 2,
+        "successes": 1504,
+        "errors": 0,
+        "readQueries": 1504,
+        "writeQueries": 0,
+        "rowsWritten": 0,
+        "rowsReturned": 1504,
+        "latencyMs": {
+          "p50Ms": 71.80541699999594,
+          "p95Ms": 160.87120799999684,
+          "p99Ms": 236.7980000000025,
+          "maxMs": 247.42670800000633
+        },
+        "readLatencyMs": {
+          "p50Ms": 71.80541699999594,
+          "p95Ms": 160.87120799999684,
+          "p99Ms": 236.7980000000025,
+          "maxMs": 247.42670800000633
+        },
+        "writeLatencyMs": {
+          "p50Ms": null,
+          "p95Ms": null,
+          "p99Ms": null,
+          "maxMs": null
+        },
+        "errorCodes": {},
+        "errorSamples": [],
+        "stopReason": null,
+        "attempted": 1504,
+        "errorRate": 0,
+        "elapsedSeconds": 2.0914138749999984,
+        "successfulRequestsPerSecond": 719.1307363780405
+      },
+      "requestedDurationSeconds": 8,
+      "successes": 6357,
+      "errors": 0,
+      "readQueries": 6357,
+      "writeQueries": 0,
+      "rowsWritten": 0,
+      "rowsReturned": 6357,
+      "latencyMs": {
+        "p50Ms": 71.56804199999897,
+        "p95Ms": 159.07304199999635,
+        "p99Ms": 162.62458300000435,
+        "maxMs": 185.09916699999303
+      },
+      "readLatencyMs": {
+        "p50Ms": 71.56804199999897,
+        "p95Ms": 159.07304199999635,
+        "p99Ms": 162.62458300000435,
+        "maxMs": 185.09916699999303
+      },
+      "writeLatencyMs": {
+        "p50Ms": null,
+        "p95Ms": null,
+        "p99Ms": null,
+        "maxMs": null
+      },
+      "errorCodes": {},
+      "errorSamples": [],
+      "stopReason": null,
+      "attempted": 6357,
+      "errorRate": 0,
+      "elapsedSeconds": 8.048423457999997,
+      "successfulRequestsPerSecond": 789.8441270111415,
+      "eventLoopDelayMs": {
+        "mean": 20.800634031088084,
+        "p99": 21.741567,
+        "max": 21.823487
+      },
+      "cpuUserMs": 375.243,
+      "cpuSystemMs": 98.345,
+      "confirmation": false
+    },
+    {
+      "name": "point_read",
+      "concurrency": 128,
+      "warmup": {
+        "requestedDurationSeconds": 2,
+        "successes": 3026,
+        "errors": 0,
+        "readQueries": 3026,
+        "writeQueries": 0,
+        "rowsWritten": 0,
+        "rowsReturned": 3026,
+        "latencyMs": {
+          "p50Ms": 71.85674999999901,
+          "p95Ms": 161.75774999999703,
+          "p99Ms": 331.96958299999824,
+          "maxMs": 338.13158300000214
+        },
+        "readLatencyMs": {
+          "p50Ms": 71.85674999999901,
+          "p95Ms": 161.75774999999703,
+          "p99Ms": 331.96958299999824,
+          "maxMs": 338.13158300000214
+        },
+        "writeLatencyMs": {
+          "p50Ms": null,
+          "p95Ms": null,
+          "p99Ms": null,
+          "maxMs": null
+        },
+        "errorCodes": {},
+        "errorSamples": [],
+        "stopReason": null,
+        "attempted": 3026,
+        "errorRate": 0,
+        "elapsedSeconds": 2.066190458000005,
+        "successfulRequestsPerSecond": 1464.5310108193294
+      },
+      "requestedDurationSeconds": 8,
+      "successes": 12364,
+      "errors": 0,
+      "readQueries": 12364,
+      "writeQueries": 0,
+      "rowsWritten": 0,
+      "rowsReturned": 12364,
+      "latencyMs": {
+        "p50Ms": 71.68800000000192,
+        "p95Ms": 161.09900000000198,
+        "p99Ms": 169.11500000000524,
+        "maxMs": 244.12225000000035
+      },
+      "readLatencyMs": {
+        "p50Ms": 71.68800000000192,
+        "p95Ms": 161.09900000000198,
+        "p99Ms": 169.11500000000524,
+        "maxMs": 244.12225000000035
+      },
+      "writeLatencyMs": {
+        "p50Ms": null,
+        "p95Ms": null,
+        "p99Ms": null,
+        "maxMs": null
+      },
+      "errorCodes": {},
+      "errorSamples": [],
+      "stopReason": null,
+      "attempted": 12364,
+      "errorRate": 0,
+      "elapsedSeconds": 8.157613957999995,
+      "successfulRequestsPerSecond": 1515.6392621245448,
+      "eventLoopDelayMs": {
+        "mean": 20.743774040816326,
+        "p99": 21.708799,
+        "max": 22.085631
+      },
+      "cpuUserMs": 632.47,
+      "cpuSystemMs": 166.97,
+      "confirmation": false
+    },
+    {
+      "name": "point_read",
+      "concurrency": 256,
+      "warmup": {
+        "requestedDurationSeconds": 2,
+        "successes": 5805,
+        "errors": 0,
+        "readQueries": 5805,
+        "writeQueries": 0,
+        "rowsWritten": 0,
+        "rowsReturned": 5805,
+        "latencyMs": {
+          "p50Ms": 72.87008300000161,
+          "p95Ms": 160.29179200000362,
+          "p99Ms": 320.4899580000056,
+          "maxMs": 479.903250000003
+        },
+        "readLatencyMs": {
+          "p50Ms": 72.87008300000161,
+          "p95Ms": 160.29179200000362,
+          "p99Ms": 320.4899580000056,
+          "maxMs": 479.903250000003
+        },
+        "writeLatencyMs": {
+          "p50Ms": null,
+          "p95Ms": null,
+          "p99Ms": null,
+          "maxMs": null
+        },
+        "errorCodes": {},
+        "errorSamples": [],
+        "stopReason": null,
+        "attempted": 5805,
+        "errorRate": 0,
+        "elapsedSeconds": 2.1407197500000037,
+        "successfulRequestsPerSecond": 2711.704789942724
+      },
+      "requestedDurationSeconds": 8,
+      "successes": 23725,
+      "errors": 257,
+      "readQueries": 23725,
+      "writeQueries": 0,
+      "rowsWritten": 0,
+      "rowsReturned": 23725,
+      "latencyMs": {
+        "p50Ms": 72.70766700000968,
+        "p95Ms": 159.09758400000283,
+        "p99Ms": 162.96133299999929,
+        "maxMs": 378.82474999999977
+      },
+      "readLatencyMs": {
+        "p50Ms": 72.73633400000108,
+        "p95Ms": 159.00720799999544,
+        "p99Ms": 162.9610829999947,
+        "maxMs": 378.82474999999977
+      },
+      "writeLatencyMs": {
+        "p50Ms": null,
+        "p95Ms": null,
+        "p99Ms": null,
+        "maxMs": null
+      },
+      "errorCodes": {
+        "HTTP_429": 257
+      },
+      "errorSamples": [
+        {
+          "code": "HTTP_429",
+          "message": "{\"error\":\"load-shed for host [database-host]\"}"
+        },
+        {
+          "code": "HTTP_429",
+          "message": "{\"error\":\"load-shed for host [database-host]\"}"
+        },
+        {
+          "code": "HTTP_429",
+          "message": "{\"error\":\"load-shed for host [database-host]\"}"
+        }
+      ],
+      "stopReason": null,
+      "attempted": 23982,
+      "errorRate": 0.010716370611291803,
+      "elapsedSeconds": 8.054165499999996,
+      "successfulRequestsPerSecond": 2945.6807163945177,
+      "eventLoopDelayMs": {
+        "mean": 20.678381525773197,
+        "p99": 22.134783,
+        "max": 28.475391
+      },
+      "cpuUserMs": 1171.331,
+      "cpuSystemMs": 299.749,
+      "confirmation": false
+    }
+  ],
+  "before": {
+    "sqlite_version": "3.47.0",
+    "journal_mode": "wal",
+    "foreign_keys": 1,
+    "page_size": 4096,
+    "page_count": 1
+  },
+  "seedCounts": {
+    "users": 10000,
+    "projects": 2000,
+    "events": 100000
+  },
+  "updateCounterBefore": 0,
+  "queryPlans": {
+    "point": [
+      {
+        "id": 2,
+        "parent": 0,
+        "notused": 33,
+        "detail": "SEARCH lbbench_users USING INTEGER PRIMARY KEY (rowid=?)"
+      }
+    ],
+    "join": [
+      {
+        "id": 7,
+        "parent": 0,
+        "notused": 45,
+        "detail": "SEARCH p USING INTEGER PRIMARY KEY (rowid=?)"
+      },
+      {
+        "id": 11,
+        "parent": 0,
+        "notused": 61,
+        "detail": "SEARCH e USING INDEX lbbench_events_project_created (project_id=?)"
+      },
+      {
+        "id": 18,
+        "parent": 0,
+        "notused": 45,
+        "detail": "SEARCH u USING INTEGER PRIMARY KEY (rowid=?)"
+      }
+    ]
+  },
+  "stopReason": "Service overload or request timeouts; remaining load skipped",
+  "loadElapsedSeconds": 60.900955084,
+  "accounting": {
+    "requests": 58088,
+    "attemptedInsertRows": 0,
+    "acknowledgedInsertRows": 0,
+    "acknowledgedUpdates": 0,
+    "stoppedByBudgetOrSignal": true
+  },
+  "verification": {
+    "persistedInserts": 0,
+    "updateCounterAfter": 0,
+    "invalidPayloads": 0,
+    "insertCountMatchesAcknowledged": true,
+    "updateCountMatchesAcknowledged": true,
+    "foreignKeyViolations": 0,
+    "quickCheck": [
+      {
+        "quick_check": "ok"
+      }
+    ]
+  },
+  "after": {
+    "sqlite_version": "3.47.0",
+    "journal_mode": "wal",
+    "foreign_keys": 1,
+    "page_size": 4096,
+    "page_count": 8299
+  },
+  "finishedAt": "2026-10-20T04:16:56.969Z"
+}

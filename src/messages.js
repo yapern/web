@@ -1,0 +1,269 @@
+import { fetchMessages, fetchBoards, fetchBoardPage, fetchMessageAuthors, deleteMessage } from "./messages-api.js";
+import { readStoredSession } from "./auth.js";
+import { boardHref, messageHref, parseBoardRoute } from "./board-routes.js";
+import { mountBoardSidebars } from "./board-sidebars.js";
+import { parseMessageText } from "./message-text.js";
+import { externalLinkHref } from "./external-links.js";
+import { mountReplies } from "./replies.js";
+
+const list = document.querySelector("#live-messages");
+const status = document.querySelector("#messages-status");
+const retry = document.querySelector("#messages-retry");
+const dateFormat = new Intl.DateTimeFormat(undefined, { dateStyle: "medium" });
+const heading = document.querySelector("#messages-title");
+const description = document.querySelector("#board-description");
+const isBoardPage = document.body.classList.contains("board-page");
+const route = isBoardPage ? parseBoardRoute(window.location.pathname) : null;
+
+function syncDeleteAction() {
+  const button = list.querySelector(".live-message-delete");
+  if (button) button.hidden = readStoredSession()?.session.user_id !== button.dataset.authorId;
+}
+
+function messageTextLink(part) {
+  const link = document.createElement("a");
+  link.href = externalLinkHref(part.href, window.location.origin);
+  link.textContent = part.text;
+  link.target = "_blank";
+  link.rel = "noopener noreferrer";
+  return link;
+}
+
+function messageRow(message, board, authors) {
+  const item = document.createElement("li");
+  const article = document.createElement("article");
+  const title = message.title === undefined ? null : document.createElement(isBoardPage ? "h2" : "h3");
+  if (title) {
+    title.className = "live-message-title";
+    if (board) {
+      const link = document.createElement("a");
+      link.href = messageHref(board.slug, message.id);
+      link.textContent = message.title;
+      title.append(link);
+    } else {
+      title.textContent = message.title;
+    }
+  }
+  const meta = document.createElement("p");
+  meta.className = "live-message-meta";
+  if (board) {
+    const link = document.createElement("a");
+    link.className = "live-message-board";
+    link.href = boardHref(board.slug);
+    link.textContent = `y/${board.slug}`;
+    meta.append(link, document.createTextNode(" · "));
+  }
+  const author = document.createElement("span");
+  author.textContent = authors.get(message.user_id) ?? "Name unavailable";
+  const date = document.createElement("time");
+  date.dateTime = message.created_at;
+  date.textContent = dateFormat.format(new Date(message.created_at));
+  meta.append(author, document.createTextNode(" · "), date);
+  const body = document.createElement("p");
+  body.className = "live-message-body";
+  const youtubeParts = [];
+  for (const part of parseMessageText(message.body)) {
+    if (part.youtubeEmbed) {
+      youtubeParts.push(part);
+    } else if (part.imageUrl) {
+      const image = document.createElement("img");
+      image.className = "live-message-image";
+      image.referrerPolicy = "no-referrer";
+      image.src = part.imageUrl;
+      image.alt = "Shared image";
+      image.loading = "lazy";
+      image.decoding = "async";
+      let imageContainer = image;
+      if (board) {
+        const link = document.createElement("a");
+        link.href = messageHref(board.slug, message.id);
+        link.append(image);
+        imageContainer = link;
+      }
+      image.addEventListener("error", () => imageContainer.replaceWith(messageTextLink(part)), { once: true });
+      body.append(imageContainer);
+    } else if (part.href) {
+      body.append(messageTextLink(part));
+    } else {
+      body.append(document.createTextNode(part.text));
+    }
+  }
+  article.append(meta);
+  if (title) article.append(title);
+  article.append(body);
+  for (const part of youtubeParts) {
+    const video = document.createElement("iframe");
+    video.className = "live-message-video";
+    video.width = 560;
+    video.height = 315;
+    video.src = part.youtubeEmbed;
+    video.title = "YouTube video player";
+    video.setAttribute("frameborder", "0");
+    video.setAttribute("allow", "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share");
+    video.referrerPolicy = "strict-origin-when-cross-origin";
+    video.allowFullscreen = true;
+    video.loading = "lazy";
+    article.append(video);
+  }
+  const boardSlug = board?.slug ?? route?.slug;
+  const actions = document.createElement("div");
+  actions.className = "live-message-actions";
+
+  const votes = document.createElement("div");
+  votes.className = "live-message-votes";
+  votes.setAttribute("role", "group");
+  votes.setAttribute("aria-label", "Voting unavailable");
+  votes.append(actionIcon("arrow-up", "Upvote"));
+  const voteCount = document.createElement("span");
+  voteCount.className = "live-message-vote-count";
+  voteCount.textContent = "1";
+  voteCount.setAttribute("aria-label", "1 vote");
+  votes.append(voteCount, actionIcon("arrow-down", "Downvote"));
+
+  const reply = document.createElement(boardSlug ? "a" : "span");
+  reply.className = boardSlug ? "live-message-action" : "live-message-action live-message-action-static";
+  if (boardSlug) reply.href = `${messageHref(boardSlug, message.message_id ?? message.id)}#message-replies-section`;
+  else reply.setAttribute("aria-label", "Reply unavailable");
+  reply.append(actionIcon("message", ""), document.createTextNode("Reply"));
+
+  const repost = document.createElement("span");
+  repost.className = "live-message-action live-message-action-static";
+  repost.setAttribute("aria-label", "Reposting unavailable");
+  repost.append(actionIcon("repost", ""));
+
+  const share = document.createElement("button");
+  share.className = "live-message-action live-message-share";
+  share.type = "button";
+  share.disabled = !boardSlug;
+  share.setAttribute("aria-label", "Share message");
+  share.append(actionIcon("share", ""), document.createTextNode("Share"));
+  const shareStatus = document.createElement("span");
+  shareStatus.className = "live-message-action-status";
+  shareStatus.setAttribute("role", "status");
+  shareStatus.setAttribute("aria-live", "polite");
+  share.addEventListener("click", async () => {
+    shareStatus.textContent = "";
+    const url = new URL(messageHref(boardSlug, message.message_id ?? message.id), window.location.origin).href;
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: message.title || "Yapern message", url });
+        return;
+      } catch (error) {
+        if (error?.name === "AbortError") return;
+      }
+    }
+    try {
+      if (!navigator.clipboard?.writeText) throw new Error("Clipboard unavailable");
+      await navigator.clipboard.writeText(url);
+      shareStatus.textContent = "Link copied.";
+    } catch {
+      shareStatus.textContent = "Sharing is unavailable.";
+    }
+  });
+  actions.append(votes, reply, repost, share, shareStatus);
+  article.append(actions);
+  if (board && route?.messageId === message.id) {
+    const remove = document.createElement("button");
+    remove.type = "button";
+    remove.className = "live-message-action live-message-delete";
+    remove.textContent = "Delete";
+    remove.dataset.authorId = message.user_id;
+    remove.hidden = true;
+    const error = document.createElement("p");
+    error.className = "create-error live-message-delete-error";
+    error.setAttribute("role", "alert");
+    remove.addEventListener("click", async () => {
+      syncDeleteAction();
+      if (remove.hidden || remove.disabled) return;
+      if (!window.confirm("Delete this message and all its replies? This cannot be undone.")) return;
+      remove.disabled = true;
+      remove.textContent = "Deleting…";
+      remove.setAttribute("aria-busy", "true");
+      error.textContent = "";
+      try {
+        await deleteMessage(message);
+        window.location.replace(boardHref(board.slug));
+      } catch (cause) {
+        error.textContent = cause instanceof Error ? cause.message : "Could not delete this message right now. Please try again.";
+      } finally {
+        remove.disabled = false;
+        remove.textContent = "Delete";
+        remove.setAttribute("aria-busy", "false");
+        syncDeleteAction();
+      }
+    });
+    actions.insertBefore(remove, shareStatus);
+    article.append(error);
+  }
+  item.append(article);
+  return item;
+}
+
+function actionIcon(name, label) {
+  const paths = {
+    "arrow-up": '<path d="M12 3 5 10h4v11h6V10h4L12 3Z"/>',
+    "arrow-down": '<path d="m12 21 7-7h-4V3H9v11H5l7 7Z"/>',
+    message: '<path d="M21 11.5a8.4 8.4 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.4 8.4 0 0 1 3.8-.9h.5a8.5 8.5 0 0 1 8 8v.5z"/>',
+    repost: '<path d="M20 11a8 8 0 0 0-14-5L4 8m0 0V4m0 4h4M4 13a8 8 0 0 0 14 5l2-2m0 0v4m0-4h-4"/>',
+    share: '<path d="M14 3v5C7 8 3 12 3 21c3-5 7-7 11-7v5l8-8-8-8Z"/>'
+  };
+  const icon = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  icon.classList.add("icon");
+  icon.setAttribute("viewBox", "0 0 24 24");
+  if (label) {
+    icon.setAttribute("role", "img");
+    icon.setAttribute("aria-label", label);
+  } else {
+    icon.setAttribute("aria-hidden", "true");
+  }
+  icon.innerHTML = paths[name];
+  return icon;
+}
+
+async function loadMessages() {
+  list.setAttribute("aria-busy", "true");
+  retry.hidden = true;
+  status.textContent = "Loading messages…";
+  try {
+    let data;
+    let boards;
+    if (isBoardPage) {
+      const result = route && await fetchBoardPage(route.slug, route.messageId);
+      if (!result) {
+        const resource = route?.messageId === undefined ? "Sub-yap" : "Message";
+        heading.textContent = `${resource} not found`;
+        document.title = `${resource} not found · Yapern`;
+        status.textContent = `We couldn't find that ${resource.toLowerCase()}.`;
+        list.replaceChildren();
+        return;
+      }
+      data = result.messages;
+      boards = [result.board];
+      heading.textContent = `y/${result.board.slug}`;
+      description.textContent = route.messageId === undefined ? result.board.description : "";
+      document.title = `${route.messageId === undefined ? `y/${result.board.slug}` : data[0].title} · Yapern`;
+    } else {
+      [data, boards] = await Promise.all([fetchMessages(), fetchBoards()]);
+    }
+    // Keep posts readable if profile lookups are temporarily unavailable.
+    const authors = await fetchMessageAuthors(data).catch(() => new Map());
+    const byId = new Map(boards.map(board => [board.id, board]));
+    list.replaceChildren(...data.map(message => messageRow(message, byId.get(message.board_id), authors)));
+    syncDeleteAction();
+    status.textContent = data.length ? "" : "No messages yet.";
+    if (route?.messageId !== undefined && data.length) {
+      mountReplies(data[0].id, (reply, replyAuthors) => messageRow(reply, null, replyAuthors));
+    }
+  } catch {
+    status.textContent = "Messages are unavailable right now. Please try again.";
+    retry.hidden = false;
+  } finally {
+    list.setAttribute("aria-busy", "false");
+  }
+}
+
+retry.addEventListener("click", loadMessages);
+for (const event of ["pageshow", "focus", "storage"]) window.addEventListener(event, syncDeleteAction);
+if (route) heading.textContent = `y/${route.slug}`;
+mountBoardSidebars(route?.slug);
+loadMessages();

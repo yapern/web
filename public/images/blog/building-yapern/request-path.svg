@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="284" viewBox="0 0 760 284" role="img" aria-labelledby="title desc">
+  <title id="title">Removing Yapern’s API proxy</title>
+  <desc id="desc">Two request paths to the same backend. Initially the browser called a Yapern Worker before reaching Mainbrella BFF. The next commit connected the browser directly to Mainbrella.</desc>
+  <defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="m0 0 8 4-8 4" fill="#4b5262"/></marker></defs>
+  <rect width="760" height="284" rx="6" fill="#f7f4ec"/>
+  <g font-family="Helvetica,Arial,sans-serif" fill="#263238">
+    <text x="24" y="32" font-size="15" font-weight="700">October 18 · 13:28</text>
+    <text x="24" y="176" font-size="15" font-weight="700">October 18 · 13:37</text>
+    <g fill="#fff" stroke="#a7a7a1" stroke-width="1.5">
+      <rect x="24" y="55" width="150" height="54" rx="4"/>
+      <rect x="290" y="55" width="180" height="54" rx="4" stroke="#ac6b4a"/>
+      <rect x="568" y="55" width="168" height="54" rx="4"/>
+      <rect x="24" y="199" width="150" height="54" rx="4"/>
+      <rect x="568" y="199" width="168" height="54" rx="4"/>
+    </g>
+    <g text-anchor="middle" font-size="17">
+      <text x="99" y="88">Browser</text>
+      <text x="380" y="88">Yapern Worker</text>
+      <text x="652" y="88">Mainbrella BFF</text>
+      <text x="99" y="232">Browser</text>
+      <text x="652" y="232">Mainbrella BFF</text>
+    </g>
+    <g fill="none" stroke="#4b5262" stroke-width="2" marker-end="url(#arrow)">
+      <path d="M174 82h108"/>
+      <path d="M470 82h90"/>
+      <path d="M174 226h386"/>
+    </g>
+    <g font-size="14" text-anchor="middle">
+      <text x="231" y="69">/api/messages</text>
+      <text x="380" y="211">Direct table request</text>
+      <text x="380" y="138" fill="#8c4b2c">Proxy removed in the next commit</text>
+    </g>
+  </g>
+</svg>

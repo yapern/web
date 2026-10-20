@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#090d17" />
+    <link rel="icon" href="/images/favicon.png" type="image/png" />
+    <link rel="stylesheet" href="/yapern.css" />
+    <script type="module" src="/src/messages.js"></script>
+    <script type="module" src="/src/auth-nav.js"></script>
+    <script type="module" src="/src/create.js"></script>
+    <title>Sub-yap · Yapern</title>
+  </head>
+  <body class="board-page">
+    <a class="skip-link" href="#main">Skip to content</a>
+    <!-- site-header -->
+    <main id="main" class="live-messages-section detail-board-layout shell">
+      <aside class="detail-board-navigation" aria-label="Sub-yap navigation">
+        <nav aria-label="Message views">
+          <a class="detail-nav-link" href="/#messages-title">All messages</a>
+        </nav>
+        <details class="detail-board-menu" open>
+          <summary>Sub-yaps</summary>
+          <p id="boards-status" class="detail-sidebar-status" role="status">Loading sub-yaps…</p>
+          <ul id="board-navigation" aria-label="Sub-yaps" aria-busy="true"></ul>
+          <button id="boards-retry" class="messages-retry" type="button" hidden>Retry sub-yaps</button>
+        </details>
+      </aside>
+      <section class="live-messages-feed" aria-labelledby="messages-title">
+        <h1 id="messages-title">Sub-yap</h1>
+        <p id="board-description" class="board-description"></p>
+        <p id="messages-status" class="messages-status" role="status"></p>
+        <button id="messages-retry" class="messages-retry" type="button" hidden>Try again</button>
+        <ul id="live-messages" aria-labelledby="messages-title" aria-busy="false"></ul>
+        <section id="message-replies-section" class="message-replies-section" aria-label="Replies" hidden>
+          <form id="reply-form" class="reply-form">
+            <div class="reply-editor" id="reply-editor">
+              <label class="sr-only" for="reply-body">Add your reply</label>
+              <textarea id="reply-body" name="body" rows="1" required maxlength="2000" placeholder="add your reply" aria-describedby="reply-error reply-auth"></textarea>
+              <div class="reply-editor-footer" id="reply-controls" hidden>
+                <div class="reply-tools" role="group" aria-label="Reply tools">
+                  <span class="reply-tool" role="img" aria-label="Image" title="Image"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8" cy="8" r="1.5"/><path d="m3 16 5-5 5 5 3-3 5 5"/></svg></span>
+                  <span class="reply-tool" role="img" aria-label="Video" title="Video"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="7"/><path d="m10 8 6 4-6 4z"/></svg></span>
+                  <span class="reply-tool reply-tool-gif" role="img" aria-label="GIF" title="GIF">GIF</span>
+                  <span class="reply-tool reply-tool-text" role="img" aria-label="Text formatting" title="Text formatting">Aa</span>
+                </div>
+                <div class="reply-actions">
+                  <button id="reply-cancel" class="reply-cancel" type="button">Cancel</button>
+                  <button id="reply-submit" class="reply-submit" type="submit" disabled>Yap</button>
+                </div>
+              </div>
+            </div>
+            <p id="reply-auth" class="reply-auth" hidden><a href="/login/">Log in</a> to reply.</p>
+            <p id="reply-error" class="create-error" role="alert"></p>
+            <p id="reply-feedback" class="reply-feedback" role="status"></p>
+          </form>
+          <h2 class="replies-heading">Replies</h2>
+          <p id="replies-status" class="messages-status" role="status"></p>
+          <button id="replies-retry" class="messages-retry" type="button" hidden>Retry replies</button>
+          <ul id="message-replies" aria-label="Replies" aria-busy="false"></ul>
+        </section>
+        <noscript><p class="messages-status">Enable JavaScript to read messages.</p></noscript>
+      </section>
+      <aside class="detail-recent-posts" aria-labelledby="recent-title">
+        <h2 id="recent-title">Recent posts</h2>
+        <p id="recent-status" class="detail-sidebar-status" role="status">Loading posts…</p>
+        <ul id="recent-posts" aria-labelledby="recent-title" aria-busy="true"></ul>
+        <button id="recent-retry" class="messages-retry" type="button" hidden>Retry recent posts</button>
+      </aside>
+    </main>
+    <footer class="site-footer shell">
+      <a class="brand footer-brand" href="/">yapern<span class="brand-dot">.</span></a>
+      <nav aria-label="Footer"><a href="/blog/">Blog</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a></nav>
+    </footer>
+  </body>
+</html>

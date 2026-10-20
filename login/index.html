@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#090d17" />
+    <meta name="description" content="Log in or create a Yapern account with your email and password." />
+    <link rel="canonical" href="https://yapern.com/login/" />
+    <link rel="icon" href="/images/favicon.png" type="image/png" />
+    <link rel="stylesheet" href="/yapern.css" />
+    <title>Log in · Yapern</title>
+  </head>
+  <body class="login-body">
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header shell">
+      <a class="brand" href="/" aria-label="Yapern home"><img src="/images/logo.png" alt="" width="36" height="36" />yapern<span class="brand-dot">.</span></a>
+      <a class="login-home" href="/">Back to Yapern</a>
+    </header>
+    <main id="main" class="login-main">
+      <section class="login-content" aria-labelledby="login-title" aria-busy="true">
+        <h1 id="login-title">Log in</h1>
+        <p class="login-status" role="status">Checking your session…</p>
+        <div class="login-error" role="alert" hidden></div>
+        <form class="email-login-form" hidden>
+          <label for="login-email">Email</label>
+          <input id="login-email" name="email" type="email" autocomplete="username" autocapitalize="none" spellcheck="false" maxlength="254" required />
+          <label for="login-password">Password</label>
+          <input id="login-password" name="password" type="password" autocomplete="current-password" maxlength="128" aria-describedby="email-login-help" required />
+          <p id="email-login-help">New here? We’ll create your account. Use at least 8 characters for a new password.</p>
+          <button class="button email-login-submit" type="submit">Continue with email</button>
+        </form>
+        <div class="login-signed-in" hidden>
+          <p>Signed in as <strong class="login-identity"></strong></p>
+          <a class="button" href="/">Continue to Yapern</a>
+          <button class="login-sign-out" type="button">Sign out</button>
+        </div>
+        <noscript><p>Enable JavaScript to sign in.</p></noscript>
+      </section>
+    </main>
+    <script type="module" src="/src/login.js"></script>
+  </body>
+</html>

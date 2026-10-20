@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#090d17" />
+    <meta name="robots" content="noindex" />
+    <link rel="canonical" href="https://yapern.com/account/" />
+    <link rel="icon" href="/images/favicon.png" type="image/png" />
+    <link rel="stylesheet" href="/yapern.css" />
+    <title>Account · Yapern</title>
+  </head>
+  <body class="login-body">
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header shell">
+      <a class="brand" href="/" aria-label="Yapern home"><img src="/images/logo.png" alt="" width="36" height="36" />yapern<span class="brand-dot">.</span></a>
+      <a class="login-home" href="/">Back to Yapern</a>
+    </header>
+    <main id="main" class="login-main">
+      <section class="login-content account-content" aria-labelledby="account-title" aria-busy="true">
+        <h1 id="account-title">Account</h1>
+        <p class="login-status" role="status">Loading your account…</p>
+        <div class="login-error" role="alert" hidden></div>
+        <p class="account-email login-identity" hidden></p>
+        <form class="email-login-form" hidden>
+          <label for="account-name">Name</label>
+          <input id="account-name" name="name" type="text" autocomplete="name" maxlength="80" required />
+          <button class="button email-login-submit" type="submit">Save name</button>
+        </form>
+        <button class="messages-retry" id="account-retry" type="button" hidden>Try again</button>
+        <a class="button account-login" href="/login/" hidden>Log in</a>
+        <button class="login-sign-out" type="button" hidden>Sign out</button>
+        <noscript><p>Enable JavaScript to manage your account.</p></noscript>
+      </section>
+    </main>
+    <script type="module" src="/src/account.js"></script>
+  </body>
+</html>

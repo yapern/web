@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="360" height="408" viewBox="0 0 360 408" role="img" aria-labelledby="title desc">
+  <title id="title">One fewer service in the request path</title>
+  <desc id="desc">Read from top to bottom. At 13:28 the browser called a Yapern Worker, which called Mainbrella. At 13:37 the browser called Mainbrella directly.</desc>
+  <defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="m0 0 8 4-8 4" fill="#4b5262"/></marker></defs>
+  <rect width="360" height="408" rx="6" fill="#f7f4ec"/>
+  <g font-family="Helvetica,Arial,sans-serif" fill="#263238" text-anchor="middle">
+    <text x="180" y="30" font-size="15" font-weight="700">October 18 · Removing the proxy</text>
+    <g font-size="15" font-weight="700"><text x="92" y="62">13:28</text><text x="268" y="62">13:37</text></g>
+    <g fill="#fff" stroke="#a7a7a1" stroke-width="1.5">
+      <rect x="20" y="82" width="144" height="48" rx="4"/>
+      <rect x="196" y="82" width="144" height="48" rx="4"/>
+      <rect x="20" y="218" width="144" height="48" rx="4" stroke="#ac6b4a"/>
+      <rect x="20" y="338" width="144" height="48" rx="4"/>
+      <rect x="196" y="338" width="144" height="48" rx="4"/>
+    </g>
+    <g font-size="16"><text x="92" y="111">Browser</text><text x="268" y="111">Browser</text><text x="92" y="247">Yapern Worker</text><text x="92" y="367">Mainbrella BFF</text><text x="268" y="367">Mainbrella BFF</text></g>
+    <g fill="none" stroke="#4b5262" stroke-width="2" marker-end="url(#arrow)"><path d="M92 130v80"/><path d="M92 266v64"/><path d="M268 130v200"/></g>
+    <g fill="#f7f4ec"><rect x="35" y="155" width="114" height="24"/><rect x="210" y="196" width="116" height="44"/></g>
+    <g font-size="14"><text x="92" y="172">/api/messages</text><text x="268" y="213">Direct</text><text x="268" y="232">table request</text></g>
+  </g>
+</svg>

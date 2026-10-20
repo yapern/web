@@ -1,0 +1,1849 @@
+{
+  "runId": "2026-10-20T04-03-40-647Z-4ae9e466",
+  "startedAt": "2026-10-20T04:03:40.648Z",
+  "endpoint": "[database-host]",
+  "runtime": {
+    "node": "v22.22.2",
+    "platform": "darwin",
+    "arch": "arm64",
+    "cpuCount": 16
+  },
+  "transport": "Hrana v2 JSON over HTTPS/1.1; pooled TCP/TLS sockets; one SQL statement and stream close per request; no retries",
+  "limits": {
+    "durationSeconds": 8,
+    "confirmationSeconds": 20,
+    "maxConcurrency": 256,
+    "maxWriteRows": 1000000,
+    "maxRequests": 250000,
+    "maxSeconds": 600
+  },
+  "schemaSha256": "43537bf04c8a42aeaeaa4e223a8e4c0c2ba1b369cfacd6d4326c8281f0e632b6",
+  "methodology": {
+    "phase": "Closed-loop concurrency; 2-second warmup excluded; all in-flight work drained and included in elapsed time",
+    "payload": "256 ASCII bytes per inserted event; batch is 100 rows in one atomic INSERT statement",
+    "seed": "10,000 users + 2,000 projects + 100,000 events generated server-side; seeding excluded from throughput",
+    "percentiles": "Client end-to-end latency includes JSON encoding/decoding, network, server, and queueing",
+    "limitations": "One remote client, warmed data, bounded stages; these are observed application throughput, not an isolated server maximum"
+  },
+  "stages": [
+    {
+      "name": "point_read",
+      "concurrency": 1,
+      "warmup": {
+        "requestedDurationSeconds": 2,
+        "successes": 23,
+        "errors": 0,
+        "readQueries": 23,
+        "writeQueries": 0,
+        "rowsWritten": 0,
+        "rowsReturned": 23,
+        "latencyMs": {
+          "p50Ms": 81.65620900000022,
+          "p95Ms": 126.57883400000014,
+          "p99Ms": 142.420167,
+          "maxMs": 142.420167
+        },
+        "readLatencyMs": {
+          "p50Ms": 81.65620900000022,
+          "p95Ms": 126.57883400000014,
+          "p99Ms": 142.420167,
+          "maxMs": 142.420167
+        },
+        "writeLatencyMs": {
+          "p50Ms": null,
+          "p95Ms": null,
+          "p99Ms": null,
+          "maxMs": null
+        },
+        "errorCodes": {},
+        "errorSamples": [],
+        "stopReason": null,
+        "attempted": 23,
+        "errorRate": 0,
+        "elapsedSeconds": 2.092926166,
+        "successfulRequestsPerSecond": 10.989398658031782
+      },
+      "requestedDurationSeconds": 8,
+      "successes": 75,
+      "errors": 0,
+      "readQueries": 75,
+      "writeQueries": 0,
+      "rowsWritten": 0,
+      "rowsReturned": 75,
+      "latencyMs": {
+        "p50Ms": 82.62441699999908,
+        "p95Ms": 162.1153750000003,
+        "p99Ms": 1090.4685840000002,
+        "maxMs": 1090.4685840000002
+      },
+      "readLatencyMs": {
+        "p50Ms": 82.62441699999908,
+        "p95Ms": 162.1153750000003,
+        "p99Ms": 1090.4685840000002,
+        "maxMs": 1090.4685840000002
+      },
+      "writeLatencyMs": {
+        "p50Ms": null,
+        "p95Ms": null,
+        "p99Ms": null,
+        "maxMs": null
+      },
+      "errorCodes": {},
+      "errorSamples": [],
+      "stopReason": null,
+      "attempted": 75,
+      "errorRate": 0,
+      "elapsedSeconds": 8.022696416,
+      "successfulRequestsPerSecond": 9.348477882127554,
+      "eventLoopDelayMs": {
+        "mean": 20.92584209424084,
+        "p99": 21.577727,
+        "max": 21.938175
+      },
+      "cpuUserMs": 50.432,
+      "cpuSystemMs": 13.547,
+      "confirmation": false
+    },
+    {
+      "name": "point_read",
+      "concurrency": 8,
+      "warmup": {
+        "requestedDurationSeconds": 2,
+        "successes": 127,
+        "errors": 0,
+        "readQueries": 127,
+        "writeQueries": 0,
+        "rowsWritten": 0,
+        "rowsReturned": 127,
+        "latencyMs": {
+          "p50Ms": 119.69958300000144,
+          "p95Ms": 239.17983300000014,
+          "p99Ms": 263.33220900000015,
+          "maxMs": 264.6946250000001
+        },
+        "readLatencyMs": {
+          "p50Ms": 119.69958300000144,
+          "p95Ms": 239.17983300000014,
+          "p99Ms": 263.33220900000015,
+          "maxMs": 264.6946250000001
+        },
+        "writeLatencyMs": {
+          "p50Ms": null,
+          "p95Ms": null,
+          "p99Ms": null,
+          "maxMs": null
+        },
+        "errorCodes": {},
+        "errorSamples": [],
+        "stopReason": null,
+        "attempted": 127,
+        "errorRate": 0,
+        "elapsedSeconds": 2.0608595409999997,
+        "successfulRequestsPerSecond": 61.624772321152584
+      },
+      "requestedDurationSeconds": 8,
+      "successes": 513,
+      "errors": 0,
+      "readQueries": 513,
+      "writeQueries": 0,
+      "rowsWritten": 0,
+      "rowsReturned": 513,
+      "latencyMs": {
+        "p50Ms": 120.42329199999949,
+        "p95Ms": 176.8778340000008,
+        "p99Ms": 245.1815000000006,
+        "maxMs": 246.96816699999908
+      },
+      "readLatencyMs": {
+        "p50Ms": 120.42329199999949,
+        "p95Ms": 176.8778340000008,
+        "p99Ms": 245.1815000000006,
+        "maxMs": 246.96816699999908
+      },
+      "writeLatencyMs": {
+        "p50Ms": null,
+        "p95Ms": null,
+        "p99Ms": null,
+        "maxMs": null
+      },
+      "errorCodes": {},
+      "errorSamples": [],
+      "stopReason": null,
+      "attempted": 513,
+      "errorRate": 0,
+      "elapsedSeconds": 8.085163167,
+      "successfulRequestsPerSecond": 63.44955437557962,
+      "eventLoopDelayMs": {
+        "mean": 20.885737450777203,
+        "p99": 21.774335,
+        "max": 21.987327
+      },
+      "cpuUserMs": 108.312,
+      "cpuSystemMs": 26.267,
+      "confirmation": false
+    },
+    {
+      "name": "point_read",
+      "concurrency": 32,
+      "warmup": {
+        "requestedDurationSeconds": 2,
+        "successes": 220,
+        "errors": 0,
+        "readQueries": 220,
+        "writeQueries": 0,
+        "rowsWritten": 0,
+        "rowsReturned": 220,
+        "latencyMs": {
+          "p50Ms": 281.4273749999993,
+          "p95Ms": 565.4500000000007,
+          "p99Ms": 566.9482080000016,
+          "maxMs": 571.6922500000001
+        },
+        "readLatencyMs": {
+          "p50Ms": 281.4273749999993,
+          "p95Ms": 565.4500000000007,
+          "p99Ms": 566.9482080000016,
+          "maxMs": 571.6922500000001
+        },
+        "writeLatencyMs": {
+          "p50Ms": null,
+          "p95Ms": null,
+          "p99Ms": null,
+          "maxMs": null
+        },
+        "errorCodes": {},
+        "errorSamples": [],
+        "stopReason": null,
+        "attempted": 220,
+        "errorRate": 0,
+        "elapsedSeconds": 2.1788427080000003,
+        "successfulRequestsPerSecond": 100.97103347214174
+      },
+      "requestedDurationSeconds": 8,
+      "successes": 634,
+      "errors": 0,
+      "readQueries": 634,
+      "writeQueries": 0,
+      "rowsWritten": 0,
+      "rowsReturned": 634,
+      "latencyMs": {
+        "p50Ms": 410.31091599999854,
+        "p95Ms": 651.1968750000015,
+        "p99Ms": 702.3041249999987,
+        "maxMs": 743.5872920000002
+      },
+      "readLatencyMs": {
+        "p50Ms": 410.31091599999854,
+        "p95Ms": 651.1968750000015,
+        "p99Ms": 702.3041249999987,
+        "maxMs": 743.5872920000002
+      },
+      "writeLatencyMs": {
+        "p50Ms": null,
+        "p95Ms": null,
+        "p99Ms": null,
+        "maxMs": null
+      },
+      "errorCodes": {},
+      "errorSamples": [],
+      "stopReason": null,
+      "attempted": 634,
+      "errorRate": 0,
+      "elapsedSeconds": 8.486674333000003,
+      "successfulRequestsPerSecond": 74.70535278285902,
+      "eventLoopDelayMs": {
+        "mean": 20.957554977667495,
+        "p99": 21.463039,
+        "max": 23.134207
+      },
+      "cpuUserMs": 112.349,
+      "cpuSystemMs": 24.745,
+      "confirmation": false
+    },
+    {
+      "name": "point_read",
+      "concurrency": 64,
+      "warmup": {
+        "requestedDurationSeconds": 2,
+        "successes": 192,
+        "errors": 0,
+        "readQueries": 192,
+        "writeQueries": 0,
+        "rowsWritten": 0,
+        "rowsReturned": 192,
+        "latencyMs": {
+          "p50Ms": 781.208749999998,
+          "p95Ms": 1042.679082999999,
+          "p99Ms": 1044.7721669999992,
+          "maxMs": 1044.9240830000017
+        },
+        "readLatencyMs": {
+          "p50Ms": 781.208749999998,
+          "p95Ms": 1042.679082999999,
+          "p99Ms": 1044.7721669999992,
+          "maxMs": 1044.9240830000017
+        },
+        "writeLatencyMs": {
+          "p50Ms": null,
+          "p95Ms": null,
+          "p99Ms": null,
+          "maxMs": null
+        },
+        "errorCodes": {},
+        "errorSamples": [],
+        "stopReason": null,
+        "attempted": 192,
+        "errorRate": 0,
+        "elapsedSeconds": 2.746860499999999,
+        "successfulRequestsPerSecond": 69.8979798937733
+      },
+      "requestedDurationSeconds": 8,
+      "successes": 735,
+      "errors": 0,
+      "readQueries": 735,
+      "writeQueries": 0,
+      "rowsWritten": 0,
+      "rowsReturned": 735,
+      "latencyMs": {
+        "p50Ms": 705.1267080000034,
+        "p95Ms": 1121.8332500000033,
+        "p99Ms": 1146.9394170000014,
+        "maxMs": 1162.4209579999952
+      },
+      "readLatencyMs": {
+        "p50Ms": 705.1267080000034,
+        "p95Ms": 1121.8332500000033,
+        "p99Ms": 1146.9394170000014,
+        "maxMs": 1162.4209579999952
+      },
+      "writeLatencyMs": {
+        "p50Ms": null,
+        "p95Ms": null,
+        "p99Ms": null,
+        "maxMs": null
+      },
+      "errorCodes": {},
+      "errorSamples": [],
+      "stopReason": null,
+      "attempted": 735,
+      "errorRate": 0,
+      "elapsedSeconds": 8.506740583,
+      "successfulRequestsPerSecond": 86.40207054965744,
+      "eventLoopDelayMs": {
+        "mean": 20.859818246305416,
+        "p99": 21.512191,
+        "max": 25.886719
+      },
+      "cpuUserMs": 153.143,
+      "cpuSystemMs": 44.108,
+      "confirmation": false
+    },
+    {
+      "name": "point_read",
+      "concurrency": 128,
+      "warmup": {
+        "requestedDurationSeconds": 2,
+        "successes": 108,
+        "errors": 39,
+        "readQueries": 108,
+        "writeQueries": 0,
+        "rowsWritten": 0,
+        "rowsReturned": 108,
+        "latencyMs": {
+          "p50Ms": 703.1531250000044,
+          "p95Ms": 1148.9419579999958,
+          "p99Ms": 1150.093832999999,
+          "maxMs": 1150.8943340000042
+        },
+        "readLatencyMs": {
+          "p50Ms": 705.6167910000004,
+          "p95Ms": 1149.4782500000001,
+          "p99Ms": 1150.093832999999,
+          "maxMs": 1150.8943340000042
+        },
+        "writeLatencyMs": {
+          "p50Ms": null,
+          "p95Ms": null,
+          "p99Ms": null,
+          "maxMs": null
+        },
+        "errorCodes": {
+          "REQUEST_ERROR": 39
+        },
+        "errorSamples": [
+          {
+            "code": "REQUEST_ERROR",
+            "message": "read ECONNRESET"
+          },
+          {
+            "code": "REQUEST_ERROR",
+            "message": "read ECONNRESET"
+          },
+          {
+            "code": "REQUEST_ERROR",
+            "message": "read ECONNRESET"
+          }
+        ],
+        "stopReason": "error_storm",
+        "attempted": 147,
+        "errorRate": 0.2653061224489796,
+        "elapsedSeconds": 1.1611866670000017,
+        "successfulRequestsPerSecond": 93.00830182542893
+      },
+      "requestedDurationSeconds": 8,
+      "successes": 108,
+      "errors": 39,
+      "readQueries": 108,
+      "writeQueries": 0,
+      "rowsWritten": 0,
+      "rowsReturned": 108,
+      "latencyMs": {
+        "p50Ms": 878.917042000001,
+        "p95Ms": 1105.1124169999966,
+        "p99Ms": 1107.338459000006,
+        "maxMs": 1107.8897079999952
+      },
+      "readLatencyMs": {
+        "p50Ms": 940.1101249999992,
+        "p95Ms": 1105.4499589999978,
+        "p99Ms": 1107.338459000006,
+        "maxMs": 1107.8897079999952
+      },
+      "writeLatencyMs": {
+        "p50Ms": null,
+        "p95Ms": null,
+        "p99Ms": null,
+        "maxMs": null
+      },
+      "errorCodes": {
+        "REQUEST_ERROR": 39
+      },
+      "errorSamples": [
+        {
+          "code": "REQUEST_ERROR",
+          "message": "read ECONNRESET"
+        },
+        {
+          "code": "REQUEST_ERROR",
+          "message": "read ECONNRESET"
+        },
+        {
+          "code": "REQUEST_ERROR",
+          "message": "read ECONNRESET"
+        }
+      ],
+      "stopReason": "error_storm",
+      "attempted": 147,
+      "errorRate": 0.2653061224489796,
+      "elapsedSeconds": 1.1088129159999953,
+      "successfulRequestsPerSecond": 97.40146280907902,
+      "eventLoopDelayMs": {
+        "mean": 20.86439384615385,
+        "p99": 21.790719,
+        "max": 23.101439
+      },
+      "cpuUserMs": 57.47,
+      "cpuSystemMs": 16.478,
+      "confirmation": false
+    },
+    {
+      "name": "point_read",
+      "concurrency": 64,
+      "warmup": {
+        "requestedDurationSeconds": 2,
+        "successes": 256,
+        "errors": 0,
+        "readQueries": 256,
+        "writeQueries": 0,
+        "rowsWritten": 0,
+        "rowsReturned": 256,
+        "latencyMs": {
+          "p50Ms": 574.5147079999952,
+          "p95Ms": 762.7847499999989,
+          "p99Ms": 764.7205409999951,
+          "maxMs": 765.5470000000059
+        },
+        "readLatencyMs": {
+          "p50Ms": 574.5147079999952,
+          "p95Ms": 762.7847499999989,
+          "p99Ms": 764.7205409999951,
+          "maxMs": 765.5470000000059
+        },
+        "writeLatencyMs": {
+          "p50Ms": null,
+          "p95Ms": null,
+          "p99Ms": null,
+          "maxMs": null
+        },
+        "errorCodes": {},
+        "errorSamples": [],
+        "stopReason": null,
+        "attempted": 256,
+        "errorRate": 0,
+        "elapsedSeconds": 2.549502917000005,
+        "successfulRequestsPerSecond": 100.41173057422294
+      },
+      "requestedDurationSeconds": 20,
+      "successes": 2307,
+      "errors": 0,
+      "readQueries": 2307,
+      "writeQueries": 0,
+      "rowsWritten": 0,
+      "rowsReturned": 2307,
+      "latencyMs": {
+        "p50Ms": 538.5373330000002,
+        "p95Ms": 717.9307079999999,
+        "p99Ms": 801.2760409999973,
+        "maxMs": 804.8807920000036
+      },
+      "readLatencyMs": {
+        "p50Ms": 538.5373330000002,
+        "p95Ms": 717.9307079999999,
+        "p99Ms": 801.2760409999973,
+        "maxMs": 804.8807920000036
+      },
+      "writeLatencyMs": {
+        "p50Ms": null,
+        "p95Ms": null,
+        "p99Ms": null,
+        "maxMs": null
+      },
+      "errorCodes": {},
+      "errorSamples": [],
+      "stopReason": null,
+      "attempted": 2307,
+      "errorRate": 0,
+      "elapsedSeconds": 20.401236791999995,
+      "successfulRequestsPerSecond": 113.08137950267071,
+      "eventLoopDelayMs": {
+        "mean": 20.913318110882958,
+        "p99": 21.544959,
+        "max": 21.889023
+      },
+      "cpuUserMs": 358.002,
+      "cpuSystemMs": 75.303,
+      "confirmation": true
+    },
+    {
+      "name": "indexed_join_20_rows",
+      "concurrency": 1,
+      "warmup": {
+        "requestedDurationSeconds": 2,
+        "successes": 16,
+        "errors": 0,
+        "readQueries": 16,
+        "writeQueries": 0,
+        "rowsWritten": 0,
+        "rowsReturned": 320,
+        "latencyMs": {
+          "p50Ms": 106.67958300000464,
+          "p95Ms": 380.7879590000084,
+          "p99Ms": 380.7879590000084,
+          "maxMs": 380.7879590000084
+        },
+        "readLatencyMs": {
+          "p50Ms": 106.67958300000464,
+          "p95Ms": 380.7879590000084,
+          "p99Ms": 380.7879590000084,
+          "maxMs": 380.7879590000084
+        },
+        "writeLatencyMs": {
+          "p50Ms": null,
+          "p95Ms": null,
+          "p99Ms": null,
+          "maxMs": null
+        },
+        "errorCodes": {},
+        "errorSamples": [],
+        "stopReason": null,
+        "attempted": 16,
+        "errorRate": 0,
+        "elapsedSeconds": 2.0870165839999975,
+        "successfulRequestsPerSecond": 7.6664460276277415
+      },
+      "requestedDurationSeconds": 8,
+      "successes": 66,
+      "errors": 0,
+      "readQueries": 66,
+      "writeQueries": 0,
+      "rowsWritten": 0,
+      "rowsReturned": 1320,
+      "latencyMs": {
+        "p50Ms": 90.71158399998967,
+        "p95Ms": 224.1632499999978,
+        "p99Ms": 993.6139589999948,
+        "maxMs": 993.6139589999948
+      },
+      "readLatencyMs": {
+        "p50Ms": 90.71158399998967,
+        "p95Ms": 224.1632499999978,
+        "p99Ms": 993.6139589999948,
+        "maxMs": 993.6139589999948
+      },
+      "writeLatencyMs": {
+        "p50Ms": null,
+        "p95Ms": null,
+        "p99Ms": null,
+        "maxMs": null
+      },
+      "errorCodes": {},
+      "errorSamples": [],
+      "stopReason": null,
+      "attempted": 66,
+      "errorRate": 0,
+      "elapsedSeconds": 8.089264666999997,
+      "successfulRequestsPerSecond": 8.158961625924512,
+      "eventLoopDelayMs": {
+        "mean": 20.866170031088085,
+        "p99": 21.544959,
+        "max": 21.856255
+      },
+      "cpuUserMs": 36.91,
+      "cpuSystemMs": 14.385,
+      "confirmation": false
+    },
+    {
+      "name": "indexed_join_20_rows",
+      "concurrency": 8,
+      "warmup": {
+        "requestedDurationSeconds": 2,
+        "successes": 120,
+        "errors": 0,
+        "readQueries": 120,
+        "writeQueries": 0,
+        "rowsWritten": 0,
+        "rowsReturned": 2400,
+        "latencyMs": {
+          "p50Ms": 135.1323749999865,
+          "p95Ms": 186.9429999999993,
+          "p99Ms": 196.26937499998894,
+          "maxMs": 227.60216699999
+        },
+        "readLatencyMs": {
+          "p50Ms": 135.1323749999865,
+          "p95Ms": 186.9429999999993,
+          "p99Ms": 196.26937499998894,
+          "maxMs": 227.60216699999
+        },
+        "writeLatencyMs": {
+          "p50Ms": null,
+          "p95Ms": null,
+          "p99Ms": null,
+          "maxMs": null
+        },
+        "errorCodes": {},
+        "errorSamples": [],
+        "stopReason": null,
+        "attempted": 120,
+        "errorRate": 0,
+        "elapsedSeconds": 2.0980257920000005,
+        "successfulRequestsPerSecond": 57.19662763802666
+      },
+      "requestedDurationSeconds": 8,
+      "successes": 377,
+      "errors": 0,
+      "readQueries": 377,
+      "writeQueries": 0,
+      "rowsWritten": 0,
+      "rowsReturned": 7540,
+      "latencyMs": {
+        "p50Ms": 163.0594170000113,
+        "p95Ms": 335.585167000012,
+        "p99Ms": 389.29245799999626,
+        "maxMs": 395.4586249999993
+      },
+      "readLatencyMs": {
+        "p50Ms": 163.0594170000113,
+        "p95Ms": 335.585167000012,
+        "p99Ms": 389.29245799999626,
+        "maxMs": 395.4586249999993
+      },
+      "writeLatencyMs": {
+        "p50Ms": null,
+        "p95Ms": null,
+        "p99Ms": null,
+        "maxMs": null
+      },
+      "errorCodes": {},
+      "errorSamples": [],
+      "stopReason": null,
+      "attempted": 377,
+      "errorRate": 0,
+      "elapsedSeconds": 8.290492958999996,
+      "successfulRequestsPerSecond": 45.47377361809785,
+      "eventLoopDelayMs": {
+        "mean": 20.90919858227848,
+        "p99": 21.594111,
+        "max": 21.774335
+      },
+      "cpuUserMs": 72.688,
+      "cpuSystemMs": 24.861,
+      "confirmation": false
+    },
+    {
+      "name": "indexed_join_20_rows",
+      "concurrency": 32,
+      "warmup": {
+        "requestedDurationSeconds": 2,
+        "successes": 128,
+        "errors": 0,
+        "readQueries": 128,
+        "writeQueries": 0,
+        "rowsWritten": 0,
+        "rowsReturned": 2560,
+        "latencyMs": {
+          "p50Ms": 525.5872910000035,
+          "p95Ms": 624.682541000002,
+          "p99Ms": 624.9493329999968,
+          "maxMs": 625.0621249999967
+        },
+        "readLatencyMs": {
+          "p50Ms": 525.5872910000035,
+          "p95Ms": 624.682541000002,
+          "p99Ms": 624.9493329999968,
+          "maxMs": 625.0621249999967
+        },
+        "writeLatencyMs": {
+          "p50Ms": null,
+          "p95Ms": null,
+          "p99Ms": null,
+          "maxMs": null
+        },
+        "errorCodes": {},
+        "errorSamples": [],
+        "stopReason": null,
+        "attempted": 128,
+        "errorRate": 0,
+        "elapsedSeconds": 2.203073417000007,
+        "successfulRequestsPerSecond": 58.10065112323926
+      },
+      "requestedDurationSeconds": 8,
+      "successes": 531,
+      "errors": 0,
+      "readQueries": 531,
+      "writeQueries": 0,
+      "rowsWritten": 0,
+      "rowsReturned": 10620,
+      "latencyMs": {
+        "p50Ms": 506.9542089999886,
+        "p95Ms": 806.8848339999968,
+        "p99Ms": 810.2696250000008,
+        "maxMs": 880.4777499999909
+      },
+      "readLatencyMs": {
+        "p50Ms": 506.9542089999886,
+        "p95Ms": 806.8848339999968,
+        "p99Ms": 810.2696250000008,
+        "maxMs": 880.4777499999909
+      },
+      "writeLatencyMs": {
+        "p50Ms": null,
+        "p95Ms": null,
+        "p99Ms": null,
+        "maxMs": null
+      },
+      "errorCodes": {},
+      "errorSamples": [],
+      "stopReason": null,
+      "attempted": 531,
+      "errorRate": 0,
+      "elapsedSeconds": 8.484653791000005,
+      "successfulRequestsPerSecond": 62.58357890374406,
+      "eventLoopDelayMs": {
+        "mean": 20.91352712871287,
+        "p99": 21.397503,
+        "max": 27.492351
+      },
+      "cpuUserMs": 147.4,
+      "cpuSystemMs": 53.68,
+      "confirmation": false
+    },
+    {
+      "name": "indexed_join_20_rows",
+      "concurrency": 64,
+      "warmup": {
+        "requestedDurationSeconds": 2,
+        "successes": 229,
+        "errors": 0,
+        "readQueries": 229,
+        "writeQueries": 0,
+        "rowsWritten": 0,
+        "rowsReturned": 4580,
+        "latencyMs": {
+          "p50Ms": 616.3628749999916,
+          "p95Ms": 855.2755840000027,
+          "p99Ms": 901.6354580000043,
+          "maxMs": 901.9878749999916
+        },
+        "readLatencyMs": {
+          "p50Ms": 616.3628749999916,
+          "p95Ms": 855.2755840000027,
+          "p99Ms": 901.6354580000043,
+          "maxMs": 901.9878749999916
+        },
+        "writeLatencyMs": {
+          "p50Ms": null,
+          "p95Ms": null,
+          "p99Ms": null,
+          "maxMs": null
+        },
+        "errorCodes": {},
+        "errorSamples": [],
+        "stopReason": null,
+        "attempted": 229,
+        "errorRate": 0,
+        "elapsedSeconds": 2.3649235840000036,
+        "successfulRequestsPerSecond": 96.83188139748351
+      },
+      "requestedDurationSeconds": 8,
+      "successes": 658,
+      "errors": 0,
+      "readQueries": 658,
+      "writeQueries": 0,
+      "rowsWritten": 0,
+      "rowsReturned": 13160,
+      "latencyMs": {
+        "p50Ms": 748.164499999999,
+        "p95Ms": 1402.1514580000076,
+        "p99Ms": 1406.9834160000028,
+        "maxMs": 1409.1539579999953
+      },
+      "readLatencyMs": {
+        "p50Ms": 748.164499999999,
+        "p95Ms": 1402.1514580000076,
+        "p99Ms": 1406.9834160000028,
+        "maxMs": 1409.1539579999953
+      },
+      "writeLatencyMs": {
+        "p50Ms": null,
+        "p95Ms": null,
+        "p99Ms": null,
+        "maxMs": null
+      },
+      "errorCodes": {},
+      "errorSamples": [],
+      "stopReason": null,
+      "attempted": 658,
+      "errorRate": 0,
+      "elapsedSeconds": 8.558635041,
+      "successfulRequestsPerSecond": 76.88141822239899,
+      "eventLoopDelayMs": {
+        "mean": 20.973794437346434,
+        "p99": 21.774335,
+        "max": 27.836415
+      },
+      "cpuUserMs": 140.606,
+      "cpuSystemMs": 45.245,
+      "confirmation": false
+    },
+    {
+      "name": "indexed_join_20_rows",
+      "concurrency": 128,
+      "warmup": {
+        "requestedDurationSeconds": 2,
+        "successes": 303,
+        "errors": 0,
+        "readQueries": 303,
+        "writeQueries": 0,
+        "rowsWritten": 0,
+        "rowsReturned": 6060,
+        "latencyMs": {
+          "p50Ms": 941.0397080000112,
+          "p95Ms": 1692.924708000006,
+          "p99Ms": 1696.3199580000073,
+          "maxMs": 1699.1549159999995
+        },
+        "readLatencyMs": {
+          "p50Ms": 941.0397080000112,
+          "p95Ms": 1692.924708000006,
+          "p99Ms": 1696.3199580000073,
+          "maxMs": 1699.1549159999995
+        },
+        "writeLatencyMs": {
+          "p50Ms": null,
+          "p95Ms": null,
+          "p99Ms": null,
+          "maxMs": null
+        },
+        "errorCodes": {},
+        "errorSamples": [],
+        "stopReason": null,
+        "attempted": 303,
+        "errorRate": 0,
+        "elapsedSeconds": 2.806927125000002,
+        "successfulRequestsPerSecond": 107.94722716572123
+      },
+      "requestedDurationSeconds": 8,
+      "successes": 1207,
+      "errors": 0,
+      "readQueries": 1207,
+      "writeQueries": 0,
+      "rowsWritten": 0,
+      "rowsReturned": 24140,
+      "latencyMs": {
+        "p50Ms": 893.0185420000053,
+        "p95Ms": 1142.6688339999964,
+        "p99Ms": 1199.2952920000098,
+        "maxMs": 1262.8230420000036
+      },
+      "readLatencyMs": {
+        "p50Ms": 893.0185420000053,
+        "p95Ms": 1142.6688339999964,
+        "p99Ms": 1199.2952920000098,
+        "maxMs": 1262.8230420000036
+      },
+      "writeLatencyMs": {
+        "p50Ms": null,
+        "p95Ms": null,
+        "p99Ms": null,
+        "maxMs": null
+      },
+      "errorCodes": {},
+      "errorSamples": [],
+      "stopReason": null,
+      "attempted": 1207,
+      "errorRate": 0,
+      "elapsedSeconds": 8.780023457999995,
+      "successfulRequestsPerSecond": 137.47115890678305,
+      "eventLoopDelayMs": {
+        "mean": 20.915626258373205,
+        "p99": 21.544959,
+        "max": 21.856255
+      },
+      "cpuUserMs": 160.707,
+      "cpuSystemMs": 39.723,
+      "confirmation": false
+    },
+    {
+      "name": "indexed_join_20_rows",
+      "concurrency": 128,
+      "warmup": {
+        "requestedDurationSeconds": 2,
+        "successes": 336,
+        "errors": 0,
+        "readQueries": 336,
+        "writeQueries": 0,
+        "rowsWritten": 0,
+        "rowsReturned": 6720,
+        "latencyMs": {
+          "p50Ms": 784.301707999999,
+          "p95Ms": 1202.4374580000003,
+          "p99Ms": 1203.8763749999925,
+          "maxMs": 1204.8920840000064
+        },
+        "readLatencyMs": {
+          "p50Ms": 784.301707999999,
+          "p95Ms": 1202.4374580000003,
+          "p99Ms": 1203.8763749999925,
+          "maxMs": 1204.8920840000064
+        },
+        "writeLatencyMs": {
+          "p50Ms": null,
+          "p95Ms": null,
+          "p99Ms": null,
+          "maxMs": null
+        },
+        "errorCodes": {},
+        "errorSamples": [],
+        "stopReason": null,
+        "attempted": 336,
+        "errorRate": 0,
+        "elapsedSeconds": 2.396530417000002,
+        "successfulRequestsPerSecond": 140.2026853556934
+      },
+      "requestedDurationSeconds": 20,
+      "successes": 2784,
+      "errors": 0,
+      "readQueries": 2784,
+      "writeQueries": 0,
+      "rowsWritten": 0,
+      "rowsReturned": 55680,
+      "latencyMs": {
+        "p50Ms": 887.309042000008,
+        "p95Ms": 1712.2189159999834,
+        "p99Ms": 1934.104416999995,
+        "maxMs": 2037.9629580000183
+      },
+      "readLatencyMs": {
+        "p50Ms": 887.309042000008,
+        "p95Ms": 1712.2189159999834,
+        "p99Ms": 1934.104416999995,
+        "maxMs": 2037.9629580000183
+      },
+      "writeLatencyMs": {
+        "p50Ms": null,
+        "p95Ms": null,
+        "p99Ms": null,
+        "maxMs": null
+      },
+      "errorCodes": {},
+      "errorSamples": [],
+      "stopReason": null,
+      "attempted": 2784,
+      "errorRate": 0,
+      "elapsedSeconds": 20.999226375000013,
+      "successfulRequestsPerSecond": 132.57631258808686,
+      "eventLoopDelayMs": {
+        "mean": 20.920373141716567,
+        "p99": 21.495807,
+        "max": 21.790719
+      },
+      "cpuUserMs": 326.292,
+      "cpuSystemMs": 85.708,
+      "confirmation": true
+    },
+    {
+      "name": "single_insert",
+      "concurrency": 1,
+      "warmup": {
+        "requestedDurationSeconds": 2,
+        "successes": 7,
+        "errors": 0,
+        "readQueries": 0,
+        "writeQueries": 7,
+        "rowsWritten": 7,
+        "rowsReturned": 0,
+        "latencyMs": {
+          "p50Ms": 289.9780840000021,
+          "p95Ms": 418.9644580000022,
+          "p99Ms": 418.9644580000022,
+          "maxMs": 418.9644580000022
+        },
+        "readLatencyMs": {
+          "p50Ms": null,
+          "p95Ms": null,
+          "p99Ms": null,
+          "maxMs": null
+        },
+        "writeLatencyMs": {
+          "p50Ms": 289.9780840000021,
+          "p95Ms": 418.9644580000022,
+          "p99Ms": 418.9644580000022,
+          "maxMs": 418.9644580000022
+        },
+        "errorCodes": {},
+        "errorSamples": [],
+        "stopReason": null,
+        "attempted": 7,
+        "errorRate": 0,
+        "elapsedSeconds": 2.237383625000017,
+        "successfulRequestsPerSecond": 3.128654345094685
+      },
+      "requestedDurationSeconds": 8,
+      "successes": 36,
+      "errors": 0,
+      "readQueries": 0,
+      "writeQueries": 36,
+      "rowsWritten": 36,
+      "rowsReturned": 0,
+      "latencyMs": {
+        "p50Ms": 156.43212499999208,
+        "p95Ms": 527.2834579999908,
+        "p99Ms": 670.6654589999816,
+        "maxMs": 670.6654589999816
+      },
+      "readLatencyMs": {
+        "p50Ms": null,
+        "p95Ms": null,
+        "p99Ms": null,
+        "maxMs": null
+      },
+      "writeLatencyMs": {
+        "p50Ms": 156.43212499999208,
+        "p95Ms": 527.2834579999908,
+        "p99Ms": 670.6654589999816,
+        "maxMs": 670.6654589999816
+      },
+      "errorCodes": {},
+      "errorSamples": [],
+      "stopReason": null,
+      "attempted": 36,
+      "errorRate": 0,
+      "elapsedSeconds": 8.097020292000002,
+      "successfulRequestsPerSecond": 4.446080002487907,
+      "eventLoopDelayMs": {
+        "mean": 20.933879355844155,
+        "p99": 21.331967,
+        "max": 21.544959
+      },
+      "cpuUserMs": 22.311,
+      "cpuSystemMs": 8.604,
+      "confirmation": false
+    },
+    {
+      "name": "single_insert",
+      "concurrency": 8,
+      "warmup": {
+        "requestedDurationSeconds": 2,
+        "successes": 88,
+        "errors": 0,
+        "readQueries": 0,
+        "writeQueries": 88,
+        "rowsWritten": 88,
+        "rowsReturned": 0,
+        "latencyMs": {
+          "p50Ms": 164.76337500000955,
+          "p95Ms": 266.7775000000256,
+          "p99Ms": 267.0482090000005,
+          "maxMs": 267.0482090000005
+        },
+        "readLatencyMs": {
+          "p50Ms": null,
+          "p95Ms": null,
+          "p99Ms": null,
+          "maxMs": null
+        },
+        "writeLatencyMs": {
+          "p50Ms": 164.76337500000955,
+          "p95Ms": 266.7775000000256,
+          "p99Ms": 267.0482090000005,
+          "maxMs": 267.0482090000005
+        },
+        "errorCodes": {},
+        "errorSamples": [],
+        "stopReason": null,
+        "attempted": 88,
+        "errorRate": 0,
+        "elapsedSeconds": 2.031371000000014,
+        "successfulRequestsPerSecond": 43.32049635443225
+      },
+      "requestedDurationSeconds": 8,
+      "successes": 445,
+      "errors": 0,
+      "readQueries": 0,
+      "writeQueries": 445,
+      "rowsWritten": 445,
+      "rowsReturned": 0,
+      "latencyMs": {
+        "p50Ms": 120.92758399999002,
+        "p95Ms": 225.84558299998753,
+        "p99Ms": 1022.6126249999797,
+        "maxMs": 1027.419292000006
+      },
+      "readLatencyMs": {
+        "p50Ms": null,
+        "p95Ms": null,
+        "p99Ms": null,
+        "maxMs": null
+      },
+      "writeLatencyMs": {
+        "p50Ms": 120.92758399999002,
+        "p95Ms": 225.84558299998753,
+        "p99Ms": 1022.6126249999797,
+        "maxMs": 1027.419292000006
+      },
+      "errorCodes": {},
+      "errorSamples": [],
+      "stopReason": null,
+      "attempted": 445,
+      "errorRate": 0,
+      "elapsedSeconds": 8.075740332999993,
+      "successfulRequestsPerSecond": 55.10330714592088,
+      "eventLoopDelayMs": {
+        "mean": 20.802917209302326,
+        "p99": 21.725183,
+        "max": 21.905407
+      },
+      "cpuUserMs": 78.324,
+      "cpuSystemMs": 26.212,
+      "confirmation": false
+    },
+    {
+      "name": "single_insert",
+      "concurrency": 32,
+      "warmup": {
+        "requestedDurationSeconds": 2,
+        "successes": 245,
+        "errors": 0,
+        "readQueries": 0,
+        "writeQueries": 245,
+        "rowsWritten": 245,
+        "rowsReturned": 0,
+        "latencyMs": {
+          "p50Ms": 292.53220900002634,
+          "p95Ms": 338.32083399998373,
+          "p99Ms": 390.7586660000088,
+          "maxMs": 391.9412500000035
+        },
+        "readLatencyMs": {
+          "p50Ms": null,
+          "p95Ms": null,
+          "p99Ms": null,
+          "maxMs": null
+        },
+        "writeLatencyMs": {
+          "p50Ms": 292.53220900002634,
+          "p95Ms": 338.32083399998373,
+          "p99Ms": 390.7586660000088,
+          "maxMs": 391.9412500000035
+        },
+        "errorCodes": {},
+        "errorSamples": [],
+        "stopReason": null,
+        "attempted": 245,
+        "errorRate": 0,
+        "elapsedSeconds": 2.267857000000018,
+        "successfulRequestsPerSecond": 108.0315028681253
+      },
+      "requestedDurationSeconds": 8,
+      "successes": 930,
+      "errors": 0,
+      "readQueries": 0,
+      "writeQueries": 930,
+      "rowsWritten": 930,
+      "rowsReturned": 0,
+      "latencyMs": {
+        "p50Ms": 281.6056249999965,
+        "p95Ms": 341.1428329999908,
+        "p99Ms": 366.2567080000008,
+        "maxMs": 376.01954100001603
+      },
+      "readLatencyMs": {
+        "p50Ms": null,
+        "p95Ms": null,
+        "p99Ms": null,
+        "maxMs": null
+      },
+      "writeLatencyMs": {
+        "p50Ms": 281.6056249999965,
+        "p95Ms": 341.1428329999908,
+        "p99Ms": 366.2567080000008,
+        "maxMs": 376.01954100001603
+      },
+      "errorCodes": {},
+      "errorSamples": [],
+      "stopReason": null,
+      "attempted": 930,
+      "errorRate": 0,
+      "elapsedSeconds": 8.193343415999989,
+      "successfulRequestsPerSecond": 113.50677651127046,
+      "eventLoopDelayMs": {
+        "mean": 20.814827102040816,
+        "p99": 21.708799,
+        "max": 21.954559
+      },
+      "cpuUserMs": 109.759,
+      "cpuSystemMs": 32.484,
+      "confirmation": false
+    },
+    {
+      "name": "single_insert",
+      "concurrency": 64,
+      "warmup": {
+        "requestedDurationSeconds": 2,
+        "successes": 298,
+        "errors": 0,
+        "readQueries": 0,
+        "writeQueries": 298,
+        "rowsWritten": 298,
+        "rowsReturned": 0,
+        "latencyMs": {
+          "p50Ms": 491.6625000000058,
+          "p95Ms": 548.593916999991,
+          "p99Ms": 555.6549579999992,
+          "maxMs": 560.7791670000006
+        },
+        "readLatencyMs": {
+          "p50Ms": null,
+          "p95Ms": null,
+          "p99Ms": null,
+          "maxMs": null
+        },
+        "writeLatencyMs": {
+          "p50Ms": 491.6625000000058,
+          "p95Ms": 548.593916999991,
+          "p99Ms": 555.6549579999992,
+          "maxMs": 560.7791670000006
+        },
+        "errorCodes": {},
+        "errorSamples": [],
+        "stopReason": null,
+        "attempted": 298,
+        "errorRate": 0,
+        "elapsedSeconds": 2.361654790999979,
+        "successfulRequestsPerSecond": 126.1827093170632
+      },
+      "requestedDurationSeconds": 8,
+      "successes": 1066,
+      "errors": 0,
+      "readQueries": 0,
+      "writeQueries": 1066,
+      "rowsWritten": 1066,
+      "rowsReturned": 0,
+      "latencyMs": {
+        "p50Ms": 506.67041700001573,
+        "p95Ms": 583.369000000006,
+        "p99Ms": 625.3952500000014,
+        "maxMs": 654.244875000004
+      },
+      "readLatencyMs": {
+        "p50Ms": null,
+        "p95Ms": null,
+        "p99Ms": null,
+        "maxMs": null
+      },
+      "writeLatencyMs": {
+        "p50Ms": 506.67041700001573,
+        "p95Ms": 583.369000000006,
+        "p99Ms": 625.3952500000014,
+        "maxMs": 654.244875000004
+      },
+      "errorCodes": {},
+      "errorSamples": [],
+      "stopReason": null,
+      "attempted": 1066,
+      "errorRate": 0,
+      "elapsedSeconds": 8.523081957999995,
+      "successfulRequestsPerSecond": 125.07212828094696,
+      "eventLoopDelayMs": {
+        "mean": 20.822658509803922,
+        "p99": 21.495807,
+        "max": 21.856255
+      },
+      "cpuUserMs": 101.967,
+      "cpuSystemMs": 31.258,
+      "confirmation": false
+    },
+    {
+      "name": "single_insert",
+      "concurrency": 128,
+      "warmup": {
+        "requestedDurationSeconds": 2,
+        "successes": 356,
+        "errors": 0,
+        "readQueries": 0,
+        "writeQueries": 356,
+        "rowsWritten": 356,
+        "rowsReturned": 0,
+        "latencyMs": {
+          "p50Ms": 795.9282910000184,
+          "p95Ms": 1062.308040999982,
+          "p99Ms": 1079.2772909999767,
+          "maxMs": 1083.8502499999886
+        },
+        "readLatencyMs": {
+          "p50Ms": null,
+          "p95Ms": null,
+          "p99Ms": null,
+          "maxMs": null
+        },
+        "writeLatencyMs": {
+          "p50Ms": 795.9282910000184,
+          "p95Ms": 1062.308040999982,
+          "p99Ms": 1079.2772909999767,
+          "maxMs": 1083.8502499999886
+        },
+        "errorCodes": {},
+        "errorSamples": [],
+        "stopReason": null,
+        "attempted": 356,
+        "errorRate": 0,
+        "elapsedSeconds": 2.4979923750000017,
+        "successfulRequestsPerSecond": 142.5144462260417
+      },
+      "requestedDurationSeconds": 8,
+      "successes": 756,
+      "errors": 128,
+      "readQueries": 0,
+      "writeQueries": 756,
+      "rowsWritten": 756,
+      "rowsReturned": 0,
+      "latencyMs": {
+        "p50Ms": 888.509624999977,
+        "p95Ms": 15000.528625000006,
+        "p99Ms": 15001.303791000013,
+        "maxMs": 15001.781916000007
+      },
+      "readLatencyMs": {
+        "p50Ms": null,
+        "p95Ms": null,
+        "p99Ms": null,
+        "maxMs": null
+      },
+      "writeLatencyMs": {
+        "p50Ms": 868.8798339999921,
+        "p95Ms": 1221.2959580000024,
+        "p99Ms": 1256.8357910000195,
+        "maxMs": 1265.3714589999872
+      },
+      "errorCodes": {
+        "TIMEOUT": 128
+      },
+      "errorSamples": [
+        {
+          "code": "TIMEOUT",
+          "message": "Request exceeded 15000ms"
+        },
+        {
+          "code": "TIMEOUT",
+          "message": "Request exceeded 15000ms"
+        },
+        {
+          "code": "TIMEOUT",
+          "message": "Request exceeded 15000ms"
+        }
+      ],
+      "stopReason": null,
+      "attempted": 884,
+      "errorRate": 0.14479638009049775,
+      "elapsedSeconds": 20.738514291999977,
+      "successfulRequestsPerSecond": 36.45391320494121,
+      "eventLoopDelayMs": {
+        "mean": 20.94119551870576,
+        "p99": 21.233663,
+        "max": 21.839871
+      },
+      "cpuUserMs": 96.188,
+      "cpuSystemMs": 39.74,
+      "confirmation": false
+    },
+    {
+      "name": "single_insert",
+      "concurrency": 64,
+      "warmup": {
+        "requestedDurationSeconds": 2,
+        "successes": 0,
+        "errors": 83,
+        "readQueries": 0,
+        "writeQueries": 0,
+        "rowsWritten": 0,
+        "rowsReturned": 0,
+        "latencyMs": {
+          "p50Ms": 2072.5448329999927,
+          "p95Ms": 2186.4125829999975,
+          "p99Ms": 2187.2798329999787,
+          "maxMs": 2187.2798329999787
+        },
+        "readLatencyMs": {
+          "p50Ms": null,
+          "p95Ms": null,
+          "p99Ms": null,
+          "maxMs": null
+        },
+        "writeLatencyMs": {
+          "p50Ms": null,
+          "p95Ms": null,
+          "p99Ms": null,
+          "maxMs": null
+        },
+        "errorCodes": {
+          "REQUEST_ERROR": 33,
+          "HTTP_429": 50
+        },
+        "errorSamples": [
+          {
+            "code": "REQUEST_ERROR",
+            "message": "read ECONNRESET"
+          },
+          {
+            "code": "REQUEST_ERROR",
+            "message": "read ECONNRESET"
+          },
+          {
+            "code": "REQUEST_ERROR",
+            "message": "read ECONNRESET"
+          }
+        ],
+        "stopReason": "error_storm",
+        "attempted": 83,
+        "errorRate": 1,
+        "elapsedSeconds": 2.1939483750000073,
+        "successfulRequestsPerSecond": 0
+      },
+      "requestedDurationSeconds": 20,
+      "successes": 0,
+      "errors": 83,
+      "readQueries": 0,
+      "writeQueries": 0,
+      "rowsWritten": 0,
+      "rowsReturned": 0,
+      "latencyMs": {
+        "p50Ms": 1680.0183340000222,
+        "p95Ms": 1689.513083000027,
+        "p99Ms": 1689.8923749999958,
+        "maxMs": 1689.8923749999958
+      },
+      "readLatencyMs": {
+        "p50Ms": null,
+        "p95Ms": null,
+        "p99Ms": null,
+        "maxMs": null
+      },
+      "writeLatencyMs": {
+        "p50Ms": null,
+        "p95Ms": null,
+        "p99Ms": null,
+        "maxMs": null
+      },
+      "errorCodes": {
+        "REQUEST_ERROR": 33,
+        "HTTP_429": 50
+      },
+      "errorSamples": [
+        {
+          "code": "REQUEST_ERROR",
+          "message": "read ECONNRESET"
+        },
+        {
+          "code": "REQUEST_ERROR",
+          "message": "read ECONNRESET"
+        },
+        {
+          "code": "REQUEST_ERROR",
+          "message": "read ECONNRESET"
+        }
+      ],
+      "stopReason": "error_storm",
+      "attempted": 83,
+      "errorRate": 1,
+      "elapsedSeconds": 1.6904051249999903,
+      "successfulRequestsPerSecond": 0,
+      "eventLoopDelayMs": {
+        "mean": 20.976186329113922,
+        "p99": 21.299199,
+        "max": 21.544959
+      },
+      "cpuUserMs": 40.83,
+      "cpuSystemMs": 14.261,
+      "confirmation": true
+    },
+    {
+      "name": "single_update",
+      "concurrency": 1,
+      "warmup": {
+        "requestedDurationSeconds": 2,
+        "successes": 0,
+        "errors": 2,
+        "readQueries": 0,
+        "writeQueries": 0,
+        "rowsWritten": 0,
+        "rowsReturned": 0,
+        "latencyMs": {
+          "p50Ms": 1098.6746250000142,
+          "p95Ms": 1185.489791,
+          "p99Ms": 1185.489791,
+          "maxMs": 1185.489791
+        },
+        "readLatencyMs": {
+          "p50Ms": null,
+          "p95Ms": null,
+          "p99Ms": null,
+          "maxMs": null
+        },
+        "writeLatencyMs": {
+          "p50Ms": null,
+          "p95Ms": null,
+          "p99Ms": null,
+          "maxMs": null
+        },
+        "errorCodes": {
+          "HTTP_429": 2
+        },
+        "errorSamples": [
+          {
+            "code": "HTTP_429",
+            "message": "{\"error\":\"Timed out while opening database connection\"}"
+          },
+          {
+            "code": "HTTP_429",
+            "message": "{\"error\":\"Timed out while opening database connection\"}"
+          }
+        ],
+        "stopReason": null,
+        "attempted": 2,
+        "errorRate": 1,
+        "elapsedSeconds": 2.284194416000013,
+        "successfulRequestsPerSecond": 0
+      },
+      "requestedDurationSeconds": 8,
+      "successes": 0,
+      "errors": 7,
+      "readQueries": 0,
+      "writeQueries": 0,
+      "rowsWritten": 0,
+      "rowsReturned": 0,
+      "latencyMs": {
+        "p50Ms": 1152.880165999988,
+        "p95Ms": 1275.238458000007,
+        "p99Ms": 1275.238458000007,
+        "maxMs": 1275.238458000007
+      },
+      "readLatencyMs": {
+        "p50Ms": null,
+        "p95Ms": null,
+        "p99Ms": null,
+        "maxMs": null
+      },
+      "writeLatencyMs": {
+        "p50Ms": null,
+        "p95Ms": null,
+        "p99Ms": null,
+        "maxMs": null
+      },
+      "errorCodes": {
+        "HTTP_429": 7
+      },
+      "errorSamples": [
+        {
+          "code": "HTTP_429",
+          "message": "{\"error\":\"Timed out while opening database connection\"}"
+        },
+        {
+          "code": "HTTP_429",
+          "message": "{\"error\":\"Timed out while opening database connection\"}"
+        },
+        {
+          "code": "HTTP_429",
+          "message": "{\"error\":\"Timed out while opening database connection\"}"
+        }
+      ],
+      "stopReason": null,
+      "attempted": 7,
+      "errorRate": 1,
+      "elapsedSeconds": 8.174274750000011,
+      "successfulRequestsPerSecond": 0,
+      "eventLoopDelayMs": {
+        "mean": 20.98575043298969,
+        "p99": 21.069823,
+        "max": 21.102591
+      },
+      "cpuUserMs": 7.66,
+      "cpuSystemMs": 5.584,
+      "confirmation": false
+    },
+    {
+      "name": "mixed_80_read_20_insert",
+      "concurrency": 1,
+      "warmup": {
+        "requestedDurationSeconds": 2,
+        "successes": 0,
+        "errors": 2,
+        "readQueries": 0,
+        "writeQueries": 0,
+        "rowsWritten": 0,
+        "rowsReturned": 0,
+        "latencyMs": {
+          "p50Ms": 1158.9937919999938,
+          "p95Ms": 1165.194749999995,
+          "p99Ms": 1165.194749999995,
+          "maxMs": 1165.194749999995
+        },
+        "readLatencyMs": {
+          "p50Ms": null,
+          "p95Ms": null,
+          "p99Ms": null,
+          "maxMs": null
+        },
+        "writeLatencyMs": {
+          "p50Ms": null,
+          "p95Ms": null,
+          "p99Ms": null,
+          "maxMs": null
+        },
+        "errorCodes": {
+          "HTTP_429": 2
+        },
+        "errorSamples": [
+          {
+            "code": "HTTP_429",
+            "message": "{\"error\":\"Timed out while opening database connection\"}"
+          },
+          {
+            "code": "HTTP_429",
+            "message": "{\"error\":\"Timed out while opening database connection\"}"
+          }
+        ],
+        "stopReason": null,
+        "attempted": 2,
+        "errorRate": 1,
+        "elapsedSeconds": 2.324213458000013,
+        "successfulRequestsPerSecond": 0
+      },
+      "requestedDurationSeconds": 8,
+      "successes": 0,
+      "errors": 7,
+      "readQueries": 0,
+      "writeQueries": 0,
+      "rowsWritten": 0,
+      "rowsReturned": 0,
+      "latencyMs": {
+        "p50Ms": 1101.071208999987,
+        "p95Ms": 1361.3752499999828,
+        "p99Ms": 1361.3752499999828,
+        "maxMs": 1361.3752499999828
+      },
+      "readLatencyMs": {
+        "p50Ms": null,
+        "p95Ms": null,
+        "p99Ms": null,
+        "maxMs": null
+      },
+      "writeLatencyMs": {
+        "p50Ms": null,
+        "p95Ms": null,
+        "p99Ms": null,
+        "maxMs": null
+      },
+      "errorCodes": {
+        "HTTP_429": 7
+      },
+      "errorSamples": [
+        {
+          "code": "HTTP_429",
+          "message": "{\"error\":\"Timed out while opening database connection\"}"
+        },
+        {
+          "code": "HTTP_429",
+          "message": "{\"error\":\"Timed out while opening database connection\"}"
+        },
+        {
+          "code": "HTTP_429",
+          "message": "{\"error\":\"Timed out while opening database connection\"}"
+        }
+      ],
+      "stopReason": "budget",
+      "attempted": 7,
+      "errorRate": 1,
+      "elapsedSeconds": 8.06346416599999,
+      "successfulRequestsPerSecond": 0,
+      "eventLoopDelayMs": {
+        "mean": 20.988866506527415,
+        "p99": 21.069823,
+        "max": 21.151743
+      },
+      "cpuUserMs": 6.811,
+      "cpuSystemMs": 5.846,
+      "confirmation": false
+    }
+  ],
+  "before": {
+    "sqlite_version": "3.45.1",
+    "journal_mode": "wal",
+    "foreign_keys": 1,
+    "page_size": 4096,
+    "page_count": 8299
+  },
+  "seedCounts": {
+    "users": 10000,
+    "projects": 2000,
+    "events": 100000
+  },
+  "updateCounterBefore": 0,
+  "queryPlans": {
+    "point": [
+      {
+        "id": 2,
+        "parent": 0,
+        "notused": 0,
+        "detail": "SEARCH lbbench_users USING INTEGER PRIMARY KEY (rowid=?)"
+      }
+    ],
+    "join": [
+      {
+        "id": 7,
+        "parent": 0,
+        "notused": 0,
+        "detail": "SEARCH p USING INTEGER PRIMARY KEY (rowid=?)"
+      },
+      {
+        "id": 11,
+        "parent": 0,
+        "notused": 0,
+        "detail": "SEARCH e USING INDEX lbbench_events_project_created (project_id=?)"
+      },
+      {
+        "id": 18,
+        "parent": 0,
+        "notused": 0,
+        "detail": "SEARCH u USING INTEGER PRIMARY KEY (rowid=?)"
+      }
+    ]
+  },
+  "loadElapsedSeconds": 234.352161333,
+  "accounting": {
+    "requests": 16670,
+    "attemptedInsertRows": 4524,
+    "acknowledgedInsertRows": 4227,
+    "acknowledgedUpdates": 0,
+    "stoppedByBudgetOrSignal": true
+  },
+  "failure": {
+    "code": "HTTP_429",
+    "message": "{\"error\":\"Timed out while opening database connection\"}"
+  },
+  "finishedAt": "2026-10-20T04:07:36.960Z",
+  "recoveryChecks": [
+    {
+      "at": "2026-10-20T04:09:29.330Z",
+      "healthy": false,
+      "code": "HTTP_429",
+      "message": "{\"error\":\"Timed out while opening database connection\"}"
+    },
+    {
+      "at": "2026-10-20T04:09:50.665Z",
+      "healthy": false,
+      "code": "HTTP_429",
+      "message": "{\"error\":\"Timed out while opening database connection\"}"
+    },
+    {
+      "at": "2026-10-20T04:10:12.038Z",
+      "healthy": false,
+      "code": "HTTP_429",
+      "message": "{\"error\":\"Timed out while opening database connection\"}"
+    },
+    {
+      "at": "2026-10-20T04:10:33.541Z",
+      "healthy": false,
+      "code": "HTTP_429",
+      "message": "{\"error\":\"Timed out while opening database connection\"}"
+    },
+    {
+      "at": "2026-10-20T04:10:54.909Z",
+      "healthy": false,
+      "code": "HTTP_429",
+      "message": "{\"error\":\"Timed out while opening database connection\"}"
+    },
+    {
+      "at": "2026-10-20T04:11:16.314Z",
+      "healthy": false,
+      "code": "HTTP_429",
+      "message": "{\"error\":\"Timed out while opening database connection\"}"
+    },
+    {
+      "at": "2026-10-20T04:11:37.919Z",
+      "healthy": false,
+      "code": "HTTP_429",
+      "message": "{\"error\":\"Timed out while opening database connection\"}"
+    },
+    {
+      "at": "2026-10-20T04:11:59.259Z",
+      "healthy": false,
+      "code": "HTTP_429",
+      "message": "{\"error\":\"Timed out while opening database connection\"}"
+    },
+    {
+      "at": "2026-10-20T04:12:20.622Z",
+      "healthy": false,
+      "code": "HTTP_429",
+      "message": "{\"error\":\"Timed out while opening database connection\"}"
+    },
+    {
+      "at": "2026-10-20T04:12:41.987Z",
+      "healthy": false,
+      "code": "HTTP_429",
+      "message": "{\"error\":\"Timed out while opening database connection\"}"
+    }
+  ],
+  "recoveryStatus": "still unavailable after bounded cooldown",
+  "status": "interrupted_by_service_overload; endpoint still unavailable after cooldown",
+  "optionalTransportProbe": {
+    "transport": "Hrana WebSocket",
+    "result": "connection closed (1006); no WebSocket benchmark traffic sent"
+  },
+  "unmeasuredWorkloads": [
+    "single_update",
+    "mixed_80_read_20_insert",
+    "batch_insert_100_rows"
+  ],
+  "summaryGeneratedAt": "2026-10-20T04:13:30.722123+00:00"
+}

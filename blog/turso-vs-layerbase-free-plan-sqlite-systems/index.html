@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#090d17" />
+    <meta name="description" content="Turso led the read test. Layerbase’s short insert run was faster. A libSQL benchmark also exposed different behavior after overload." />
+    <link rel="canonical" href="https://yapern.com/blog/turso-vs-layerbase-free-plan-sqlite-systems/" />
+    <link rel="icon" href="/images/favicon.png" type="image/png" />
+    <meta property="og:type" content="article" />
+    <meta property="og:site_name" content="Yapern" />
+    <meta property="og:title" content="Turso vs Layerbase Free Plan sqlite Systems" />
+    <meta property="og:description" content="The same 112,000-row dataset, two hosted libSQL endpoints, and a reason to check the database after the load stops." />
+    <meta property="og:url" content="https://yapern.com/blog/turso-vs-layerbase-free-plan-sqlite-systems/" />
+    <meta property="og:image" content="https://yapern.com/images/blog/turso-vs-layerbase-free-plan-sqlite-systems/read-versus-write-plateau.png" />
+    <meta property="og:image:alt" content="Measured read and insert throughput as concurrency rises. Turso’s read curve climbs while its individual insert rate levels off." />
+    <meta property="article:published_time" content="2026-10-19" />
+    <meta property="article:author" content="Yapern" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Turso vs Layerbase Free Plan sqlite Systems" />
+    <meta name="twitter:description" content="Read throughput, individual writes, batching, and the query after an overload test." />
+    <meta name="twitter:image" content="https://yapern.com/images/blog/turso-vs-layerbase-free-plan-sqlite-systems/read-versus-write-plateau.png" />
+    <meta name="twitter:image:alt" content="Two charts show the measured read and single-row insert rates for Turso and Layerbase." />
+    <link rel="stylesheet" href="/yapern.css" />
+    <link rel="stylesheet" href="/blog.css" />
+    <script type="module" src="/src/auth-nav.js"></script>
+    <script type="module" src="/src/create.js"></script>
+    <title>Turso vs Layerbase Free Plan sqlite Systems · Yapern</title>
+  </head>
+  <body class="blog-page">
+    <a class="skip-link" href="#main">Skip to content</a>
+    <!-- site-header -->
+    <main id="main" class="blog-main shell">
+      <p class="blog-back"><a href="/blog/">← Blog</a></p>
+      <article class="blog-article" aria-labelledby="article-title">
+        <h1 id="article-title">Turso vs Layerbase Free Plan sqlite Systems</h1>
+        <p class="blog-meta"><time datetime="2026-10-19">October 19, 2026</time> · Yapern</p>
+
+        <p>Turso’s endpoint handled 2,266 point reads per second in a clean twenty-second run. Layerbase’s best clean confirmation was 113. Switch the workload to individual inserts, though, and the order flips: Layerbase reached 125 rows per second in a short stage, while Turso sustained 55. A single “database speed” number would make a mess of this comparison.</p>
+        <p>I asked Codex to build a schema, fill it, and increase the number of requests in flight against each service. Both eventually returned HTTP 429. On Layerbase, a plain <code>SELECT 1</code> kept failing after the write load had stopped. A comparison of peak rates would miss that part.</p>
+        <p>I have no affiliation with Turso or Layerbase. Both databases were on their providers’ Free plans.</p>
+
+        <h2>The same rows, the same HTTP requests</h2>
+        <p>Each database started empty. The seed was 10,000 users, 2,000 projects, and 100,000 events, with primary keys, foreign keys, unique emails, and indexes for finding recent events by user or project. A fourth table collected benchmark inserts. Every inserted payload contained 256 ASCII bytes.</p>
+        <p>The client was Node.js 22 on the same macOS machine for both tests. It reused TCP/TLS connections and sent one SQL statement through the <a href="https://github.com/tursodatabase/libsql/blob/main/docs/HRANA_3_SPEC.md">Hrana HTTP pipeline</a> per request, followed by a stream close. This measures a hosted libSQL-compatible API, including the network and request handling. It doesn’t measure SQLite opening a local file.</p>
+        <p>Each concurrency level got a two-second warmup and an eight-second measurement. The best clean level then got a twenty-second confirmation. Workers waited for a response before sending another request; failed requests weren’t retried. In-flight work was allowed to finish, and that drain time counted in the throughput denominator. HTTP errors, SQL errors, and incorrect returned rows all counted as failures.</p>
+        <p>The logs record SQLite 3.45.1 on Layerbase and 3.47.0 on Turso. Server regions, CPU allocations, and storage settings weren’t controlled, so this compares the two hosted offerings as tested rather than identical server resources.</p>
+
+        <div class="article-table">
+          <table>
+            <caption>Best observed zero-error rates</caption>
+            <thead><tr><th scope="col">Workload</th><th scope="col">Turso</th><th scope="col">Layerbase</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">Point lookup, one user</th><td>2,266 queries/s<br />192 concurrent, 20s</td><td>113 queries/s<br />64 concurrent, 20s</td></tr>
+              <tr><th scope="row">Indexed join, 20 result rows</th><td>1,492 queries/s<br />128 concurrent, 20s</td><td>133 queries/s<br />128 concurrent, 20s</td></tr>
+              <tr><th scope="row">Single-row insert</th><td>55 rows/s<br />64 concurrent, 20s</td><td>125 rows/s<br />64 concurrent, 8s</td></tr>
+              <tr><th scope="row">100-row insert batch</th><td>4,169 rows/s<br />16 concurrent, 20s</td><td>Not reached after overload</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p>Those durations matter. Layerbase’s 125 inserts per second came from an eight-second ramp stage; its later confirmation failed after overload. And the roughly twentyfold gap between the best point-read results uses different concurrency levels. At a matched 64 concurrent requests in the eight-second ramps, Turso delivered 793 point reads per second and Layerbase delivered 86.</p>
+
+        <h2>Adding clients helped reads much more than writes</h2>
+        <p>Turso’s read curve kept climbing as more requests were allowed in flight. Its insert curve flattened around 50 to 55 requests per second. Going from 32 to 128 concurrent inserts mostly bought a longer wait, with p95 latency rising from about 715 milliseconds to 2.8 seconds in the short stages.</p>
+
+        <figure>
+          <picture>
+            <source media="(max-width: 650px)" srcset="/images/blog/turso-vs-layerbase-free-plan-sqlite-systems/read-versus-write-plateau-mobile.png" width="720" height="1000" />
+            <img src="/images/blog/turso-vs-layerbase-free-plan-sqlite-systems/read-versus-write-plateau.png" width="1440" height="700" alt="Two charts compare clean eight-second ramp stages. Turso point reads rise to about 1,506 requests per second at concurrency 128. Its individual inserts stay near 50 per second from concurrency 32 onward; Layerbase reaches 125 at concurrency 64. Layerbase’s failing 128-concurrent stages are omitted." loading="lazy" decoding="async" />
+          </picture>
+        </figure>
+
+        <p>The missing Layerbase points at 128 aren’t zero-throughput measurements. Those stages had errors and don’t belong on a clean-throughput curve. Turso’s later 192-concurrent read check also isn’t plotted here, because it came from a separate follow-up run.</p>
+        <p>There’s a familiar SQLite constraint in the background: <a href="https://www.sqlite.org/isolation.html">ordinary SQLite serializes writes even when WAL lets readers proceed alongside them</a>. That doesn’t identify the bottleneck in either hosted service. These logs can’t separate writer contention, commit handling, storage, or service admission control. They do show when increasing concurrency stopped improving this client’s write rate.</p>
+
+        <h2>A hundred rows changes the job</h2>
+        <p>For an import, I don’t particularly care how many HTTP responses arrive per second. I care how many records have been saved. The batched test kept the same payload, foreign key, and indexes, but put one hundred rows into a single atomic <code>INSERT</code>.</p>
+        <p>Turso handled about 42 of those requests per second, down from 55 single-row requests. Each successful batch saved a hundred rows, producing 4,169 inserted rows per second. Calling that “4,169 writes per second” without the batch size would be misleading. It would sound like four thousand independently acknowledged transactions.</p>
+
+        <figure>
+          <picture>
+            <source media="(max-width: 650px)" srcset="/images/blog/turso-vs-layerbase-free-plan-sqlite-systems/batch-vs-single-mobile.png" width="720" height="840" />
+            <img src="/images/blog/turso-vs-layerbase-free-plan-sqlite-systems/batch-vs-single.png" width="1440" height="560" alt="Turso completes 55.09 single-row insert requests per second versus 41.69 requests with one hundred rows per batch. The inserted-row rate rises from 55.09 to 4,168.66 rows per second. Both are clean twenty-second confirmations." loading="lazy" decoding="async" />
+          </picture>
+        </figure>
+
+        <p>The other completed Turso workloads fit that write-rate picture. Atomic counter updates sustained about 60 per second. An 80% read, 20% insert mix sustained 278 operations per second, including roughly 56 inserts per second. A faster read path didn’t make the mixed workload behave like the read-only test.</p>
+        <p>After the runs, the database contained all 219,157 acknowledged new rows, and the counter sum matched all 4,010 acknowledged updates. Payload-length checks, foreign-key checks, and <code>quick_check</code> passed. Those checks establish that the acknowledged test writes were present afterward; they don’t simulate losing the server or its storage.</p>
+
+        <h2>The next query after overload</h2>
+        <p>Layerbase’s 128-concurrent insert stage produced 128 client timeouts at the fifteen-second deadline. Follow-up requests began returning HTTP 429 with this response:</p>
+
+        <pre tabindex="0" aria-label="Layerbase HTTP 429 error response"><code>{"error":"Timed out while opening database connection"}</code></pre>
+
+        <p>The load was stopped. Ten later health probes, ending more than five minutes after it stopped, still couldn’t execute <code>SELECT 1</code>. That prevented final write verification, and it prevented measuring Layerbase’s updates, mixed traffic, or batch inserts. The 297 insert attempts without an acknowledgement have uncertain outcomes; a timeout doesn’t prove the write wasn’t committed.</p>
+        <p>There’s an important limit on that result: <a href="https://layerbase.com/pricing">Layerbase’s published Free plan lists 20 concurrent connections</a>. This client went well beyond that allowance. HTTP requests, Hrana streams, and the platform’s connection accounting aren’t interchangeable, and the logs don’t show how that cap was applied. The failure is an observation about deliberate overload, not evidence that the plan promises 128 simultaneous writers.</p>
+        <p>Turso also pushed back. At 256 concurrent reads, the short stage returned 257 HTTP 429s out of 23,982 attempts, about 1.1%. A longer check at 224 had 198 out of 52,915, about 0.37%. Its response identified load shedding; the database hostname is redacted here:</p>
+
+        <pre tabindex="0" aria-label="Turso HTTP 429 response with the database hostname redacted"><code>{"error":"load-shed for host [database-host]"}</code></pre>
+
+        <p>At 192 concurrent reads, Turso confirmed 2,266 successful queries per second with no errors. Health and integrity queries succeeded after each run. Its 128-concurrent insert stage also completed without errors, though at about 51 rows per second.</p>
+        <p>I wouldn’t turn these episodes into uptime statistics. The Turso 429s came from reads; Layerbase’s prolonged failure followed writes. There was one tested endpoint per provider and no server-side trace.</p>
+
+        <h2>What the free plans actually include</h2>
+        <p>The public offers, checked on October 19, 2026, put different limits around a small application. The monthly row allowances describe how much work is included. They don’t tell you how quickly a burst will finish.</p>
+
+        <div class="article-table">
+          <table>
+            <caption>Published Free-plan terms</caption>
+            <thead><tr><th scope="col">Included</th><th scope="col"><a href="https://turso.tech/pricing">Turso Free</a></th><th scope="col"><a href="https://layerbase.com/pricing">Layerbase Free</a></th></tr></thead>
+            <tbody>
+              <tr><th scope="row">Databases</th><td>100</td><td>2</td></tr>
+              <tr><th scope="row">Storage</th><td>5 GB</td><td>5 GB</td></tr>
+              <tr><th scope="row">Monthly rows read</th><td>500 million</td><td>No row meter advertised</td></tr>
+              <tr><th scope="row">Monthly rows written</th><td>10 million</td><td>No row meter advertised</td></tr>
+              <tr><th scope="row">Concurrent connections</th><td>Not listed on the pricing page</td><td>20</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p>Layerbase also advertises sleep after fifteen idle minutes and a 10 GB per 24 hours acceptable-use allowance on Free-plan bandwidth. “No row meter” doesn’t mean infinite throughput. On Turso, <a href="https://docs.turso.tech/help/usage-and-billing">rows read can include scans beyond the rows returned</a>. Our count of successful HTTP requests, and even our count of saved application rows, shouldn’t be substituted for a billing usage report.</p>
+
+        <h2>Enough evidence to repeat the test</h2>
+        <p>The <a href="/data/blog/turso-vs-layerbase-free-plan-sqlite-systems/benchmark-evidence.zip" download>benchmark bundle</a> includes the schema, a runnable client, the plotting script, and six JSON report snapshots with database hostnames removed. It records the failed stages as well as the clean ones. The current runner stops remaining load on a timeout or HTTP 429; that circuit breaker was added after the first Layerbase run, which was stopped manually.</p>
+        <p>For the full Turso workload on fresh benchmark tables, set <code>TURSO_URL</code> and <code>TURSO_AUTH_TOKEN</code> in a local <code>.env</code>, then run the downloaded client from its containing directory. Add <code>--reuse</code> only when intentionally testing the already-populated benchmark tables:</p>
+
+        <pre tabindex="0" aria-label="Command for the full Turso benchmark"><code>node run.mjs --provider=turso --max-concurrency=128</code></pre>
+
+        <p>These were short, warmed stages against a roughly 34 MB seed database. They don’t establish sustained production capacity, cold-start behavior, or performance on a multi-gigabyte dataset. A stronger next run would record the server allocations and regions, run longer, and repeat the write-overload test with server metrics.</p>
+        <p>For a project like Yapern, I’d measure opening a thread and saving a reply before choosing a host from the largest read number. This run gives Turso a strong read result and a complete, verified write test. Layerbase’s higher short insert rate deserves a longer confirmation and another recovery test before I’d build a decision around it. The next ordinary query needs to work after the benchmark client has gone away.</p>
+      </article>
+    </main>
+    <footer class="site-footer shell">
+      <a class="brand footer-brand" href="/">yapern<span class="brand-dot">.</span></a>
+      <nav aria-label="Footer"><a href="/blog/">Blog</a><a href="https://github.com/yapern/web">GitHub</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a></nav>
+    </footer>
+  </body>
+</html>

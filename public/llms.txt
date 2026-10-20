@@ -1,0 +1,11 @@
+# Yapern
+
+> An open source sub-yap with sub-yaps and community moderators.
+
+- Homepage: https://yapern.com/
+- Blog: https://yapern.com/blog/
+- Source code: https://github.com/yapern/web
+- License: GNU General Public License v3.0 (GPL v3)
+- Backend: Yapern API, https://api.yapern.com/docs
+
+The homepage includes an interactive preview with sample posts. Preview interactions are local to the page and do not connect to a live sub-yap.

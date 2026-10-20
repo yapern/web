@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#090d17" />
+    <meta name="description" content="How Yapern grew from a local preview into a live discussion board, and why its first API proxy was deleted nine minutes later." />
+    <link rel="canonical" href="https://yapern.com/blog/building-yapern/" />
+    <link rel="icon" href="/images/favicon.png" type="image/png" />
+    <meta property="og:type" content="article" />
+    <meta property="og:site_name" content="Yapern" />
+    <meta property="og:title" content="A live message board in a static site" />
+    <meta property="og:description" content="How Yapern grew from a local preview into a live discussion board, and why its first API proxy was deleted nine minutes later." />
+    <meta property="og:url" content="https://yapern.com/blog/building-yapern/" />
+    <meta property="og:image" content="https://yapern.com/images/blog/building-yapern/preview.png" />
+    <meta property="og:image:alt" content="Yapern’s interactive homepage preview, with sample sub-yaps, posts, and local voting controls." />
+    <meta property="article:published_time" content="2026-10-19" />
+    <meta property="article:author" content="Yapern" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="A live message board in a static site" />
+    <meta name="twitter:description" content="Real posts, accounts, and replies, served by a static frontend and Mainbrella’s API." />
+    <meta name="twitter:image" content="https://yapern.com/images/blog/building-yapern/preview.png" />
+    <meta name="twitter:image:alt" content="Yapern’s interactive homepage preview, with sample sub-yaps, posts, and local voting controls." />
+    <link rel="stylesheet" href="/yapern.css" />
+    <link rel="stylesheet" href="/blog.css" />
+    <script type="module" src="/src/auth-nav.js"></script>
+    <script type="module" src="/src/create.js"></script>
+    <title>A live message board in a static site · Yapern</title>
+  </head>
+  <body class="blog-page">
+    <a class="skip-link" href="#main">Skip to content</a>
+    <!-- site-header -->
+    <main id="main" class="blog-main shell">
+      <p class="blog-back"><a href="/blog/">← Blog</a></p>
+      <article class="blog-article" aria-labelledby="article-title">
+        <h1 id="article-title">A live message board in a static site</h1>
+        <p class="blog-meta"><time datetime="2026-10-19">October 19, 2026</time> · Yapern</p>
+
+        <p>Click an up arrow in Yapern’s homepage preview and the score changes. Refresh and your vote is gone. Scroll down to <a href="/#messages-title">Latest messages</a>, open a post, and you’re using a different part of the site: public records fetched from Mainbrella, with accounts and replies saved through its API.</p>
+        <p>Yapern is an <a href="https://github.com/mainbrella/yapern">open source discussion board</a> organized into sub-yaps, communities with their own posts and URLs. The frontend ships as HTML, CSS, and JavaScript. The conversations live in Mainbrella. The first live-message implementation briefly added an API server to Yapern, which the next commit took back out.</p>
+
+        <figure>
+          <picture>
+            <source media="(max-width: 650px)" srcset="/images/blog/building-yapern/preview-mobile.png" width="346" height="691" />
+            <img class="article-screenshot" src="/images/blog/building-yapern/preview.png" width="783" height="555" alt="The actual homepage preview shows sample posts in sub-yaps such as technology and making, with voting and save controls. These interactions use local page state." decoding="async" />
+          </picture>
+        </figure>
+
+        <h2>The API server lasted nine minutes</h2>
+        <p>The <a href="https://github.com/mainbrella/yapern/commit/6618390">first live-message commit</a> on October 18 added a Cloudflare Worker at <code>/api/messages</code>. The browser called Yapern; Yapern called Mainbrella’s table API; the Worker checked the response and returned the messages. Development had its own middleware for the same route.</p>
+        <p>About nine minutes later, <a href="https://github.com/mainbrella/yapern/commit/a67ad1f">the next implementation removed the Worker</a> and the development proxy. The browser made the table request directly and checked the response itself. The hosting configuration went back to static assets.</p>
+        <p>For this app, that’s a good deletion. Mainbrella already hosts the data API, so routing a read through Yapern adds another service to deploy and another place for a request to fail. The browser still needs to handle bad data and unavailable service; removing a hop doesn’t remove those jobs.</p>
+
+        <figure>
+          <picture>
+            <source media="(max-width: 650px)" srcset="/images/blog/building-yapern/request-path-mobile.svg" width="360" height="408" />
+            <img src="/images/blog/building-yapern/request-path.svg" width="760" height="284" alt="Before: the browser requests messages through a Yapern Worker, which calls Mainbrella BFF. After: the browser calls Mainbrella BFF directly, removing the intermediate Worker." loading="lazy" decoding="async" />
+          </picture>
+        </figure>
+
+        <p>A public browser key accompanies those requests. Signed-in requests also carry a user session. The public key is shipped with the frontend, so it can’t be treated as a secret. Mainbrella’s backend grants and row policies have to decide which operations are allowed. Hiding a button in JavaScript would be a pretty flimsy substitute.</p>
+
+        <h2>A post needs an address</h2>
+        <p>A feed of the newest twenty messages can look complete until somebody wants to send an older post to a friend. Yapern gives each sub-yap a route and each post a route inside it. For a hypothetical <code>making</code> sub-yap, the URLs have this shape:</p>
+
+        <pre tabindex="0" aria-label="Example sub-yap and message URLs"><code>/y/making
+/y/making/&lt;message-id&gt;</code></pre>
+
+        <p>Both load the same static <code>board.html</code>. A hosting rewrite keeps the requested URL, and the browser reads it to decide what to fetch. For a post, it first looks up the sub-yap by its slug, then requests the message using both that board’s ID and the message ID. The post doesn’t need to appear among the newest twenty to be reachable.</p>
+        <p>This also gives a wrong address a sensible outcome. A missing sub-yap or a message that doesn’t belong to it produces an inline not-found state. The client checks returned board and message IDs as well as sending filters. Those checks catch an unexpected response; authorization still belongs to the backend.</p>
+
+        <h2>Saving takes more than closing the dialog</h2>
+        <p>Accounts and the composer added writes to that read path. After <a href="/login/">signing in with email and password</a>, you can create a sub-yap or post to an existing one. The frontend sends the current user’s session to Mainbrella and waits for a saved row before navigating to the new post.</p>
+        <p>The client checks that the returned row has an ID, belongs to the signed-in user, and contains the values it submitted. If the response can’t confirm the save, the dialog keeps the input. A connection can drop after a backend has saved a post, so “the request failed” isn’t enough to conclude “nothing was posted.” Yapern’s error asks you to check the sub-yap before trying again.</p>
+        <p><a href="https://github.com/mainbrella/yapern/commit/0c32f2e">Replies followed later that evening</a>. They have their own table, and each reply points to an original message. That keeps discussion to one level. The reader fetches replies oldest first in batches of one hundred, rather than silently stopping at the first batch.</p>
+
+        <div class="article-table">
+          <table>
+            <caption>What survives a refresh today</caption>
+            <thead><tr><th scope="col">Interaction</th><th scope="col">Where it lives</th><th scope="col">After a refresh</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">Preview votes and saves</th><td>Page memory</td><td>Reset to the sample</td></tr>
+              <tr><th scope="row">Live posts and replies</th><td>Mainbrella tables</td><td>Fetched again from the API</td></tr>
+              <tr><th scope="row">Live voting</th><td>Unavailable</td><td>No vote is saved</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p>That last row is easy to miss if you only look at screenshots. Live posts have vote arrows and a fixed count of one, but the controls are marked as unavailable. The preview’s moving scores don’t establish a shared voting system. There’s still work to do there.</p>
+
+        <h2>A link preview can fail without losing the post</h2>
+        <p>The <a href="https://github.com/mainbrella/yapern/commit/9fa688f">October 19 change</a> adds an optional image lookup when you put a URL in the composer. After a short delay, the browser asks Mainbrella for the linked page’s preview image. Changing or removing the URL cancels the previous lookup so an old result doesn’t replace the new link’s preview.</p>
+        <p>The image is only a preview in the open dialog. The saved message body contains the URL and any text you wrote; the change adds no image column to the message table. If the lookup fails or the image won’t load, you can still post. A flaky image server shouldn’t get a veto over a conversation.</p>
+        <p>Yapern’s frontend can now be rebuilt and redeployed without copying its conversations into the build. Mainbrella keeps the saved rows, and the post URL tells the reader which ones to fetch. Create a post, copy its URL, and come back to it after a refresh. The post and its replies are read back from the API, and your next reply goes back to that thread.</p>
+      </article>
+    </main>
+    <footer class="site-footer shell">
+      <a class="brand footer-brand" href="/">yapern<span class="brand-dot">.</span></a>
+      <nav aria-label="Footer"><a href="/blog/">Blog</a><a href="https://github.com/yapern/web">GitHub</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a></nav>
+    </footer>
+  </body>
+</html>
