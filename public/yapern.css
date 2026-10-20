@@ -1177,6 +1177,7 @@ h1 span,
 .detail-board-layout > .live-messages-feed {
   min-width: 0;
   width: 100%;
+  justify-self: center;
 }
 .detail-board-navigation {
   position: sticky;
