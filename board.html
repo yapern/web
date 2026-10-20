@@ -17,7 +17,7 @@
     <main id="main" class="live-messages-section detail-board-layout shell">
       <aside class="detail-board-navigation" aria-label="Sub-yap navigation">
         <nav aria-label="Message views">
-          <a class="detail-nav-link" href="/#messages-title">All messages</a>
+          <a class="detail-nav-link" href="/all">All messages</a>
         </nav>
         <details class="detail-board-menu" open>
           <summary>Sub-yaps</summary>
@@ -32,6 +32,7 @@
         <p id="messages-status" class="messages-status" role="status"></p>
         <button id="messages-retry" class="messages-retry" type="button" hidden>Try again</button>
         <ul id="live-messages" aria-labelledby="messages-title" aria-busy="false"></ul>
+        <nav id="messages-pagination" class="messages-pagination" aria-label="Message pagination" hidden></nav>
         <section id="message-replies-section" class="message-replies-section" aria-label="Replies" hidden>
           <form id="reply-form" class="reply-form">
             <div class="reply-editor" id="reply-editor">

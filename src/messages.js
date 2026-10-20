@@ -1,4 +1,4 @@
-import { fetchMessages, fetchBoards, fetchBoardPage, fetchMessageAuthors, deleteMessage } from "./messages-api.js";
+import { fetchMessages, fetchMessagesPage, fetchBoards, fetchBoardPage, fetchMessageAuthors, deleteMessage } from "./messages-api.js";
 import { readStoredSession } from "./auth.js";
 import { boardHref, messageHref, parseBoardRoute } from "./board-routes.js";
 import { mountBoardSidebars } from "./board-sidebars.js";
@@ -13,7 +13,35 @@ const dateFormat = new Intl.DateTimeFormat(undefined, { dateStyle: "medium" });
 const heading = document.querySelector("#messages-title");
 const description = document.querySelector("#board-description");
 const isBoardPage = document.body.classList.contains("board-page");
+const isAllPage = /^\/all\/?$/.test(window.location.pathname);
 const route = isBoardPage ? parseBoardRoute(window.location.pathname) : null;
+const requestedPage = Number(new URLSearchParams(window.location.search).get("page"));
+const page = Number.isSafeInteger(requestedPage) && requestedPage > 0 ? requestedPage : 1;
+const pagination = document.querySelector("#messages-pagination");
+
+function renderPagination(hasNext) {
+  if (!isAllPage) return;
+  const previous = document.createElement(page > 1 ? "a" : "span");
+  previous.textContent = "Previous";
+  if (page > 1) {
+    previous.href = page === 2 ? "/all" : `/all?page=${page - 1}`;
+    previous.rel = "prev";
+  } else {
+    previous.setAttribute("aria-disabled", "true");
+  }
+  const current = document.createElement("span");
+  current.textContent = `Page ${page}`;
+  const next = document.createElement(hasNext ? "a" : "span");
+  next.textContent = "Next";
+  if (hasNext) {
+    next.href = `/all?page=${page + 1}`;
+    next.rel = "next";
+  } else {
+    next.setAttribute("aria-disabled", "true");
+  }
+  pagination.replaceChildren(previous, current, next);
+  pagination.hidden = page === 1 && !hasNext;
+}
 
 function syncDeleteAction() {
   const button = list.querySelector(".live-message-delete");
@@ -223,11 +251,18 @@ function actionIcon(name, label) {
 async function loadMessages() {
   list.setAttribute("aria-busy", "true");
   retry.hidden = true;
+  if (pagination) pagination.hidden = true;
   status.textContent = "Loading messages…";
   try {
     let data;
     let boards;
-    if (isBoardPage) {
+    let hasNext = false;
+    if (isAllPage) {
+      const [result, allBoards] = await Promise.all([fetchMessagesPage(page), fetchBoards()]);
+      data = result.messages;
+      hasNext = result.hasNext;
+      boards = allBoards;
+    } else if (isBoardPage) {
       const result = route && await fetchBoardPage(route.slug, route.messageId);
       if (!result) {
         const resource = route?.messageId === undefined ? "Sub-yap" : "Message";
@@ -250,7 +285,8 @@ async function loadMessages() {
     const byId = new Map(boards.map(board => [board.id, board]));
     list.replaceChildren(...data.map(message => messageRow(message, byId.get(message.board_id), authors)));
     syncDeleteAction();
-    status.textContent = data.length ? "" : "No messages yet.";
+    status.textContent = data.length ? "" : isAllPage && page > 1 ? "No messages on this page." : "No messages yet.";
+    renderPagination(hasNext);
     if (route?.messageId !== undefined && data.length) {
       mountReplies(data[0].id, (reply, replyAuthors) => messageRow(reply, null, replyAuthors));
     }
@@ -265,5 +301,10 @@ async function loadMessages() {
 retry.addEventListener("click", loadMessages);
 for (const event of ["pageshow", "focus", "storage"]) window.addEventListener(event, syncDeleteAction);
 if (route) heading.textContent = `y/${route.slug}`;
+if (isAllPage) {
+  heading.textContent = "All messages";
+  document.title = `All messages${page > 1 ? ` · Page ${page}` : ""} · Yapern`;
+  document.querySelector('.detail-nav-link[href="/all"]').setAttribute("aria-current", "page");
+}
 mountBoardSidebars(route?.slug, isBoardPage ? 20 : 3);
 loadMessages();

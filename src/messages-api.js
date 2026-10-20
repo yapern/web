@@ -251,7 +251,7 @@ export async function fetchOgImage(value, fetcher = fetch, { signal } = {}) {
   }
 }
 
-export async function fetchMessages(fetcher = fetch, { boardId, messageId, limit = 20 } = {}) {
+export async function fetchMessages(fetcher = fetch, { boardId, messageId, limit = 20, offset } = {}) {
   const params = {
     select: "id,board_id,user_id,title,body,created_at",
     order: "created_at.desc",
@@ -259,6 +259,7 @@ export async function fetchMessages(fetcher = fetch, { boardId, messageId, limit
   };
   if (boardId !== undefined) params.board_id = `eq.${boardId}`;
   if (messageId !== undefined) params.id = `eq.${messageId}`;
+  if (offset !== undefined) params.offset = String(offset);
   const messages = await readRows(messageBoardConfig.table, params, fetcher);
   if (
     !messages.every(
@@ -271,6 +272,18 @@ export async function fetchMessages(fetcher = fetch, { boardId, messageId, limit
     throw new Error("Invalid messages");
   }
   return messages;
+}
+
+export async function fetchMessagesPage(page = 1, fetcher = fetch) {
+  if (!Number.isSafeInteger(page) || page < 1) throw new Error("Invalid message page");
+  const limit = 20;
+  const offset = (page - 1) * limit;
+  const messages = await fetchMessages(fetcher, { limit, offset });
+  // Check for another row so a full final page doesn't lead to an empty page.
+  const next = messages.length === limit
+    ? await fetchMessages(fetcher, { limit: 1, offset: offset + limit })
+    : [];
+  return { messages, hasNext: next.length > 0 };
 }
 
 export async function fetchReplies(messageId, fetcher = fetch) {

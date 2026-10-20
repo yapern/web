@@ -1039,6 +1039,23 @@ h1 span,
   text-decoration: underline;
   text-underline-offset: 4px;
 }
+.messages-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 24px;
+  color: var(--muted);
+  font-size: 14px;
+}
+.messages-pagination a,
+.messages-pagination span[aria-disabled] {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+.messages-pagination a { color: var(--accent); }
+.messages-pagination a:hover { text-decoration: underline; text-underline-offset: 4px; }
 #live-messages > li,
 #message-replies > li {
   padding-block: 20px;

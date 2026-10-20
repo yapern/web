@@ -64,10 +64,13 @@ as the first line of the message body and rendered with a clickable fallback.
 
 ## Static routes and blog
 
-Board links use `/y/:slug` and message links use `/y/:slug/:id`. These routes
-load `board.html` and fetch data in the browser. `public/_redirects` rewrites
-`/y/*` to `/board` with a 200 response. Vite development and preview apply the
-same rewrite. Other static hosts need an equivalent rule; there is no SSR.
+All messages use `/all`, board links use `/y/:slug`, and message links use
+`/y/:slug/:id`. These routes load `board.html` and fetch data in the browser.
+`public/_redirects` rewrites `/all`, `/all/`, and `/y/*` to `/board` with a 200
+response. Vite development and preview apply the same rewrite. Other static
+hosts need equivalent rules; there is no SSR. The all-messages feed shows 20
+messages per page with older pages at `/all?page=2` and onward; the homepage
+shows the latest three messages.
 
 The homepage and board pages share board navigation, message lists, and recent
 posts. These load independently and provide inline loading, empty, unavailable,

@@ -58,7 +58,7 @@ export function staticBlogPlugin(posts = blogPosts) {
 function boardPageRoutes(server) {
   server.middlewares.use((request, response, next) => {
     const url = new URL(request.url, "http://localhost");
-    if (url.pathname.startsWith("/y/")) {
+    if (/^\/all\/?$/.test(url.pathname) || url.pathname.startsWith("/y/")) {
       request.url = `/board.html${url.search}`;
     }
     next();

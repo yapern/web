@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { fetchMessages, fetchBoards, fetchBoardPage, fetchMessageAuthors } from "../src/messages-api.js";
+import { fetchMessages, fetchMessagesPage, fetchBoards, fetchBoardPage, fetchMessageAuthors } from "../src/messages-api.js";
 import { messageBoardConfig } from "../src/config.js";
 import { boardHref, messageHref, parseBoardRoute } from "../src/board-routes.js";
 
@@ -29,6 +29,60 @@ test("reads the production API's newest 20 messages directly using CORS", async 
     assert.ok(options.signal instanceof AbortSignal);
     return Response.json({ data: [message] });
   });
+  assert.deepEqual(messages, [message]);
+});
+
+test("all-message pagination includes every message once across full and partial pages", async () => {
+  const messages = Array.from({ length: 45 }, (_, index) => ({ ...message, id: `message-${index}` }));
+  const requests = [];
+  const fetcher = async url => {
+    const limit = Number(url.searchParams.get("limit"));
+    const offset = Number(url.searchParams.get("offset"));
+    assert.equal(url.searchParams.get("board_id"), null);
+    assert.equal(url.searchParams.get("order"), "created_at.desc");
+    requests.push({ limit, offset });
+    return Response.json({ data: messages.slice(offset, offset + limit) });
+  };
+  const pages = [];
+  for (const page of [1, 2, 3]) pages.push(await fetchMessagesPage(page, fetcher));
+  assert.deepEqual(pages.map(page => page.messages.length), [20, 20, 5]);
+  assert.deepEqual(pages.map(page => page.hasNext), [true, true, false]);
+  assert.deepEqual(pages.flatMap(page => page.messages), messages);
+  assert.deepEqual(requests, [
+    { limit: 20, offset: 0 }, { limit: 1, offset: 20 },
+    { limit: 20, offset: 20 }, { limit: 1, offset: 40 },
+    { limit: 20, offset: 40 },
+  ]);
+});
+
+test("pagination stops at a full final page and supports empty or out-of-range pages", async () => {
+  const messages = Array.from({ length: 40 }, (_, index) => ({ ...message, id: String(index) }));
+  const fetcher = async url => {
+    const offset = Number(url.searchParams.get("offset"));
+    const limit = Number(url.searchParams.get("limit"));
+    return Response.json({ data: messages.slice(offset, offset + limit) });
+  };
+  assert.deepEqual(await fetchMessagesPage(2, fetcher), { messages: messages.slice(20), hasNext: false });
+  assert.deepEqual(await fetchMessagesPage(3, fetcher), { messages: [], hasNext: false });
+  assert.deepEqual(await fetchMessagesPage(1, async () => Response.json({ data: [] })), { messages: [], hasNext: false });
+});
+
+test("invalid page numbers never fetch, and pagination failures remain retryable", async () => {
+  for (const page of [0, -1, 1.5, NaN, Infinity, "2", Number.MAX_SAFE_INTEGER + 1]) {
+    await assert.rejects(fetchMessagesPage(page, async () => assert.fail("Unexpected request")));
+  }
+  await assert.rejects(fetchMessagesPage(1, async () => new Response(null, { status: 503 })));
+  await assert.rejects(fetchMessagesPage(1, async url => Number(url.searchParams.get("limit")) === 20
+    ? Response.json({ data: Array(20).fill(message) })
+    : new Response(null, { status: 503 })));
+});
+
+test("homepage previews can still request only three messages", async () => {
+  const messages = await fetchMessages(async url => {
+    assert.equal(url.searchParams.get("limit"), "3");
+    assert.equal(url.searchParams.get("offset"), null);
+    return Response.json({ data: [message] });
+  }, { limit: 3 });
   assert.deepEqual(messages, [message]);
 });
 
