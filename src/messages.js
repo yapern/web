@@ -5,6 +5,7 @@ import { mountBoardSidebars } from "./board-sidebars.js";
 import { parseMessageText } from "./message-text.js";
 import { externalLinkHref } from "./external-links.js";
 import { mountReplies } from "./replies.js";
+import { createVoteControl } from "./votes.js";
 
 const list = document.querySelector("#live-messages");
 const status = document.querySelector("#messages-status");
@@ -137,16 +138,7 @@ function messageRow(message, board, authors) {
   const actions = document.createElement("div");
   actions.className = "live-message-actions";
 
-  const votes = document.createElement("div");
-  votes.className = "live-message-votes";
-  votes.setAttribute("role", "group");
-  votes.setAttribute("aria-label", "Voting unavailable");
-  votes.append(actionIcon("arrow-up", "Upvote"));
-  const voteCount = document.createElement("span");
-  voteCount.className = "live-message-vote-count";
-  voteCount.textContent = "1";
-  voteCount.setAttribute("aria-label", "1 vote");
-  votes.append(voteCount, actionIcon("arrow-down", "Downvote"));
+  const votes = createVoteControl({ type: message.message_id ? "reply" : "message", id: message.id });
 
   const reply = document.createElement(boardSlug ? "a" : "span");
   reply.className = boardSlug ? "live-message-action" : "live-message-action live-message-action-static";

@@ -11,8 +11,12 @@ export function isNotificationSnapshot(value) {
     Array.isArray(value.notifications) && value.notifications.length <= 50 &&
     value.notifications.every(notification => notification &&
       isPositiveInteger(notification.id) &&
-      ["reply_id", "message_id", "board_slug", "message_title", "actor_name"].every(key => typeof notification[key] === "string") &&
-      notification.reply_id.length > 0 && notification.message_id.length > 0 &&
+      ["message_id", "board_slug", "message_title", "actor_name"].every(key => typeof notification[key] === "string") &&
+      notification.message_id.length > 0 &&
+      (notification.kind === undefined || notification.kind === "reply" || notification.kind === "upvote") &&
+      (notification.kind === "upvote"
+        ? notification.reply_id === null || (typeof notification.reply_id === "string" && notification.reply_id.length > 0)
+        : typeof notification.reply_id === "string" && notification.reply_id.length > 0) &&
       /^[a-z0-9]+(?:[a-z0-9-]*[a-z0-9])?$/.test(notification.board_slug) &&
       Number.isFinite(Date.parse(notification.created_at)) &&
       (notification.read_at === null || (typeof notification.read_at === "string" && Number.isFinite(Date.parse(notification.read_at))))));

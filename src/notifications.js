@@ -25,10 +25,21 @@ function renderSnapshot(snapshot) {
     const item = document.createElement("li");
     const link = document.createElement("a");
     link.className = "notification-item-link";
-    link.href = `${messageHref(notification.board_slug, notification.message_id)}#message-replies-section`;
+    const messageLink = messageHref(notification.board_slug, notification.message_id);
+    link.href = notification.kind === "upvote" && !notification.reply_id
+      ? messageLink
+      : `${messageLink}#message-replies-section`;
     const heading = document.createElement("span");
     heading.className = "notification-item-heading";
-    heading.textContent = `${notification.actor_name || "Someone"} replied to “${notification.message_title || "your message"}”`;
+    const actor = notification.actor_name || "Someone";
+    if (notification.kind === "upvote") {
+      const title = notification.message_title || "your message";
+      heading.textContent = notification.reply_id
+        ? `${actor} upvoted your reply to “${title}”`
+        : `${actor} upvoted “${title}”`;
+    } else {
+      heading.textContent = `${actor} replied to “${notification.message_title || "your message"}”`;
+    }
     const time = document.createElement("time");
     time.dateTime = notification.created_at;
     time.textContent = dateFormat.format(new Date(notification.created_at));
@@ -98,7 +109,7 @@ function render(state) {
 function updateReadFeedback() {
   const failed = readErrorThrough > lastReadThrough;
   readStatus.hidden = !failed;
-  readStatus.textContent = failed ? "Couldn’t mark replies as read." : "";
+  readStatus.textContent = failed ? "Couldn’t mark notifications as read." : "";
   readRetry.hidden = !failed;
 }
 

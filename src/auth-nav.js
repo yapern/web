@@ -12,8 +12,8 @@ notificationsLive.subscribe(({ snapshot }) => {
   const unread = Number.isSafeInteger(snapshot?.unread_count) && snapshot.unread_count > 0;
   if (notificationDot) notificationDot.hidden = !unread;
   if (notificationLink) {
-    notificationLink.setAttribute("aria-label", unread ? "Notifications (unread replies)" : "Notifications");
-    notificationLink.title = unread ? "Notifications (unread replies)" : "Notifications";
+    notificationLink.setAttribute("aria-label", unread ? "Notifications (unread)" : "Notifications");
+    notificationLink.title = unread ? "Notifications (unread)" : "Notifications";
   }
 });
 

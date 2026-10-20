@@ -16,6 +16,19 @@ test("validates notification snapshots and rejects malformed entries", () => {
   assert.equal(isNotificationSnapshot({ ...snapshot, notifications: [{ ...item, read_at: "not a date" }] }), false);
 });
 
+test("accepts typed reply and message/reply upvote notifications while retaining legacy replies", () => {
+  const entries = [
+    item,
+    { ...item, id: 4, kind: "reply" },
+    { ...item, id: 5, kind: "upvote", reply_id: null },
+    { ...item, id: 6, kind: "upvote" },
+  ];
+  assert.equal(isNotificationSnapshot({ ...snapshot, notifications: entries }), true);
+  assert.equal(isNotificationSnapshot({ ...snapshot, notifications: [{ ...item, kind: "share" }] }), false);
+  assert.equal(isNotificationSnapshot({ ...snapshot, notifications: [{ ...item, kind: "upvote", reply_id: 3 }] }), false);
+  assert.equal(isNotificationSnapshot({ ...snapshot, notifications: [{ ...item, kind: "reply", reply_id: null }] }), false);
+});
+
 test("reads snapshots, marks a cutoff read, and requests a short lived socket ticket", async () => {
   const calls = [];
   const api = createNotificationsApi({
