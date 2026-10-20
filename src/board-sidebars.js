@@ -1,7 +1,7 @@
 import { fetchBoards, fetchMessages } from "./messages-api.js";
 import { boardHref, messageHref } from "./board-routes.js";
 
-export function mountBoardSidebars(activeSlug) {
+export function mountBoardSidebars(activeSlug, recentLimit = 20) {
   const navigation = document.querySelector("#board-navigation");
   const boardStatus = document.querySelector("#boards-status");
   const boardRetry = document.querySelector("#boards-retry");
@@ -95,7 +95,7 @@ export function mountBoardSidebars(activeSlug) {
     recentRetry.hidden = true;
     recentStatus.textContent = "Loading posts…";
     try {
-      recentMessages = await fetchMessages();
+      recentMessages = await fetchMessages(undefined, { limit: recentLimit });
       recentLoaded = true;
       renderRecent();
     } catch {

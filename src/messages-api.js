@@ -173,11 +173,11 @@ export async function fetchOgImage(value, fetcher = fetch, { signal } = {}) {
   }
 }
 
-export async function fetchMessages(fetcher = fetch, { boardId, messageId } = {}) {
+export async function fetchMessages(fetcher = fetch, { boardId, messageId, limit = 20 } = {}) {
   const params = {
     select: "id,board_id,user_id,title,body,created_at",
     order: "created_at.desc",
-    limit: messageId === undefined ? "20" : "1",
+    limit: messageId === undefined ? String(limit) : "1",
   };
   if (boardId !== undefined) params.board_id = `eq.${boardId}`;
   if (messageId !== undefined) params.id = `eq.${messageId}`;

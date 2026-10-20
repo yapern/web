@@ -243,7 +243,7 @@ async function loadMessages() {
       description.textContent = route.messageId === undefined ? result.board.description : "";
       document.title = `${route.messageId === undefined ? `y/${result.board.slug}` : data[0].title} · Yapern`;
     } else {
-      [data, boards] = await Promise.all([fetchMessages(), fetchBoards()]);
+      [data, boards] = await Promise.all([fetchMessages(undefined, { limit: 3 }), fetchBoards()]);
     }
     // Keep posts readable if profile lookups are temporarily unavailable.
     const authors = await fetchMessageAuthors(data).catch(() => new Map());
@@ -265,5 +265,5 @@ async function loadMessages() {
 retry.addEventListener("click", loadMessages);
 for (const event of ["pageshow", "focus", "storage"]) window.addEventListener(event, syncDeleteAction);
 if (route) heading.textContent = `y/${route.slug}`;
-mountBoardSidebars(route?.slug);
+mountBoardSidebars(route?.slug, isBoardPage ? 20 : 3);
 loadMessages();
