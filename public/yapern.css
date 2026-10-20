@@ -203,15 +203,9 @@ a {
   align-items: center;
   gap: 12px;
 }
-.header-actions:has(.create-menu:not([hidden])) > [data-login-link] {
-  background: transparent;
-  border-color: var(--line);
-  box-shadow: none;
-}
 .header-toggle { display: none; }
 .create-menu { position: relative; }
-.header-create-icon,
-.header-create-chevron {
+.header-create-icon {
   width: 16px;
   height: 16px;
   fill: none;
@@ -220,8 +214,6 @@ a {
   stroke-linecap: round;
   stroke-linejoin: round;
 }
-.header-create-chevron { width: 14px; height: 14px; color: #ddd2ff; transition: transform 160ms ease; }
-#create-toggle[aria-expanded="true"] .header-create-chevron { transform: rotate(180deg); }
 .header-actions > .button,
 #create-toggle {
   min-height: 44px;
@@ -233,16 +225,86 @@ a {
   transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease;
 }
 #create-toggle {
-  border-color: #7553c9;
-  background: #5635a2;
-}
-#create-toggle:hover { background: #6440b5; border-color: #8a6bd7; }
-.header-actions:has(.create-menu:not([hidden])) > [data-login-link] {
-  color: #e0e4f1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 9px 10px;
+  gap: 7px;
+  border: 1px solid transparent;
+  border-radius: 8px;
   background: transparent;
-  border-color: var(--line);
+  color: #e0e4f1;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
 }
-.header-actions:has(.create-menu:not([hidden])) > [data-login-link]:hover { background: #171d2b; border-color: #3a435b; }
+#create-toggle:hover,
+#create-toggle:focus-visible { background: #1c2434; }
+.header-icon-button,
+.header-account[data-signed-in="true"] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: #e0e4f1;
+  cursor: pointer;
+  transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease;
+}
+.header-icon-button:hover,
+.header-icon-button:focus-visible,
+.header-account[data-signed-in="true"]:hover,
+.header-account[data-signed-in="true"]:focus-visible { background: #1c2434; }
+.header-icon-button svg,
+.header-account[data-signed-in="true"] svg {
+  width: 21px;
+  height: 21px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.header-account:not([data-signed-in="true"]) {
+  width: auto;
+}
+.header-account:not([data-signed-in="true"]) svg { display: none; }
+.header-actions > .header-account[data-signed-in="true"] {
+  width: 44px;
+  min-width: 44px;
+  height: 44px;
+  padding: 0;
+  border-color: transparent;
+  background: transparent;
+  box-shadow: none;
+  transform: none;
+}
+.header-actions > .header-account[data-signed-in="true"]:hover { background: #1c2434; box-shadow: none; }
+.header-account[data-signed-in="true"] span { display: none; }
+.header-mobile-label { display: none; }
+.notification-control { position: relative; }
+.notifications-panel {
+  position: absolute;
+  top: calc(100% + 7px);
+  right: 0;
+  z-index: 30;
+  width: max-content;
+  max-width: min(280px, calc(100vw - 48px));
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #141a29;
+  box-shadow: 0 12px 28px #0008;
+  color: #d8ddec;
+  font-size: 13px;
+}
+.notifications-panel[hidden] { display: none; }
 .create-options {
   position: absolute;
   top: calc(100% + 7px);
@@ -2238,6 +2300,30 @@ a.detail-recent-post:hover .detail-recent-title {
   }
   .mobile-create-actions button:hover,
   .mobile-create-actions button:focus-visible { background: #1c2434; }
+  .site-header.navigation-ready .header-actions .header-icon-button,
+  .site-header.navigation-ready .header-actions .header-account {
+    justify-content: flex-start;
+    width: 100%;
+    min-height: 44px;
+    padding: 0 10px;
+    gap: 10px;
+    border: 0;
+    border-radius: 6px;
+    font-size: 14px;
+    text-align: left;
+  }
+  .site-header.navigation-ready .header-actions .header-icon-button svg,
+  .site-header.navigation-ready .header-actions .header-account svg { width: 20px; height: 20px; }
+  .site-header.navigation-ready .header-mobile-label,
+  .site-header.navigation-ready .header-account[data-signed-in="true"] span { display: inline; }
+  .site-header.navigation-ready .notification-control { width: 100%; }
+  .site-header.navigation-ready .notifications-panel {
+    position: static;
+    width: auto;
+    max-width: none;
+    margin: 2px 10px 6px 40px;
+    box-shadow: none;
+  }
   .site-header.navigation-ready .header-actions > [data-login-link] {
     justify-content: flex-start;
     min-height: 44px;
