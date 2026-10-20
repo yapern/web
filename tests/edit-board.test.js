@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { readStoredSession, storeSession } from "../src/auth.js";
-import { fetchBoards, updateBoardDescription } from "../src/messages-api.js";
+import { boardLogoUrl, fetchBoards, updateBoard, updateBoardDescription } from "../src/messages-api.js";
 import { messageBoardConfig } from "../src/config.js";
 
 const session = {
@@ -14,9 +14,18 @@ const board = { id: "board / ?&id=eq.other", slug: "my-board", name: "My Board",
 test("board reads include the creator and allow boards with no creator", async () => {
   const boards = [board, { ...board, id: "general", slug: "general", user_id: null }];
   assert.deepEqual(await fetchBoards(async url => {
-    assert.equal(url.searchParams.get("select"), "id,slug,name,description,user_id");
+    assert.equal(url.searchParams.get("select"), "id,slug,name,description,user_id,logo_url");
     return Response.json({ data: boards });
   }), boards);
+});
+
+test("board logo URLs accept only trusted API logo paths", () => {
+  assert.equal(boardLogoUrl("/board-logos/123e4567-e89b-12d3-a456-426614174000.webp"),
+    `${messageBoardConfig.apiOrigin}/board-logos/123e4567-e89b-12d3-a456-426614174000.webp`);
+  for (const value of [
+    "https://elsewhere.example/board-logos/123e4567-e89b-12d3-a456-426614174000.webp",
+    "/board-logos/not-a-uuid.webp", "/board-logos/123e4567-e89b-12d3-a456-426614174000.svg",
+  ]) assert.equal(boardLogoUrl(value), null);
 });
 
 test("editing patches only the description of the exact board and authenticated creator", async t => {
@@ -84,4 +93,49 @@ test("failed edits show useful errors, clear rejected sessions, and never retry"
     assert.deepEqual(readStoredSession(), status === 401 ? null : session);
   }
   await assert.rejects(updateBoardDescription(board, "Updated", async () => { throw new TypeError("network"); }), /Check your connection/);
+});
+
+test("logo uploads use multipart form data and confirm the returned logo", async t => {
+  t.after(() => storeSession(null));
+  storeSession(session);
+  const file = new File([new Uint8Array([137, 80, 78, 71])], "logo.png", { type: "image/png" });
+  const logoUrl = "/board-logos/123e4567-e89b-12d3-a456-426614174000.png";
+  const saved = { ...board, description: "Updated", logo_url: logoUrl };
+  assert.deepEqual(await updateBoard(board, { description: " Updated ", logo: file }, async (url, options) => {
+    assert.deepEqual(Object.fromEntries(url.searchParams), { id: `eq.${board.id}`, user_id: "eq.creator" });
+    assert.equal(options.method, "PATCH");
+    assert.equal(options.headers.authorization, `Bearer ${session.token}`);
+    assert.equal(options.headers["content-type"], undefined);
+    assert.ok(options.body instanceof FormData);
+    assert.equal(options.body.get("description"), "Updated");
+    assert.equal(options.body.get("logo").name, "logo.png");
+    return Response.json({ data: [saved] });
+  }), saved);
+  await assert.rejects(updateBoard(board, { description: "Updated", logo: file }, async () => Response.json({ data: [{ ...saved, logo_url: null }] })), /Could not confirm/);
+});
+
+test("logo removal uses JSON and confirms the returned removal", async t => {
+  t.after(() => storeSession(null));
+  storeSession(session);
+  const withLogo = { ...board, logo_url: "/board-logos/123e4567-e89b-12d3-a456-426614174000.gif" };
+  const saved = { ...withLogo, description: "Updated", logo_url: null };
+  assert.deepEqual(await updateBoard(withLogo, { description: "Updated", removeLogo: true }, async (_url, options) => {
+    assert.equal(options.headers["content-type"], "application/json");
+    assert.deepEqual(JSON.parse(options.body), { description: "Updated", remove_logo: true });
+    return Response.json({ data: [saved] });
+  }), saved);
+});
+
+test("logo upload limits and API rejection statuses preserve safe errors", async t => {
+  t.after(() => storeSession(null));
+  storeSession(session);
+  const neverFetch = () => assert.fail("must reject before sending a request");
+  for (const logo of [
+    new File(["x"], "bad.svg", { type: "image/svg+xml" }),
+    new File([new Uint8Array(5 * 1024 * 1024 + 1)], "large.png", { type: "image/png" }),
+  ]) await assert.rejects(updateBoard(board, { description: "Updated", logo }, neverFetch), /logo|Choose/i);
+  for (const [status, pattern] of [[409, /changed while/], [413, /smaller than 5 MB/], [415, /valid PNG/]]) {
+    await assert.rejects(updateBoard(board, { description: "Updated", removeLogo: true }, async () =>
+      Response.json({ error: "private details" }, { status })), pattern);
+  }
 });

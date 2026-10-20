@@ -69,6 +69,14 @@
       <section id="edit-board-view" class="live-messages-feed" aria-labelledby="edit-board-heading" hidden>
         <h1 id="edit-board-heading" tabindex="-1">Basics</h1>
         <form class="create-form board-edit-form" id="edit-board-form">
+          <div class="board-edit-logo-field">
+            <span class="board-edit-logo-label">Logo</span>
+            <img id="edit-board-logo-preview" class="board-logo-preview" alt="" hidden>
+            <button id="edit-board-logo-choose" class="create-secondary board-logo-upload" type="button">Choose image</button>
+            <input id="edit-board-logo" class="board-logo-input" name="logo" type="file" accept="image/png,image/jpeg,image/webp,image/gif" hidden>
+            <button id="edit-board-logo-remove" class="create-secondary board-logo-remove" type="button" hidden>Remove logo</button>
+            <p id="edit-board-logo-status" class="detail-sidebar-status" role="status"></p>
+          </div>
           <label class="create-field" for="edit-board-description">
             <span>Description</span>
             <textarea id="edit-board-description" name="description" rows="4" maxlength="2000" aria-describedby="edit-board-error"></textarea>
@@ -81,6 +89,7 @@
         </form>
       </section>
       <aside class="detail-board-info" aria-labelledby="board-info-title" hidden>
+        <img id="board-info-logo" class="board-info-logo" alt="" hidden>
         <div class="board-info-header">
           <h2 id="board-info-title"></h2>
           <a id="board-edit" class="create-secondary board-edit-button" aria-label="Edit sub-yap" hidden>Edit</a>

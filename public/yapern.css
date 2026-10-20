@@ -1277,6 +1277,15 @@ h1 span,
   color: var(--accent);
 }
 .board-edit-form { margin-top: 24px; }
+.board-edit-logo-field { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.board-edit-logo-label { flex-basis: 100%; font-size: 14px; font-weight: 600; }
+.board-logo-preview,
+.board-info-logo { width: 64px; height: 64px; border-radius: 6px; object-fit: contain; background: #171a28; }
+.board-logo-upload,
+.board-logo-remove { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; cursor: pointer; }
+.board-logo-input { display: none; }
+.board-edit-logo-field .detail-sidebar-status { flex-basis: 100%; margin-top: 0; overflow-wrap: anywhere; }
+.board-info-logo { display: block; margin: 0 0 12px; }
 .board-edit-footer { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 12px; }
 .board-edit-footer .detail-sidebar-status { margin: 0 auto 0 0; }
 .board-edit-actions { min-width: 0; }

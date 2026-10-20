@@ -1,4 +1,4 @@
-import { fetchBoards, fetchMessages } from "./messages-api.js";
+import { boardLogoUrl, fetchBoards, fetchMessages } from "./messages-api.js";
 import { boardHref, messageHref } from "./board-routes.js";
 import { mountBoardEditor } from "./board-editor.js";
 
@@ -11,6 +11,7 @@ export function mountBoardSidebars(activeSlug, recentLimit = 20) {
   const recentRetry = document.querySelector("#recent-retry");
   const boardInfo = document.querySelector(".detail-board-info");
   const boardInfoTitle = document.querySelector("#board-info-title");
+  const boardInfoLogo = document.querySelector("#board-info-logo");
   const boardInfoDescription = document.querySelector("#board-info-description");
   const boardInfoStatus = document.querySelector("#board-info-status");
   const boardInfoRetry = document.querySelector("#board-info-retry");
@@ -24,7 +25,7 @@ export function mountBoardSidebars(activeSlug, recentLimit = 20) {
     updated => {
       boards = boards.map(board => board.id === updated.id ? updated : board);
       renderBoardInfo();
-      boardInfoStatus.textContent = "Description updated.";
+      boardInfoStatus.textContent = "Sub-yap updated.";
     },
   );
 
@@ -65,11 +66,19 @@ export function mountBoardSidebars(activeSlug, recentLimit = 20) {
     syncBoardEditor();
     if (board) {
       boardInfoTitle.textContent = board.name;
+      const logoUrl = boardLogoUrl(board.logo_url);
+      boardInfoLogo.hidden = !logoUrl;
+      boardInfoLogo.alt = logoUrl ? `${board.name} logo` : "";
+      boardInfoLogo.onerror = () => { boardInfoLogo.hidden = true; };
+      if (logoUrl) boardInfoLogo.src = logoUrl;
+      else boardInfoLogo.removeAttribute("src");
       boardInfoDescription.textContent = board.description ?? "";
       boardInfoStatus.textContent = "";
       boardInfoRetry.hidden = true;
     } else {
       boardInfoTitle.textContent = "";
+      boardInfoLogo.hidden = true;
+      boardInfoLogo.removeAttribute("src");
       boardInfoDescription.textContent = "";
       boardInfoStatus.textContent = boardsSettled ? "Sub-yap unavailable." : "Loading sub-yap…";
       boardInfoRetry.hidden = !boardsSettled || boards.length > 0;

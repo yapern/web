@@ -8,9 +8,25 @@ const isReply = (reply) => reply &&
   ["id", "message_id", "user_id", "body", "created_at"].every(key => typeof reply[key] === "string") &&
   reply.id.trim().length > 0 && reply.message_id.trim().length > 0 && reply.user_id.trim().length > 0 &&
   Number.isFinite(Date.parse(reply.created_at)) && reply.body.trim().length > 0 && reply.body.length <= 2000;
+const boardLogoPathPattern = /^\/board-logos\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.(?:png|jpg|gif|webp)$/i;
+const acceptedBoardLogoTypes = new Set(["image/png", "image/jpeg", "image/webp", "image/gif"]);
+const maxBoardLogoBytes = 5 * 1024 * 1024;
 const isBoard = (board) => board && typeof board.id === "string" &&
   typeof board.slug === "string" && /^[a-z0-9]+(?:[a-z0-9-]*[a-z0-9])?$/.test(board.slug) &&
-  typeof board.name === "string" && typeof board.description === "string";
+  typeof board.name === "string" && typeof board.description === "string" &&
+  (board.logo_url === undefined || board.logo_url === null ||
+    (typeof board.logo_url === "string" && boardLogoPathPattern.test(board.logo_url)));
+
+export function boardLogoUrl(value) {
+  if (typeof value !== "string" || !boardLogoPathPattern.test(value)) return null;
+  try {
+    const origin = new URL(messageBoardConfig.apiOrigin);
+    const url = new URL(value, origin);
+    return url.origin === origin.origin && url.pathname === value && !url.search && !url.hash ? url.href : null;
+  } catch {
+    return null;
+  }
+}
 
 // The browser calls the Yapern API directly; the Worker handles CORS.
 async function readRows(table, params, fetcher) {
@@ -321,7 +337,7 @@ export async function fetchMessageAuthors(messages, fetcher = fetch) {
 
 async function readBoards(params, fetcher) {
   const boards = await readRows("boards", {
-    select: "id,slug,name,description,user_id", ...params,
+    select: "id,slug,name,description,user_id,logo_url", ...params,
   }, fetcher);
   if (!boards.every(isBoard)) {
     throw new Error("Invalid sub-yaps");
@@ -393,7 +409,7 @@ export async function createBoard(name, description, fetcher = fetch) {
   return insertRow("boards", { slug, name: cleanName, description: cleanDescription }, isBoard, fetcher);
 }
 
-export async function updateBoardDescription(board, description, fetcher = fetch) {
+export async function updateBoard(board, { description, logo, removeLogo = false } = {}, fetcher = fetch) {
   if (!isBoard(board) || !board.id.trim() || typeof board.user_id !== "string" || !board.user_id.trim()) {
     throw new Error("Choose a sub-yap to edit.");
   }
@@ -403,17 +419,34 @@ export async function updateBoardDescription(board, description, fetcher = fetch
   const session = readStoredSession();
   if (!session) throw new Error("Your session has expired. Log in again to edit this sub-yap.");
   if (board.user_id !== session.user.id) throw new Error("You can only edit sub-yaps you created.");
+  if (logo && removeLogo) throw new Error("Choose a logo to upload or remove, not both.");
+  if (logo && (!acceptedBoardLogoTypes.has(logo.type) || !Number.isFinite(logo.size) || logo.size < 1)) {
+    throw new Error("Choose a PNG, JPEG, WebP, or GIF logo.");
+  }
+  if (logo?.size > maxBoardLogoBytes) throw new Error("Choose a logo smaller than 5 MB.");
   const cleanDescription = description.trim();
   const url = new URL("/tables/boards", messageBoardConfig.apiOrigin);
   url.searchParams.set("id", `eq.${board.id}`);
   url.searchParams.set("user_id", `eq.${session.user.id}`);
   let response;
+  let headers = { authorization: `Bearer ${session.token}` };
+  let body;
+  if (logo) {
+    body = new FormData();
+    body.set("description", cleanDescription);
+    body.set("logo", logo);
+  } else {
+    body = JSON.stringify(removeLogo
+      ? { description: cleanDescription, remove_logo: true }
+      : { description: cleanDescription });
+    headers["content-type"] = "application/json";
+  }
   try {
     response = await fetcher(url, {
       method: "PATCH", mode: "cors", credentials: "omit", redirect: "error", cache: "no-store",
       signal: AbortSignal.timeout(15_000),
-      headers: { authorization: `Bearer ${session.token}`, "content-type": "application/json" },
-      body: JSON.stringify({ description: cleanDescription }),
+      headers,
+      body,
     });
   } catch {
     throw new Error("Could not confirm your changes. Check your connection and reload the sub-yap before trying again.");
@@ -424,15 +457,25 @@ export async function updateBoardDescription(board, description, fetcher = fetch
   }
   if (response.status === 403) throw new Error("You don’t have permission to edit this sub-yap.");
   if (response.status === 404) throw new Error("This sub-yap is no longer available.");
-  if (!response.ok) throw new Error("Could not save your description. Please try again.");
+  if (response.status === 409) throw new Error("This sub-yap changed while you were editing. Reload it and try again.");
+  if (response.status === 413) throw new Error("Choose a logo smaller than 5 MB.");
+  if (response.status === 415) throw new Error("Choose a valid PNG, JPEG, WebP, or GIF image.");
+  if (!response.ok) throw new Error("Could not save your changes. Please try again.");
   const payload = await response.json().catch(() => null);
   const updated = payload?.data?.[0];
   if (!Array.isArray(payload?.data) || payload.data.length !== 1 || !isBoard(updated) ||
     updated.id !== board.id || updated.user_id !== session.user.id || updated.slug !== board.slug ||
-    updated.name !== board.name || updated.description !== cleanDescription) {
-    throw new Error("Could not confirm your changes. Reload the sub-yap to check its description.");
+    updated.name !== board.name || updated.description !== cleanDescription ||
+    (removeLogo && updated.logo_url != null) ||
+    (logo && (typeof updated.logo_url !== "string" || !boardLogoPathPattern.test(updated.logo_url))) ||
+    (!removeLogo && !logo && (updated.logo_url ?? null) !== (board.logo_url ?? null))) {
+    throw new Error("Could not confirm your changes. Reload the sub-yap to check it.");
   }
   return updated;
+}
+
+export async function updateBoardDescription(board, description, fetcher = fetch) {
+  return updateBoard(board, { description }, fetcher);
 }
 
 export async function createMessage(boardId, title, body, fetcher = fetch) {

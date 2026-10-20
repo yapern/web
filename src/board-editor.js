@@ -1,5 +1,5 @@
 import { readStoredSession } from "./auth.js";
-import { updateBoardDescription } from "./messages-api.js";
+import { boardLogoUrl, updateBoard } from "./messages-api.js";
 import { boardHref, parseBoardRoute } from "./board-routes.js";
 
 export function mountBoardEditor(getBoard, onSave) {
@@ -16,12 +16,47 @@ export function mountBoardEditor(getBoard, onSave) {
   const exit = document.querySelector("#edit-board-exit");
   const form = document.querySelector("#edit-board-form");
   const description = document.querySelector("#edit-board-description");
+  const logoInput = document.querySelector("#edit-board-logo");
+  const logoChoose = document.querySelector("#edit-board-logo-choose");
+  const logoPreview = document.querySelector("#edit-board-logo-preview");
+  const logoRemove = document.querySelector("#edit-board-logo-remove");
+  const logoStatus = document.querySelector("#edit-board-logo-status");
   const error = document.querySelector("#edit-board-error");
   const feedback = document.querySelector("#edit-board-feedback");
   const submit = form.querySelector("[type=submit]");
   let saving = false;
   let editing = false;
   let editingUserId;
+  let pickedLogo = null;
+  let removeLogo = false;
+  let previewUrl = null;
+
+  function clearPreviewUrl() {
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
+    previewUrl = null;
+  }
+
+  function renderLogoDraft() {
+    clearPreviewUrl();
+    const board = getBoard();
+    const src = pickedLogo
+      ? (previewUrl = URL.createObjectURL(pickedLogo))
+      : removeLogo ? null : boardLogoUrl(board?.logo_url);
+    logoPreview.hidden = !src;
+    logoPreview.alt = src ? `${board?.name ?? "Sub-yap"} logo preview` : "";
+    logoPreview.removeAttribute("src");
+    if (src) logoPreview.src = src;
+    logoRemove.hidden = !pickedLogo && !boardLogoUrl(board?.logo_url);
+    logoRemove.textContent = removeLogo ? "Keep current logo" : "Remove logo";
+    logoStatus.textContent = pickedLogo ? pickedLogo.name : removeLogo ? "Logo will be removed when you save." : "";
+  }
+
+  function resetLogoDraft() {
+    pickedLogo = null;
+    removeLogo = false;
+    logoInput.value = "";
+    renderLogoDraft();
+  }
 
   function canEdit() {
     const user = readStoredSession()?.user;
@@ -30,7 +65,7 @@ export function mountBoardEditor(getBoard, onSave) {
 
   function updateSubmit() {
     submit.disabled = saving || !canEdit() || description.value.length > 2000 ||
-      description.value.trim() === getBoard()?.description;
+      (description.value.trim() === getBoard()?.description && !pickedLogo && !removeLogo);
   }
 
   function syncSession() {
@@ -49,6 +84,7 @@ export function mountBoardEditor(getBoard, onSave) {
       route.messageId === undefined && url.searchParams.get("edit") === "true";
     if (showEditor && (!editing || editingUserId !== userId)) {
       description.value = board.description;
+      resetLogoDraft();
       error.textContent = "";
       feedback.textContent = "";
     }
@@ -91,27 +127,74 @@ export function mountBoardEditor(getBoard, onSave) {
     feedback.textContent = "";
     updateSubmit();
   });
+  logoChoose.addEventListener("click", () => logoInput.click());
+  logoInput.addEventListener("change", () => {
+    const file = logoInput.files?.[0];
+    if (!file) return;
+    if (!new Set(["image/png", "image/jpeg", "image/webp", "image/gif"]).has(file.type)) {
+      logoInput.value = "";
+      error.textContent = "Choose a PNG, JPEG, WebP, or GIF image.";
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      logoInput.value = "";
+      error.textContent = "Choose a logo smaller than 5 MB.";
+      return;
+    }
+    pickedLogo = file;
+    removeLogo = false;
+    error.textContent = "";
+    feedback.textContent = "";
+    renderLogoDraft();
+    updateSubmit();
+  });
+  logoRemove.addEventListener("click", () => {
+    if (saving) return;
+    if (removeLogo) removeLogo = false;
+    else {
+      pickedLogo = null;
+      logoInput.value = "";
+      removeLogo = Boolean(boardLogoUrl(getBoard()?.logo_url));
+    }
+    error.textContent = "";
+    feedback.textContent = "";
+    renderLogoDraft();
+    updateSubmit();
+  });
   form.addEventListener("submit", async event => {
     event.preventDefault();
     syncSession();
     if (!editing || submit.disabled || !form.reportValidity()) return;
     saving = true;
+    const submittedBoard = getBoard();
+    const submittedUserId = readStoredSession()?.user.id;
+    const submittedLogo = pickedLogo;
+    const submittedRemoval = removeLogo;
     error.textContent = "";
     feedback.textContent = "";
     form.setAttribute("aria-busy", "true");
-    form.querySelectorAll("button, textarea").forEach(control => { control.disabled = true; });
+    form.querySelectorAll("button, textarea, input").forEach(control => { control.disabled = true; });
     submit.textContent = "Saving…";
     try {
-      const updated = await updateBoardDescription(getBoard(), description.value);
-      onSave(updated);
-      description.value = updated.description;
-      feedback.textContent = "Description updated.";
+      const updated = await updateBoard(submittedBoard, {
+        description: description.value,
+        logo: submittedLogo,
+        removeLogo: submittedRemoval,
+      });
+      const currentBoard = getBoard();
+      const currentUserId = readStoredSession()?.user.id;
+      if (currentUserId === submittedUserId && currentBoard?.id === submittedBoard.id && currentBoard.user_id === submittedBoard.user_id) {
+        onSave(updated);
+        description.value = updated.description;
+        resetLogoDraft();
+        feedback.textContent = "Sub-yap updated.";
+      }
     } catch (cause) {
       error.textContent = cause instanceof Error ? cause.message : "Could not save your description. Please try again.";
     } finally {
       saving = false;
       form.setAttribute("aria-busy", "false");
-      form.querySelectorAll("button, textarea").forEach(control => { control.disabled = false; });
+      form.querySelectorAll("button, textarea, input").forEach(control => { control.disabled = false; });
       submit.textContent = "Save changes";
       syncSession();
     }
