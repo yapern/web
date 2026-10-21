@@ -1,5 +1,6 @@
 import { readStoredSession } from "./auth.js";
 import { closeHeaderMenu } from "./auth-nav.js";
+import { mountBoardPicker } from "./board-picker.js";
 import { fetchBoards, createBoard, createMessage, fetchOgImage, messageImageError, messageBodyLength } from "./messages-api.js";
 import { boardHref, messageHref, parseBoardRoute } from "./board-routes.js";
 import { serializeMessageBody } from "./message-text.js";
@@ -15,7 +16,7 @@ const messageDialog = document.querySelector("#create-message-dialog");
 const boardDialog = document.querySelector("#create-board-dialog");
 const messageForm = document.querySelector("#create-message-form");
 const boardForm = document.querySelector("#create-board-form");
-const boardSelect = document.querySelector("#create-board");
+const boardPicker = mountBoardPicker(updateForms);
 const boardsStatus = document.querySelector("#create-boards-status");
 const boardsRetry = document.querySelector("#create-boards-retry");
 const title = document.querySelector("#create-title");
@@ -50,6 +51,7 @@ let boards = [];
 let boardRequest = 0;
 let boardsLoading = false;
 let boardsFailed = false;
+let boardsLoaded = false;
 let saving = false;
 let previousOverflow = "";
 let linkTouched = false;
@@ -325,7 +327,7 @@ window.addEventListener("focus", syncSession);
 syncSession();
 
 function updateForms() {
-  const selected = boards.find(board => board.id === boardSelect.value);
+  const selected = boards.find(board => board.id === boardPicker.value);
   const serializedBody = serializedMessageBody();
   const bodyLength = videoUpload?.video?.watch_url
     ? videoUpload.video.watch_url.length + (serializedBody ? serializedBody.length + 1 : 0)
@@ -333,7 +335,7 @@ function updateForms() {
   const linkInvalid = !linkPanel.hidden && Boolean(syncLinkValidation());
   body.required = linkPanel.hidden && !pickedImage && !pickedVideo;
   bodyRequirement.textContent = body.required ? "(required)" : "(optional)";
-  boardSelect.disabled = saving || boardsLoading || boardsFailed || !boards.length;
+  boardPicker.setDisabled(saving || boardsLoading || boardsFailed || !boards.length);
   linkUrl.disabled = saving || linkPanel.hidden;
   messageForm.querySelector("[type=submit]").disabled = saving || boardsLoading || boardsFailed || !selected ||
     !title.value.trim() || title.value.length > 200 || (!linkPanel.hidden && linkInvalid) ||
@@ -427,6 +429,7 @@ linkUrl.addEventListener("blur", () => {
   updateForms();
 });
 messageForm.addEventListener("reset", () => {
+  boardPicker.reset();
   clearLinkPreview();
   clearImageDraft();
   clearVideoDraft();
@@ -441,7 +444,6 @@ messageForm.addEventListener("reset", () => {
   linkUrl.setAttribute("aria-invalid", "false");
 });
 boardForm.addEventListener("input", updateForms);
-boardSelect.addEventListener("change", updateForms);
 
 async function loadBoards() {
   const request = ++boardRequest;
@@ -453,25 +455,24 @@ async function loadBoards() {
   try {
     const result = await fetchBoards();
     if (request !== boardRequest) return;
-    const previous = boardSelect.value;
+    const previous = boardPicker.value;
     boards = result;
-    boardSelect.replaceChildren(...(boards.length
-      ? boards.map(board => new Option(`y/${board.slug}`, board.id))
-      : [new Option("No sub-yaps available", "")]));
     const routeBoard = boards.find(board => board.slug === parseBoardRoute(window.location.pathname)?.slug);
-    if (routeBoard) boardSelect.value = routeBoard.id;
-    else if (boards.some(board => board.id === previous)) boardSelect.value = previous;
+    boardPicker.setBoards(boards, previous || routeBoard?.id);
+    boardsLoaded = true;
     boardsStatus.textContent = boards.length ? "" : "There are no sub-yaps to post to yet. Create a sub-yap from the Create menu.";
   } catch {
     if (request !== boardRequest) return;
     boardsFailed = true;
     boardsStatus.textContent = "Sub-yaps are unavailable right now. Please try again.";
-    boardSelect.replaceChildren(new Option("Sub-yaps unavailable", ""));
     boardsRetry.hidden = false;
   } finally {
     if (request === boardRequest) {
       boardsLoading = false;
       updateForms();
+      if (messageDialog.open && boards.length && document.activeElement === messageDialog.querySelector(".dialog-close")) {
+        document.querySelector("#create-board").focus();
+      }
     }
   }
 }
@@ -487,7 +488,7 @@ createActions.forEach(item => item.addEventListener("click", () => {
   document.documentElement.style.overflow = "hidden";
   dialog.showModal();
   if (dialog === messageDialog) {
-    void loadBoards();
+    if (!boardsLoaded || boardsFailed) void loadBoards();
     scheduleLinkPreview();
   }
   updateForms();
@@ -501,6 +502,7 @@ for (const dialog of [messageDialog, boardDialog]) {
   dialog.addEventListener("close", () => {
     if (dialog === messageDialog) {
       boardRequest++;
+      boardPicker.close();
       clearLinkPreview();
     }
     document.documentElement.style.overflow = previousOverflow;
@@ -541,7 +543,7 @@ async function submit(event, dialog, action, pendingLabel, defaultLabel) {
 }
 
 messageForm.addEventListener("submit", event => void submit(event, messageDialog, async () => {
-  const board = boards.find(row => row.id === boardSelect.value);
+  const board = boards.find(row => row.id === boardPicker.value);
   // Finish the current lookup, including a queued debounce, before saving.
   if (!linkPanel.hidden && !pickedImage && !pickedVideo) await startLinkPreview();
   let video;

@@ -52,10 +52,20 @@
       </header>
       <div class="create-dialog-layout">
         <form class="create-form" id="create-message-form">
-          <label class="create-field" for="create-board">
-            <span>Post to</span>
-            <select id="create-board" name="board" required autofocus disabled><option value="">Loading sub-yaps…</option></select>
-          </label>
+          <div class="create-field">
+            <label for="create-board">Post to</label>
+            <div class="create-board-picker" id="create-board-picker">
+              <div class="create-board-input">
+                <span class="create-board-selected-icon" id="create-board-selected-icon" aria-hidden="true" hidden></span>
+                <input id="create-board" type="text" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="create-board-options" aria-describedby="create-boards-status" placeholder="Search sub-yaps…" maxlength="160" autocomplete="off" autocapitalize="none" spellcheck="false" required autofocus disabled />
+                <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m6 8 4 4 4-4" /></svg>
+              </div>
+              <div class="create-board-results" id="create-board-results" hidden>
+                <ul id="create-board-options" role="listbox" aria-label="Sub-yaps"></ul>
+                <p id="create-board-results-status" role="status"></p>
+              </div>
+            </div>
+          </div>
           <div class="create-board-state">
             <p id="create-boards-status" role="status"></p>
             <button class="create-text-button" id="create-boards-retry" type="button" hidden>Retry</button>

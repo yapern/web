@@ -503,7 +503,6 @@ button.create-toolbar-icon:focus-visible { outline-offset: 1px; }
 .create-toolbar-divider { width: 1px; height: 22px; margin-inline: 5px; background: #3b435a; }
 .create-field { display: grid; gap: 8px; min-width: 0; color: var(--muted); font-size: 13px; font-weight: 600; }
 .create-field input,
-.create-field select,
 .create-field textarea {
   width: 100%;
   min-width: 0;
@@ -517,13 +516,29 @@ button.create-toolbar-icon:focus-visible { outline-offset: 1px; }
   font-weight: 400;
   line-height: 1.5;
 }
-.create-field input,
-.create-field select { min-height: 48px; }
-.create-field select { max-width: 280px; }
+.create-field input { min-height: 48px; }
 .create-field textarea { resize: vertical; }
 .create-field input::placeholder,
 .create-field textarea::placeholder { color: var(--muted); opacity: .8; }
 .create-field :focus-visible { outline-offset: 2px; }
+.create-board-picker { position: relative; width: min(100%, 360px); font-weight: 400; }
+.create-board-input { position: relative; }
+.create-board-input input { padding-right: 44px; }
+.create-board-input input.has-board-icon { padding-left: 48px; }
+.create-board-input > svg { position: absolute; right: 12px; top: 16px; width: 20px; height: 20px; fill: none; stroke: var(--muted); stroke-width: 1.5; pointer-events: none; }
+.create-board-selected-icon { position: absolute; left: 12px; top: 12px; pointer-events: none; }
+.create-board-avatar { display: grid; place-items: center; flex: none; width: 28px; height: 28px; border-radius: 50%; background: #242238; color: var(--accent); font-size: 12px; font-weight: 600; }
+.create-board-avatar img { display: block; width: 100%; height: 100%; border-radius: inherit; object-fit: cover; }
+.create-board-results { position: absolute; z-index: 2; top: calc(100% + 4px); left: 0; width: 100%; overflow: hidden; border: 1px solid #3b435a; border-radius: 6px; background: #0d1220; }
+.create-board-results[hidden] { display: none; }
+.create-board-results ul { max-height: min(320px, 40dvh); overflow-y: auto; overscroll-behavior: contain; }
+.create-board-option { display: flex; align-items: center; gap: 12px; min-height: 56px; padding: 8px 12px; color: #f2f2fb; cursor: pointer; }
+.create-board-option:hover,
+.create-board-option[aria-selected="true"] { background: #2d2349; }
+.create-board-option-labels { display: grid; min-width: 0; font-size: 14px; line-height: 1.5; }
+.create-board-option-labels > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.create-board-option-name { color: var(--muted); font-size: 12px; }
+.create-board-results > p { padding: 8px 12px; color: var(--muted); font-size: 12px; line-height: 1.5; }
 .required-mark { font-size: 12px; font-weight: 400; }
 .create-field-meta { margin-top: -16px; text-align: right; color: var(--muted); font-size: 12px; }
 .create-field-meta.is-over-limit { color: #ffb4ab; }
