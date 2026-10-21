@@ -1603,6 +1603,13 @@ h1 span,
   font-size: 11px;
   font-weight: 600;
 }
+.detail-board-icon img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  object-fit: cover;
+}
 .detail-board-label {
   min-width: 0;
   overflow: hidden;

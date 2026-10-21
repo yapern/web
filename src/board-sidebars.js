@@ -24,6 +24,7 @@ export function mountBoardSidebars(activeSlug, recentLimit = 20) {
     () => boards.find(board => board.slug === activeSlug),
     updated => {
       boards = boards.map(board => board.id === updated.id ? updated : board);
+      renderBoards();
       renderBoardInfo();
       boardInfoStatus.textContent = "Sub-yap updated.";
     },
@@ -51,6 +52,16 @@ export function mountBoardSidebars(activeSlug, recentLimit = 20) {
       icon.className = "detail-board-icon";
       icon.setAttribute("aria-hidden", "true");
       icon.textContent = board.slug.charAt(0).toUpperCase();
+      const logoUrl = boardLogoUrl(board.logo_url);
+      if (logoUrl) {
+        const logo = document.createElement("img");
+        logo.alt = "";
+        logo.width = 24;
+        logo.height = 24;
+        logo.onerror = () => { icon.textContent = board.slug.charAt(0).toUpperCase(); };
+        logo.src = logoUrl;
+        icon.replaceChildren(logo);
+      }
       const label = document.createElement("span");
       label.className = "detail-board-label";
       label.textContent = `y/${board.slug}`;
