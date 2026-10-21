@@ -85,6 +85,12 @@ as the first line of the message body and rendered with a clickable fallback.
 
 ## Static routes and blog
 
+The admin shell at `/backroom/` checks the stored, unexpired session locally and
+allows only `oneone@gmail.com`. Its Users, Sub-Yaps, Messages, and Replies menu
+selects empty content and detail columns without making API requests. This is a
+client-side layout guard; future admin endpoints must enforce authorization on
+the server.
+
 The about page at `/about/` uses the blog article layout to explain Yapern’s
 aim to build a better Reddit in the open, its current state, and how to contribute.
 

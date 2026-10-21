@@ -67,7 +67,7 @@ function boardPageRoutes(server) {
 
 function pageRedirects(server) {
   server.middlewares.use((request, response, next) => {
-    const match = request.url?.match(/^\/(about|privacy|terms|download|login|account|notifications|search|blog|blog\/building-yapern|blog\/turso-vs-layerbase-free-plan-sqlite-systems|blog\/not-a-tavern-a-yapern)(\?.*)?$/);
+    const match = request.url?.match(/^\/(about|privacy|terms|download|login|account|backroom|notifications|search|blog|blog\/building-yapern|blog\/turso-vs-layerbase-free-plan-sqlite-systems|blog\/not-a-tavern-a-yapern)(\?.*)?$/);
     if (!match) {
       next();
       return;
@@ -113,6 +113,7 @@ export default defineConfig({
         about: fileURLToPath(new URL("./about/index.html", import.meta.url)),
         login: fileURLToPath(new URL("./login/index.html", import.meta.url)),
         account: fileURLToPath(new URL("./account/index.html", import.meta.url)),
+        backroom: fileURLToPath(new URL("./backroom/index.html", import.meta.url)),
         notifications: fileURLToPath(new URL("./notifications/index.html", import.meta.url)),
         search: fileURLToPath(new URL("./search/index.html", import.meta.url)),
         board: fileURLToPath(new URL("./board.html", import.meta.url)),

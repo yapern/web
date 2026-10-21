@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#090d17" />
+    <meta name="robots" content="noindex" />
+    <link rel="canonical" href="https://yapern.com/backroom/" />
+    <link rel="icon" href="/images/favicon.png" type="image/png" />
+    <link rel="stylesheet" href="/yapern.css" />
+    <title>Backroom · Yapern</title>
+  </head>
+  <body class="login-body">
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header shell">
+      <a class="brand" href="/" aria-label="Yapern home"><img src="/images/logo.png" alt="" width="36" height="36" />yapern<span class="brand-dot">.</span></a>
+      <a class="login-home" href="/">Back to Yapern</a>
+    </header>
+    <main id="main" class="backroom-main shell">
+      <section id="backroom-access" class="backroom-access" role="status">
+        <h1>Backroom</h1>
+        <p id="backroom-status">Checking access…</p>
+        <a id="backroom-login" class="login-home" href="/login/" hidden>Log in</a>
+        <noscript><p>Enable JavaScript to access the backroom.</p></noscript>
+      </section>
+      <div id="backroom-layout" class="backroom-layout" hidden>
+        <aside class="backroom-navigation">
+          <h1>Backroom</h1>
+          <nav id="backroom-menu" aria-label="Admin sections">
+            <ul>
+              <li><a class="detail-nav-link" href="#users" aria-current="page">Users</a></li>
+              <li><a class="detail-nav-link" href="#sub-yaps">Sub-Yaps</a></li>
+              <li><a class="detail-nav-link" href="#messages">Messages</a></li>
+              <li><a class="detail-nav-link" href="#replies">Replies</a></li>
+            </ul>
+          </nav>
+        </aside>
+        <section id="backroom-content" aria-label="Users"></section>
+        <aside class="backroom-details" aria-label="Details"></aside>
+      </div>
+    </main>
+    <script type="module" src="/src/backroom.js"></script>
+  </body>
+</html>
