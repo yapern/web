@@ -7,6 +7,7 @@ import { externalLinkHref } from "./external-links.js";
 import { mountReplies } from "./replies.js";
 import { createVoteControl } from "./votes.js";
 import { replyAnchor } from "./reply-tree.js";
+import { messageCaption, messageVideoElement } from "./message-video.js";
 
 const list = document.querySelector("#live-messages");
 const status = document.querySelector("#messages-status");
@@ -100,7 +101,7 @@ function messageRow(message, board, authors, { onReply } = {}) {
   const body = document.createElement("p");
   body.className = "live-message-body";
   const youtubeParts = [];
-  for (const part of parseMessageText(message.body)) {
+  for (const part of parseMessageText(messageCaption(message))) {
     if (part.youtubeEmbed) {
       youtubeParts.push(part);
     } else if (part.imageUrl) {
@@ -129,6 +130,11 @@ function messageRow(message, board, authors, { onReply } = {}) {
   article.append(meta);
   if (title) article.append(title);
   article.append(body);
+  if (message.video) {
+    const video = messageVideoElement(message.video, message.title);
+    if (video) article.append(video);
+    if (!body.childNodes.length) body.hidden = true;
+  }
   for (const part of youtubeParts) {
     const video = document.createElement("iframe");
     video.className = "live-message-video";

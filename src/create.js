@@ -3,6 +3,7 @@ import { closeHeaderMenu } from "./auth-nav.js";
 import { fetchBoards, createBoard, createMessage, fetchOgImage, messageImageError, messageBodyLength } from "./messages-api.js";
 import { boardHref, messageHref, parseBoardRoute } from "./board-routes.js";
 import { serializeMessageBody } from "./message-text.js";
+import { cancelVideoUpload, completeVideoUpload, createVideoUpload, messageVideoError, uploadVideoFile, maxVideoSeconds } from "./videos-api.js";
 
 const menu = document.querySelector("#create-menu");
 const toggle = document.querySelector("#create-toggle");
@@ -35,6 +36,14 @@ const imageStatus = document.querySelector("#create-image-status");
 const imageError = document.querySelector("#create-image-error");
 const imageReplace = document.querySelector("#create-image-replace");
 const imageRemove = document.querySelector("#create-image-remove");
+const videoInput = document.querySelector("#create-video");
+const videoChoose = document.querySelector("#create-video-choose");
+const videoDraft = document.querySelector("#create-video-draft");
+const videoPreview = document.querySelector("#create-video-preview");
+const videoStatus = document.querySelector("#create-video-status");
+const videoError = document.querySelector("#create-video-error");
+const videoRemove = document.querySelector("#create-video-remove");
+const videoProgress = document.querySelector("#create-video-progress");
 const name = document.querySelector("#new-board-name");
 const description = document.querySelector("#new-board-description");
 let boards = [];
@@ -52,6 +61,27 @@ let linkPreviewUrl = "";
 let fetchedImageUrl = "";
 let pickedImage = null;
 let imagePreviewUrl = null;
+let pickedVideo = null;
+let videoPreviewUrl = null;
+let videoUpload = null;
+
+function clearVideoDraft() {
+  if (videoUpload) void cancelVideoUpload(videoUpload.id).catch(() => {});
+  videoUpload = null;
+  pickedVideo = null;
+  if (videoPreviewUrl) URL.revokeObjectURL(videoPreviewUrl);
+  videoPreviewUrl = null;
+  videoInput.value = "";
+  videoPreview.pause();
+  videoPreview.removeAttribute("src");
+  videoPreview.load();
+  videoDraft.hidden = true;
+  videoProgress.hidden = true;
+  videoStatus.textContent = "";
+  videoError.textContent = "";
+  videoChoose.setAttribute("aria-label", "Add video");
+  videoChoose.title = "Add video";
+}
 
 function clearImageDraft() {
   if (imagePreviewUrl) URL.revokeObjectURL(imagePreviewUrl);
@@ -125,7 +155,7 @@ function clearLinkPreview() {
 
 function scheduleLinkPreview() {
   const value = linkUrl.value.trim();
-  if (!messageDialog.open || linkPanel.hidden || pickedImage) {
+  if (!messageDialog.open || linkPanel.hidden || pickedImage || pickedVideo) {
     clearLinkPreview();
     return;
   }
@@ -220,7 +250,7 @@ function startLinkPreview() {
 }
 
 function serializedMessageBody() {
-  return serializeMessageBody(body.value, linkPanel.hidden ? "" : linkUrl.value, pickedImage ? "" : fetchedImageUrl);
+  return serializeMessageBody(body.value, linkPanel.hidden ? "" : linkUrl.value, pickedImage || pickedVideo ? "" : fetchedImageUrl);
 }
 
 function syncLinkValidation() {
@@ -296,9 +326,11 @@ syncSession();
 function updateForms() {
   const selected = boards.find(board => board.id === boardSelect.value);
   const serializedBody = serializedMessageBody();
-  const bodyLength = messageBodyLength(serializedBody, pickedImage);
+  const bodyLength = videoUpload?.video?.watch_url
+    ? videoUpload.video.watch_url.length + (serializedBody ? serializedBody.length + 1 : 0)
+    : messageBodyLength(serializedBody, pickedImage);
   const linkInvalid = !linkPanel.hidden && Boolean(syncLinkValidation());
-  body.required = linkPanel.hidden && !pickedImage;
+  body.required = linkPanel.hidden && !pickedImage && !pickedVideo;
   bodyRequirement.textContent = body.required ? "(required)" : "(optional)";
   boardSelect.disabled = saving || boardsLoading || boardsFailed || !boards.length;
   linkUrl.disabled = saving || linkPanel.hidden;
@@ -330,6 +362,7 @@ imageInput.addEventListener("change", () => {
     return;
   }
   clearImageDraft();
+  clearVideoDraft();
   pickedImage = file;
   imagePreviewUrl = URL.createObjectURL(file);
   imagePreview.src = imagePreviewUrl;
@@ -347,6 +380,43 @@ imageRemove.addEventListener("click", () => {
   updateForms();
   imageChoose.focus();
 });
+videoChoose.addEventListener("click", () => { if (!saving) videoInput.click(); });
+videoInput.addEventListener("change", () => {
+  if (saving) return;
+  const file = videoInput.files?.[0];
+  if (!file) return;
+  const error = messageVideoError(file);
+  if (error) {
+    videoInput.value = "";
+    videoError.textContent = error;
+    return;
+  }
+  clearImageDraft();
+  clearVideoDraft();
+  pickedVideo = file;
+  videoPreviewUrl = URL.createObjectURL(file);
+  videoPreview.src = videoPreviewUrl;
+  videoDraft.hidden = false;
+  videoStatus.textContent = `${file.name} · Up to two minutes, 100 MB`;
+  videoChoose.setAttribute("aria-label", "Replace video");
+  videoChoose.title = "Replace video";
+  clearLinkPreview();
+  updateForms();
+});
+videoPreview.addEventListener("loadedmetadata", () => {
+  if (pickedVideo && Number.isFinite(videoPreview.duration) && videoPreview.duration > maxVideoSeconds) {
+    clearVideoDraft();
+    videoError.textContent = "Choose a video no longer than two minutes.";
+    updateForms();
+  }
+});
+videoRemove.addEventListener("click", () => {
+  if (saving) return;
+  clearVideoDraft();
+  scheduleLinkPreview();
+  updateForms();
+  videoChoose.focus();
+});
 linkToggle.addEventListener("click", () => setLinkPanelOpen(true));
 linkRemove.addEventListener("click", () => setLinkPanelOpen(false));
 linkUrl.addEventListener("input", scheduleLinkPreview);
@@ -358,6 +428,7 @@ linkUrl.addEventListener("blur", () => {
 messageForm.addEventListener("reset", () => {
   clearLinkPreview();
   clearImageDraft();
+  clearVideoDraft();
   linkPanel.hidden = true;
   linkToggle.setAttribute("aria-expanded", "false");
   linkUrl.required = false;
@@ -471,8 +542,38 @@ async function submit(event, dialog, action, pendingLabel, defaultLabel) {
 messageForm.addEventListener("submit", event => void submit(event, messageDialog, async () => {
   const board = boards.find(row => row.id === boardSelect.value);
   // Finish the current lookup, including a queued debounce, before saving.
-  if (!linkPanel.hidden && !pickedImage) await startLinkPreview();
-  const message = await createMessage(board.id, title.value, serializedMessageBody(), fetch, { image: pickedImage });
+  if (!linkPanel.hidden && !pickedImage && !pickedVideo) await startLinkPreview();
+  let video;
+  if (pickedVideo) {
+    const owner = readStoredSession()?.user.id;
+    if (!videoUpload || videoUpload.boardId !== board.id || videoUpload.owner !== owner) {
+      if (videoUpload) void cancelVideoUpload(videoUpload.id).catch(() => {});
+      videoUpload = null;
+      videoStatus.textContent = "Preparing video upload…";
+      videoUpload = { ...await createVideoUpload(board.id, pickedVideo), boardId: board.id, owner, complete: false };
+    }
+    if (!videoUpload.complete) {
+      videoProgress.hidden = false;
+      await uploadVideoFile(pickedVideo, videoUpload, { onProgress: percent => {
+        videoProgress.value = percent;
+        videoStatus.textContent = `Uploading video… ${percent}%`;
+      } });
+      videoUpload.complete = true;
+    }
+    videoProgress.hidden = true;
+    videoStatus.textContent = "Processing video…";
+    for (let attempt = 0; attempt < 7; attempt++) {
+      video = await completeVideoUpload(videoUpload.id);
+      videoUpload.video = video;
+      if (video.status === "failed") throw new Error("This video could not be processed. Remove it and choose another video.");
+      if (["ready", "processing"].includes(video.status) && video.watch_url) break;
+      if (attempt === 6) throw new Error("Your video is still processing. Try posting again in a moment.");
+      await new Promise(resolve => setTimeout(resolve, 5000));
+    }
+  }
+  const message = await createMessage(board.id, title.value, serializedMessageBody(), fetch, { image: pickedImage, video });
+  // A successful post owns the asset; resetting the draft must not cancel it.
+  videoUpload = null;
   return messageHref(board.slug, message.id);
 }, "Posting…", "Post"));
 boardForm.addEventListener("submit", event => void submit(event, boardDialog, async () => {

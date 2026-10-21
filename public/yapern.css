@@ -474,7 +474,19 @@ a {
   line-height: 1;
 }
 button.create-toolbar-icon { cursor: pointer; }
-.create-toolbar-link, .create-toolbar-image { flex-basis: 44px; width: 44px; height: 44px; }
+.create-toolbar-link, .create-toolbar-image, .create-toolbar-video { flex-basis: 44px; width: 44px; height: 44px; }
+.create-video-draft { display: grid; gap: 8px; min-width: 0; }
+.create-video-draft[hidden] { display: none; }
+.create-video-draft video { display: block; width: 100%; max-height: 240px; background: #0d1220; }
+.create-video-draft progress { width: 100%; accent-color: var(--accent); }
+.stream-message-video { width: min(100%, 560px); margin-top: 8px; }
+.stream-message-video.is-portrait { width: min(100%, 320px); }
+.stream-video-poster { position: relative; display: block; width: 100%; aspect-ratio: var(--video-ratio, 16 / 9); padding: 0; border: 0; background: #0d1220; cursor: pointer; }
+.stream-video-poster img { display: block; width: 100%; height: 100%; object-fit: contain; }
+.stream-video-play { position: absolute; bottom: 12px; left: 12px; padding: 8px 12px; border-radius: 4px; background: #0d1220; color: #fff; font-size: 14px; }
+.stream-message-video iframe { display: block; width: 100%; aspect-ratio: var(--video-ratio, 16 / 9); border: 0; }
+.stream-video-status { margin: 0; color: var(--muted); font-size: 14px; }
+.stream-video-retry { min-height: 44px; padding: 0; background: transparent; color: inherit; text-decoration: underline; cursor: pointer; }
 .create-image-draft { display: grid; gap: 8px; min-width: 0; }
 .create-image-draft[hidden] { display: none; }
 .create-image-draft img { display: block; width: 100%; max-height: 240px; aspect-ratio: 1.91; object-fit: contain; }

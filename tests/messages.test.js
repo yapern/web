@@ -19,7 +19,7 @@ test("reads the production API's newest 20 messages directly using CORS", async 
     assert.equal(url.origin, "https://api.yapern.com");
     assert.equal(url.pathname, "/tables/messages");
     assert.deepEqual(Object.fromEntries(url.searchParams), {
-      select: "id,board_id,user_id,title,body,created_at,reply_count",
+      select: "id,board_id,user_id,title,body,created_at,reply_count,video",
       order: "created_at.desc",
       limit: "20",
     });
