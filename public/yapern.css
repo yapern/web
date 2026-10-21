@@ -613,6 +613,12 @@ button.create-toolbar-icon:focus-visible { outline-offset: 1px; }
 .account-content .login-status:empty { display: none; }
 .account-email { margin-top: 12px; color: var(--muted); font-size: 14px; }
 .account-login { margin-top: 16px; }
+.account-email-notifications { display: grid; gap: 8px; margin-top: 32px; }
+.account-email-notifications h2 { margin-bottom: 4px; font-size: 18px; font-weight: 600; }
+.account-email-option { display: flex; align-items: flex-start; gap: 12px; min-height: 44px; padding-block: 8px; cursor: pointer; font-size: 14px; }
+.account-email-option input { flex: 0 0 auto; width: 18px; height: 18px; margin-top: 2px; accent-color: var(--accent); }
+.account-email-status { color: var(--muted); font-size: 14px; }
+.account-email-status:empty { display: none; }
 .backroom-main { max-width: 1600px; padding-block: 24px; }
 .backroom-main h1 { font-size: 24px; font-weight: 650; }
 .backroom-access p { margin-top: 12px; color: var(--muted); }

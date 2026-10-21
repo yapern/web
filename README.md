@@ -61,7 +61,14 @@ the search field stays visible outside the account menu on mobile. Deploy backen
 migration `011_full_text_search.sql` and the API before this frontend.
 
 The account page at `/account/` reads and updates the signed-in user's display
-name. Messages and replies load current author names. Signed-in users can create
+name and three email preferences: replies, upvotes/downvotes, and new messages
+in sub-yaps they have posted or replied in. Each preference defaults to true for
+existing and new accounts. Preferences use the private bearer-authenticated
+`GET/PATCH /account/email-notifications` API; public author profiles stay limited
+to ID and name. Event emails respect global marketing unsubscribes. Apply backend
+migration `017_email_notifications.sql` and deploy the API before this frontend.
+
+Messages and replies load current author names. Signed-in users can create
 boards, edit the description of boards they created, post messages, reply, and
 delete their own messages. Board descriptions can be edited from the right
 sidebar on board and message pages; names and URLs stay unchanged. Deletion

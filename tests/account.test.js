@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { fetchProfile, updateName } from "../src/account-api.js";
+import { fetchProfile, updateName, fetchEmailPreferences, updateEmailPreferences } from "../src/account-api.js";
 import { readStoredSession, storeSession } from "../src/auth.js";
 import { messageBoardConfig } from "../src/config.js";
 
@@ -80,4 +80,67 @@ test("a missing profile, another user's row, or an unconfirmed name cannot repor
     await assert.rejects(updateName("New name", async () => Response.json({ data })), /Could not confirm/);
   }
   await assert.rejects(fetchProfile(async () => Response.json({ data: [{ id: "other-user", name: "Other" }] })), /Could not confirm/);
+});
+
+const enabled = { email_notify_replies: true, email_notify_votes: true, email_notify_sub_yap_messages: true };
+
+test("email preferences are fetched privately using the current bearer session", async t => {
+  const session = signIn(t);
+  assert.deepEqual(await fetchEmailPreferences(async (url, options) => {
+    assert.equal(url.pathname, "/account/email-notifications");
+    assert.equal(url.origin, messageBoardConfig.apiOrigin);
+    assert.equal(url.search, "");
+    assert.equal(options.method, "GET");
+    assert.equal(options.headers.authorization, `Bearer ${session.token}`);
+    assert.equal(options.credentials, "omit");
+    assert.equal(options.redirect, "error");
+    assert.equal(options.cache, "no-store");
+    return Response.json(enabled);
+  }), enabled);
+});
+
+test("email saves send explicit true and false values and confirm the server saved each one", async t => {
+  const session = signIn(t);
+  const preferences = { ...enabled, email_notify_replies: false, email_notify_sub_yap_messages: false };
+  assert.deepEqual(await updateEmailPreferences(preferences, async (url, options) => {
+    assert.equal(url.pathname, "/account/email-notifications");
+    assert.equal(options.method, "PATCH");
+    assert.equal(options.headers.authorization, `Bearer ${session.token}`);
+    assert.equal(options.headers["content-type"], "application/json");
+    assert.deepEqual(JSON.parse(options.body), preferences);
+    return Response.json(preferences);
+  }), preferences);
+  await assert.rejects(updateEmailPreferences(preferences, async () => Response.json(enabled)), /Could not confirm/);
+});
+
+test("email preferences reject missing or nonboolean values and cannot silently default a failed read", async t => {
+  signIn(t);
+  for (const invalid of [null, {}, { ...enabled, email_notify_votes: 1 }, { ...enabled, email_notify_replies: "false" },
+    { ...enabled, email_notify_sub_yap_messages: undefined }, { ...enabled, user_id: "other-user" }]) {
+    assert.throws(() => updateEmailPreferences(invalid, async () => assert.fail("must not request")), /Choose an option/);
+  }
+  for (const invalid of [null, {}, { ...enabled, email_notify_votes: 1 }]) {
+    await assert.rejects(fetchEmailPreferences(async () => Response.json(invalid)), /Could not confirm/);
+  }
+  await assert.rejects(fetchEmailPreferences(async () => new Response("not JSON")), /Could not confirm/);
+});
+
+test("email preference errors retain the session except when revoked", async t => {
+  const session = signIn(t);
+  await assert.rejects(fetchEmailPreferences(async () => new Response(null, { status: 503 })), /try again/);
+  await assert.rejects(updateEmailPreferences(enabled, async () => { throw new Error("offline"); }), /Check your connection/);
+  assert.deepEqual(readStoredSession(), session);
+  await assert.rejects(updateEmailPreferences(enabled, async () => new Response(null, { status: 401 })), /Log in again/);
+  assert.equal(readStoredSession(), null);
+  await assert.rejects(fetchEmailPreferences(async () => assert.fail("must not request")), /session has expired/);
+});
+
+test("a delayed unauthorized email request cannot sign out a newer session", async t => {
+  const previous = signIn(t);
+  const current = { ...previous, token: `bff_us_${"b".repeat(64)}` };
+  await assert.rejects(fetchEmailPreferences(async () => {
+    storeSession(current);
+    return new Response(null, { status: 401 });
+  }), /Log in again/);
+  assert.deepEqual(readStoredSession(), current);
 });

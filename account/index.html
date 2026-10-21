@@ -22,10 +22,28 @@
         <p class="login-status" role="status">Loading your account…</p>
         <div class="login-error" role="alert" hidden></div>
         <p class="account-email login-identity" hidden></p>
-        <form class="email-login-form" hidden>
+        <form id="account-name-form" class="email-login-form" hidden>
           <label for="account-name">Name</label>
           <input id="account-name" name="name" type="text" autocomplete="name" maxlength="80" required />
           <button class="button email-login-submit" type="submit">Save name</button>
+        </form>
+        <form id="account-email-notifications" class="account-email-notifications" aria-labelledby="account-email-title" hidden>
+          <h2 id="account-email-title">Email notifications</h2>
+          <label class="account-email-option">
+            <input type="checkbox" name="email_notify_replies" checked />
+            <span>Replies to my messages or replies</span>
+          </label>
+          <label class="account-email-option">
+            <input type="checkbox" name="email_notify_votes" checked />
+            <span>Upvotes or downvotes on my messages or replies</span>
+          </label>
+          <label class="account-email-option">
+            <input type="checkbox" name="email_notify_sub_yap_messages" checked />
+            <span>New messages in sub-yaps I’ve posted in</span>
+          </label>
+          <div id="account-email-error" class="login-error" role="alert" hidden></div>
+          <p id="account-email-status" class="account-email-status" role="status"></p>
+          <button class="button email-login-submit" type="submit">Save email preferences</button>
         </form>
         <button class="messages-retry" id="account-retry" type="button" hidden>Try again</button>
         <a class="button account-login" href="/login/" hidden>Log in</a>
