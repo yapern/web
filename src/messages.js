@@ -91,6 +91,7 @@ function messageRow(message, board, authors, { onReply } = {}) {
     meta.append(link, document.createTextNode(" · "));
   }
   const author = document.createElement("span");
+  author.className = "live-message-author";
   author.textContent = authors.get(message.user_id) ?? "Name unavailable";
   const date = document.createElement("time");
   date.dateTime = message.created_at;
@@ -169,7 +170,11 @@ function messageRow(message, board, authors, { onReply } = {}) {
   share.type = "button";
   share.disabled = !boardSlug;
   share.setAttribute("aria-label", "Share message");
-  share.append(actionIcon("share", ""), document.createTextNode("Share"));
+  share.title = "Share message";
+  const shareLabel = document.createElement("span");
+  shareLabel.className = "live-message-share-label";
+  shareLabel.textContent = "Share";
+  share.append(actionIcon("share", ""), shareLabel);
   const shareStatus = document.createElement("span");
   shareStatus.className = "live-message-action-status";
   shareStatus.setAttribute("role", "status");
@@ -194,7 +199,9 @@ function messageRow(message, board, authors, { onReply } = {}) {
       shareStatus.textContent = "Sharing is unavailable.";
     }
   });
-  actions.append(votes, reply, repost, share, shareStatus);
+  actions.append(votes, reply);
+  if (onReply) actions.append(repost);
+  actions.append(share, shareStatus);
   article.append(actions);
   if (board && route?.messageId === message.id) {
     const remove = document.createElement("button");
