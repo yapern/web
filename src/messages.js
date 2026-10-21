@@ -58,6 +58,11 @@ function messageTextLink(part) {
   return link;
 }
 
+function updateReplyCount(action, count) {
+  action.querySelector(".live-message-reply-count").textContent = String(count);
+  action.setAttribute("aria-label", `${count} ${count === 1 ? "reply" : "replies"}${action.href ? "" : "; reply unavailable"}`);
+}
+
 function messageRow(message, board, authors) {
   const item = document.createElement("li");
   const article = document.createElement("article");
@@ -141,10 +146,12 @@ function messageRow(message, board, authors) {
   const votes = createVoteControl({ type: message.message_id ? "reply" : "message", id: message.id });
 
   const reply = document.createElement(boardSlug ? "a" : "span");
-  reply.className = boardSlug ? "live-message-action" : "live-message-action live-message-action-static";
+  reply.className = `live-message-action live-message-reply${boardSlug ? "" : " live-message-action-static"}`;
   if (boardSlug) reply.href = `${messageHref(boardSlug, message.message_id ?? message.id)}#message-replies-section`;
-  else reply.setAttribute("aria-label", "Reply unavailable");
-  reply.append(actionIcon("message", ""), document.createTextNode("Reply"));
+  const replyCount = document.createElement("span");
+  replyCount.className = "live-message-reply-count";
+  reply.append(actionIcon("message", ""), replyCount);
+  updateReplyCount(reply, message.reply_count ?? 0);
 
   const repost = document.createElement("span");
   repost.className = "live-message-action live-message-action-static";
@@ -286,7 +293,12 @@ async function loadMessages() {
     const replies = document.querySelector("#message-replies-section");
     if (replies) replies.hidden = !showingMessage;
     if (showingMessage) {
-      mountReplies(data[0].id, (reply, replyAuthors) => messageRow(reply, null, replyAuthors));
+      const message = data[0];
+      mountReplies(message.id, (reply, replyAuthors) => messageRow(reply, null, replyAuthors), () => {
+        message.reply_count = (message.reply_count ?? 0) + 1;
+        const action = list.querySelector(".live-message-reply");
+        if (action) updateReplyCount(action, message.reply_count);
+      });
     }
   } catch {
     if (load !== messageLoad) return;

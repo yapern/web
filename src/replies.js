@@ -3,7 +3,7 @@ import { readStoredSession } from "./auth.js";
 
 let mounted = false;
 
-export function mountReplies(messageId, renderReply) {
+export function mountReplies(messageId, renderReply, onReplyCreated) {
   const section = document.querySelector("#message-replies-section");
   if (!section || mounted) return;
   mounted = true;
@@ -98,6 +98,7 @@ export function mountReplies(messageId, renderReply) {
     try {
       const reply = await createReply(messageId, body.value);
       replies.push(reply);
+      onReplyCreated?.();
       const replyAuthors = await fetchMessageAuthors([reply]).catch(() => new Map());
       for (const [id, name] of replyAuthors) authors.set(id, name);
       renderReplies();

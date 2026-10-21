@@ -4,7 +4,8 @@ import { serializeMessageBody } from "./message-text.js";
 
 const isMessage = (message) => message &&
   ["id", "board_id", "user_id", "title", "body", "created_at"].every(key => typeof message[key] === "string") &&
-  Number.isFinite(Date.parse(message.created_at));
+  Number.isFinite(Date.parse(message.created_at)) &&
+  (message.reply_count === undefined || (Number.isSafeInteger(message.reply_count) && message.reply_count >= 0));
 const isReply = (reply) => reply &&
   ["id", "message_id", "user_id", "body", "created_at"].every(key => typeof reply[key] === "string") &&
   reply.id.trim().length > 0 && reply.message_id.trim().length > 0 && reply.user_id.trim().length > 0 &&
@@ -285,7 +286,7 @@ export async function fetchOgImage(value, fetcher = fetch, { signal } = {}) {
 
 export async function fetchMessages(fetcher = fetch, { boardId, messageId, limit = 20, offset } = {}) {
   const params = {
-    select: "id,board_id,user_id,title,body,created_at",
+    select: "id,board_id,user_id,title,body,created_at,reply_count",
     order: "created_at.desc",
     limit: messageId === undefined ? String(limit) : "1",
   };

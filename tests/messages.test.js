@@ -11,6 +11,7 @@ const message = {
   title: "Welcome",
   body: "Hello from Yapern!",
   created_at: "2026-10-17T06:19:23.111Z",
+  reply_count: 0,
 };
 
 test("reads the production API's newest 20 messages directly using CORS", async () => {
@@ -18,7 +19,7 @@ test("reads the production API's newest 20 messages directly using CORS", async 
     assert.equal(url.origin, "https://api.yapern.com");
     assert.equal(url.pathname, "/tables/messages");
     assert.deepEqual(Object.fromEntries(url.searchParams), {
-      select: "id,board_id,user_id,title,body,created_at",
+      select: "id,board_id,user_id,title,body,created_at,reply_count",
       order: "created_at.desc",
       limit: "20",
     });
@@ -30,6 +31,16 @@ test("reads the production API's newest 20 messages directly using CORS", async 
     return Response.json({ data: [message] });
   });
   assert.deepEqual(messages, [message]);
+});
+
+test("message reads preserve stored reply totals and reject invalid counts", async () => {
+  for (const reply_count of [0, 1, 250, 1000000]) {
+    const row = { ...message, reply_count };
+    assert.deepEqual(await fetchMessages(async () => Response.json({ data: [row] })), [row]);
+  }
+  for (const reply_count of [-1, 1.5, "2", null, Number.MAX_SAFE_INTEGER + 1]) {
+    await assert.rejects(fetchMessages(async () => Response.json({ data: [{ ...message, reply_count }] })), /Invalid messages/);
+  }
 });
 
 test("all-message pagination includes every message once across full and partial pages", async () => {
