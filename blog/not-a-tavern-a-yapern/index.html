@@ -57,7 +57,7 @@
 
         <h2>A static site with its own Worker</h2>
         <p>The frontend is HTML, CSS, and JavaScript, built with Vite and served through <a href="https://github.com/yapern/web/blob/ee309d8/wrangler.jsonc">Workers Static Assets</a>. A request for <code>/y/scrollsnap</code> loads the shared board page; the browser reads the URL and asks <code>api.yapern.com</code> for the records. Each post has a URL inside its sub-yap, so finding it doesn’t depend on its position in the latest feed.</p>
-        <p>Our <a href="/blog/building-yapern/">earlier article</a> described the app when its data lived behind Mainbrella’s shared backend. The <a href="https://github.com/yapern/web/commit/7e86fd2">October 20 cutover</a> moved the frontend onto Yapern’s own API. That API is a TypeScript Worker using Hono for routing and Zod for request and response schemas. The same route declarations produce the <a href="https://api.yapern.com/docs">interactive API documentation</a> and <a href="https://api.yapern.com/openapi.json">OpenAPI document</a>.</p>
+        <p>Our API is a TypeScript Worker using Hono for routing and Zod for request and response schemas. The same route declarations produce the <a href="https://api.yapern.com/docs">interactive API documentation</a> and <a href="https://api.yapern.com/openapi.json">OpenAPI document</a>.</p>
 
         <div class="article-table">
           <table>
