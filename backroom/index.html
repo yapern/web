@@ -37,6 +37,29 @@
           </nav>
         </aside>
         <section id="backroom-content" aria-label="Users">
+          <div id="backroom-users-view" class="backroom-users-view" hidden>
+            <h2 id="backroom-users-title">Users</h2>
+            <form id="backroom-users-search-form" class="backroom-users-search" role="search">
+              <label class="create-field" for="backroom-users-search">
+                <span>Search users</span>
+                <input id="backroom-users-search" name="q" type="search" placeholder="Name, email, or ID" maxlength="100" autocomplete="off" />
+              </label>
+              <button id="backroom-users-search-submit" class="backroom-user-button" type="submit">Search</button>
+            </form>
+            <p id="backroom-users-status" class="backroom-users-status" role="status"></p>
+            <p id="backroom-users-error" class="create-error" role="alert"></p>
+            <button id="backroom-users-retry" class="backroom-user-button" type="button" hidden>Try again</button>
+            <div id="backroom-users-table" class="backroom-users-table" role="region" aria-labelledby="backroom-users-title" tabindex="0" aria-busy="false" hidden>
+              <table aria-labelledby="backroom-users-title">
+                <thead><tr><th scope="col">User</th><th scope="col">Email</th><th scope="col">Joined</th></tr></thead>
+                <tbody id="backroom-users-rows"></tbody>
+              </table>
+            </div>
+            <nav id="backroom-users-pagination" class="backroom-users-pagination" aria-label="User list pages" hidden>
+              <button id="backroom-users-previous" class="backroom-user-button" type="button" disabled>Previous</button>
+              <button id="backroom-users-next" class="backroom-user-button" type="button" disabled>Next</button>
+            </nav>
+          </div>
           <div id="backroom-email-view" class="backroom-email-view" hidden>
             <h2 id="backroom-email-title">Test marketing email</h2>
             <form id="backroom-email-form" class="create-form backroom-email-form" aria-labelledby="backroom-email-title" aria-busy="false">

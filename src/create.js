@@ -77,6 +77,7 @@ function clearVideoDraft() {
   videoPreview.load();
   videoDraft.hidden = true;
   videoProgress.hidden = true;
+  videoProgress.value = 0;
   videoStatus.textContent = "";
   videoError.textContent = "";
   videoChoose.setAttribute("aria-label", "Add video");
@@ -554,6 +555,8 @@ messageForm.addEventListener("submit", event => void submit(event, messageDialog
       videoUpload = { ...await createVideoUpload(board.id, pickedVideo), boardId: board.id, owner, complete: false };
     }
     if (!videoUpload.complete) {
+      videoProgress.value = 0;
+      videoStatus.textContent = "Uploading video… 0%";
       videoProgress.hidden = false;
       try {
         await uploadVideoFile(pickedVideo, videoUpload, { onProgress: percent => {

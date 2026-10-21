@@ -627,6 +627,36 @@ button.create-toolbar-icon:focus-visible { outline-offset: 1px; }
 .backroom-navigation { padding-right: 16px; border-right: 1px solid var(--line); }
 .backroom-navigation h1 { margin: 0 8px 16px; }
 .backroom-details { border-left: 1px solid var(--line); }
+.backroom-users-view h2 { font-size: 20px; font-weight: 650; }
+.backroom-users-search { display: flex; align-items: end; gap: 8px; margin-top: 16px; }
+.backroom-users-search .create-field { flex: 1; min-width: 0; }
+.backroom-users-search > button { min-height: 50px; }
+.backroom-user-button {
+  min-height: 44px;
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #111727;
+  font-size: 14px;
+}
+.backroom-user-button:hover:not(:disabled) { color: var(--accent); border-color: var(--accent); }
+.backroom-user-button:disabled { color: var(--muted); opacity: .6; cursor: default; }
+.backroom-users-status { margin-top: 16px; color: var(--muted); font-size: 14px; }
+.backroom-users-view .create-error:not(:empty) { margin-top: 16px; }
+.backroom-users-view > .backroom-user-button { margin-top: 8px; }
+.backroom-users-table { max-width: 100%; margin-top: 8px; overflow-x: auto; }
+.backroom-users-table table { width: 100%; min-width: 480px; table-layout: fixed; border-collapse: collapse; font-size: 14px; }
+.backroom-users-table th,
+.backroom-users-table td { padding: 12px 16px 12px 0; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; overflow-wrap: anywhere; }
+.backroom-users-table th { color: var(--muted); font-weight: 500; }
+.backroom-users-table th:first-child { width: 40%; }
+.backroom-users-table th:last-child { width: 112px; }
+.backroom-users-table th:last-child,
+.backroom-users-table td:last-child { padding-right: 0; }
+.backroom-user-name { display: block; font-weight: 500; }
+.backroom-user-id { display: block; margin-top: 4px; color: var(--muted); font-size: 12px; }
+.backroom-users-table time { white-space: nowrap; }
+.backroom-users-pagination { display: flex; justify-content: space-between; gap: 16px; margin-top: 16px; }
 .backroom-email-view { max-width: 640px; }
 .backroom-email-view h2 { font-size: 20px; font-weight: 650; }
 .backroom-email-form { gap: 16px; margin-top: 16px; }

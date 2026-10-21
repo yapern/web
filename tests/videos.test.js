@@ -54,7 +54,8 @@ test("video reservations use the app session and validate the direct upload dest
 
 test("resumable uploads use constrained chunks, resume the same URL and never send the app bearer", async () => {
   let attempts = 0;
-  const progress = [];
+  const firstProgress = [];
+  const retryProgress = [];
   const record = reservation();
   const createUpload = (uploadFile, options) => {
     assert.equal(uploadFile.name, "clip.mov");
@@ -64,33 +65,62 @@ test("resumable uploads use constrained chunks, resume the same URL and never se
     assert.equal(options.storeFingerprintForResuming, false);
     assert.ok(options.retryDelays.length > 1);
     return { start() {
+      const attemptProgress = attempts === 0 ? firstProgress : retryProgress;
+      assert.equal(attemptProgress[0], 0, "initial zero is reported before TUS starts");
       attempts++;
+      options.onProgress(1, 4);
+      options.onProgress(2, 4);
+      options.onProgress(9999, 10000);
+      options.onProgress(4, 4);
       if (attempts === 1) options.onError(new Error("network error containing an unsafe URL"));
-      else { options.onProgress(5, 5); options.onSuccess(); }
+      else options.onSuccess();
     } };
   };
-  await assert.rejects(uploadVideoFile(file(), record, { createUpload }), /posting again to resume/);
-  await uploadVideoFile(file(), record, { createUpload, onProgress: value => progress.push(value) });
-  assert.deepEqual(progress, [100]);
-  await assert.rejects(uploadVideoFile(file(), { ...record, expires_at: "2000-01-01" }, { createUpload }), /expired/);
+  await assert.rejects(uploadVideoFile(file(), record, { createUpload, onProgress: value => firstProgress.push(value) }), /posting again to resume/);
+  await uploadVideoFile(file(), record, { createUpload, onProgress: value => retryProgress.push(value) });
+  assert.deepEqual(firstProgress, [0, 25, 50, 99, 99], "a failed upload never reports completion");
+  assert.deepEqual(retryProgress, [0, 25, 50, 99, 99, 100], "a retry starts at zero and completes only on success");
+  const expiredProgress = [];
+  await assert.rejects(uploadVideoFile(file(), { ...record, expires_at: "2000-01-01" }, { createUpload, onProgress: value => expiredProgress.push(value) }), /expired/);
+  assert.deepEqual(expiredProgress, [], "an expired reservation reports no upload progress");
   assert.equal(attempts, 2);
 });
 
 test("multipart uploads send the file without credentials and report progress", async t => {
   signedIn(t);
   const progress = [];
+  const events = [];
   let request;
   await uploadVideoFile(file(), multipartReservation(), {
-    onProgress: value => progress.push(value),
-    createRequest: () => request = {
-      upload: { addEventListener(type, callback) { assert.equal(type, "progress"); this.progress = callback; } },
-      open(method, url) { this.method = method; this.url = url; },
-      send(body) {
-        this.body = body;
-        this.upload.progress({ lengthComputable: true, loaded: 2, total: 4 });
-        this.status = 201;
-        this.onload();
-      },
+    onProgress: value => { progress.push(value); events.push(`progress:${value}`); },
+    createRequest: () => {
+      events.push("create");
+      return request = {
+        upload: {
+          addEventListener(type, callback) {
+            assert.equal(type, "progress");
+            this.progress = callback;
+            events.push("listener");
+          },
+        },
+        open(method, url) {
+          assert.ok(this.upload.progress, "progress listener is installed before open");
+          this.method = method;
+          this.url = url;
+          events.push("open");
+        },
+        send(body) {
+          this.body = body;
+          events.push("send");
+          this.upload.progress({ lengthComputable: true, loaded: 1, total: 4 });
+          this.upload.progress({ lengthComputable: true, loaded: 2, total: 4 });
+          this.upload.progress({ lengthComputable: true, loaded: 9999, total: 10000 });
+          this.upload.progress({ lengthComputable: true, loaded: 4, total: 4 });
+          assert.equal(progress.at(-1), 99, "all bytes sent does not mean the upload has succeeded");
+          this.status = 201;
+          this.onload();
+        },
+      };
     },
   });
   assert.equal(request.method, "POST");
@@ -100,7 +130,8 @@ test("multipart uploads send the file without credentials and report progress", 
   assert.equal(request.setRequestHeader, undefined);
   assert.equal(request.body instanceof FormData, true);
   assert.equal(request.body.get("file").name, "clip.mov");
-  assert.deepEqual(progress, [50, 100]);
+  assert.deepEqual(progress, [0, 25, 50, 99, 99, 100]);
+  assert.deepEqual(events.slice(0, 4), ["progress:0", "create", "listener", "open"], "zero is reported before request setup and progress is attached before open");
 });
 
 test("multipart upload failures are sanitized and expired URLs never start a request", async () => {
@@ -110,22 +141,30 @@ test("multipart upload failures are sanitized and expired URLs never start a req
     { trigger: "timeout" },
     { trigger: "abort" },
   ]) {
+    const progress = [];
     await assert.rejects(uploadVideoFile(file(), multipartReservation(), {
+      onProgress: value => progress.push(value),
       createRequest: () => ({
-        upload: { addEventListener() {} },
+        upload: { addEventListener(type, callback) { this.progress = callback; } },
         open() {},
         send() {
+          this.upload.progress({ lengthComputable: true, loaded: 4, total: 4 });
+          assert.equal(progress.at(-1), 99);
           if (failure.status) this.status = failure.status;
           this[`on${failure.trigger}`]();
         },
       }),
     }), { message: "The video upload failed. Try posting again." });
+    assert.deepEqual(progress, [0, 99], "failure never reports completion");
   }
   let created = false;
+  const expiredProgress = [];
   await assert.rejects(uploadVideoFile(file(), multipartReservation({ expires_at: "2000-01-01" }), {
+    onProgress: value => expiredProgress.push(value),
     createRequest: () => { created = true; throw new Error("must not start"); },
   }), /expired/);
   assert.equal(created, false);
+  assert.deepEqual(expiredProgress, []);
 });
 
 test("video metadata rejects unsafe, mismatched and incomplete player URLs", async () => {

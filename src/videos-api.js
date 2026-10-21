@@ -86,12 +86,12 @@ function uploadMultipartVideo(file, reservation, onProgress, createRequest) {
       const request = createRequest();
       const form = new FormData();
       form.append("file", file);
+      request.upload.addEventListener("progress", event => {
+        if (event.lengthComputable && event.total > 0) onProgress(Math.max(0, Math.min(99, Math.floor(event.loaded / event.total * 100))));
+      });
       request.open("POST", reservation.upload_url);
       request.withCredentials = false;
       request.timeout = 10 * 60 * 1000;
-      request.upload.addEventListener("progress", event => {
-        if (event.lengthComputable && event.total > 0) onProgress(Math.min(100, Math.round(event.loaded / event.total * 100)));
-      });
       request.onload = () => {
         if (request.status >= 200 && request.status < 300) {
           onProgress(100);
@@ -110,6 +110,7 @@ function uploadMultipartVideo(file, reservation, onProgress, createRequest) {
 
 export async function uploadVideoFile(file, reservation, { onProgress = () => {}, createUpload, createRequest = () => new XMLHttpRequest() } = {}) {
   if (Date.parse(reservation.expires_at) <= Date.now()) throw new Error("This video upload expired. Remove the video and choose it again.");
+  onProgress(0);
   if (reservation.upload_protocol === "multipart") return uploadMultipartVideo(file, reservation, onProgress, createRequest);
   // Load the protocol client only when somebody uploads a video. It handles
   // offsets and retries so a dropped connection can resume the same upload.
@@ -121,8 +122,8 @@ export async function uploadVideoFile(file, reservation, { onProgress = () => {}
       chunkSize: 5 * 1024 * 1024, retryDelays: [0, 1000, 3000, 5000],
       storeFingerprintForResuming: false,
       headers: {},
-      onProgress: (sent, total) => onProgress(total ? Math.min(100, Math.round(sent / total * 100)) : 0),
-      onSuccess: resolve,
+      onProgress: (sent, total) => onProgress(total ? Math.max(0, Math.min(99, Math.floor(sent / total * 100))) : 0),
+      onSuccess: () => { onProgress(100); resolve(); },
       onError: () => reject(new Error("The video upload paused. Try posting again to resume it.")),
     });
     upload.start();
