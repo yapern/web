@@ -2,6 +2,7 @@ import { mountBoardSidebars } from "./board-sidebars.js";
 import { messageHref } from "./board-routes.js";
 import { readStoredSession } from "./auth.js";
 import { notificationsApi, notificationsLive } from "./notifications-live.js";
+import { replyAnchor } from "./reply-tree.js";
 
 mountBoardSidebars();
 
@@ -28,7 +29,7 @@ function renderSnapshot(snapshot) {
     const messageLink = messageHref(notification.board_slug, notification.message_id);
     link.href = notification.kind === "upvote" && !notification.reply_id
       ? messageLink
-      : `${messageLink}#message-replies-section`;
+      : `${messageLink}#${encodeURIComponent(replyAnchor(notification.reply_id))}`;
     const heading = document.createElement("span");
     heading.className = "notification-item-heading";
     const actor = notification.actor_name || "Someone";

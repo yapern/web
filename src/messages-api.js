@@ -9,7 +9,11 @@ const isMessage = (message) => message &&
 const isReply = (reply) => reply &&
   ["id", "message_id", "user_id", "body", "created_at"].every(key => typeof reply[key] === "string") &&
   reply.id.trim().length > 0 && reply.message_id.trim().length > 0 && reply.user_id.trim().length > 0 &&
-  Number.isFinite(Date.parse(reply.created_at)) && reply.body.trim().length > 0 && reply.body.length <= 2000;
+  Number.isFinite(Date.parse(reply.created_at)) && reply.body.trim().length > 0 && reply.body.length <= 2000 &&
+  (reply.parent_reply_id == null || (typeof reply.parent_reply_id === "string" &&
+    reply.parent_reply_id.trim().length > 0 && reply.parent_reply_id !== reply.id)) &&
+  (reply.author_name === undefined || reply.author_name === null || typeof reply.author_name === "string") &&
+  (reply.direct_reply_count === undefined || (Number.isSafeInteger(reply.direct_reply_count) && reply.direct_reply_count >= 0));
 const boardLogoPathPattern = /^\/board-logos\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.(?:png|jpg|gif|webp)$/i;
 const acceptedBoardLogoTypes = new Set(["image/png", "image/jpeg", "image/webp", "image/gif"]);
 const maxBoardLogoBytes = 5 * 1024 * 1024;
@@ -319,12 +323,73 @@ export async function fetchMessagesPage(page = 1, fetcher = fetch) {
   return { messages, hasNext: next.length > 0 };
 }
 
+async function readReplyPayload(url, fetcher) {
+  const session = readStoredSession();
+  const response = await fetcher(url, {
+    headers: session ? { authorization: `Bearer ${session.token}` } : {},
+    mode: "cors", credentials: "omit", redirect: "error", cache: "no-store",
+    signal: AbortSignal.timeout(10_000),
+  });
+  if (response.status === 404) throw new Error("This message or reply is no longer available.");
+  if (!response.ok) throw new Error("Replies unavailable. Please try again.");
+  return response.json().catch(() => null);
+}
+
+export async function fetchReplyPage(messageId, { parentReplyId = null, cursor = null, limit = 20, sort = "new" } = {}, fetcher = fetch) {
+  if (typeof messageId !== "string" || !messageId.trim()) throw new Error("Choose a message to view replies.");
+  if (parentReplyId !== null && (typeof parentReplyId !== "string" || !parentReplyId.trim())) {
+    throw new Error("Choose a valid reply to view.");
+  }
+  if (!["new", "old", "top"].includes(sort) || !Number.isSafeInteger(limit) || limit < 1 || limit > 100 ||
+    (cursor !== null && (typeof cursor !== "string" || !cursor.trim() || cursor.length > 8192))) {
+    throw new Error("Invalid reply page");
+  }
+  const url = new URL(`/messages/${encodeURIComponent(messageId)}/replies`, messageBoardConfig.apiOrigin);
+  url.searchParams.set("limit", String(limit));
+  url.searchParams.set("sort", sort);
+  if (parentReplyId !== null) url.searchParams.set("parent_reply_id", parentReplyId);
+  if (cursor !== null) url.searchParams.set("cursor", cursor);
+  const payload = await readReplyPayload(url, fetcher);
+  const replies = payload?.data;
+  const nextCursor = payload?.meta?.next_cursor;
+  if (!Array.isArray(replies) || replies.length > limit ||
+    !replies.every(reply => isReply(reply) && reply.message_id === messageId &&
+      (reply.parent_reply_id ?? null) === parentReplyId && Number.isSafeInteger(reply.direct_reply_count)) ||
+    new Set(replies.map(reply => reply.id)).size !== replies.length ||
+    !(nextCursor === null || (typeof nextCursor === "string" && nextCursor.trim() && nextCursor.length <= 8192 &&
+      nextCursor !== cursor && replies.length > 0))) {
+    throw new Error("Invalid replies");
+  }
+  return { replies, nextCursor };
+}
+
+export async function fetchReplyContext(messageId, replyId, { limit = 6 } = {}, fetcher = fetch) {
+  if (typeof messageId !== "string" || !messageId.trim() || typeof replyId !== "string" || !replyId.trim()) {
+    throw new Error("Choose a message and reply to view.");
+  }
+  if (!Number.isSafeInteger(limit) || limit < 1 || limit > 100) throw new Error("Invalid reply context");
+  const url = new URL(`/messages/${encodeURIComponent(messageId)}/replies/${encodeURIComponent(replyId)}/context`, messageBoardConfig.apiOrigin);
+  url.searchParams.set("limit", String(limit));
+  const payload = await readReplyPayload(url, fetcher);
+  const replies = payload?.data;
+  const hasMore = payload?.meta?.has_more;
+  if (!Array.isArray(replies) || replies.length < 1 || replies.length > limit || typeof hasMore !== "boolean" ||
+    !replies.every((reply, index) => isReply(reply) && reply.message_id === messageId && Number.isSafeInteger(reply.direct_reply_count) &&
+      (index === 0 || reply.parent_reply_id === replies[index - 1].id)) ||
+    replies.at(-1).id !== replyId || new Set(replies.map(reply => reply.id)).size !== replies.length ||
+    (hasMore ? replies[0].parent_reply_id == null || replies.some(reply => reply.id === replies[0].parent_reply_id)
+      : replies[0].parent_reply_id != null)) {
+    throw new Error("Invalid replies");
+  }
+  return { replies, hasMore };
+}
+
 export async function fetchReplies(messageId, fetcher = fetch) {
   if (typeof messageId !== "string" || !messageId.trim()) throw new Error("Choose a message to view replies.");
   const replies = [];
   for (let offset = 0; ; offset += 100) {
     const page = await readRows("replies", {
-      select: "id,message_id,user_id,body,created_at",
+      select: "id,message_id,parent_reply_id,user_id,body,created_at,direct_reply_count",
       message_id: `eq.${messageId}`,
       order: "created_at.asc",
       limit: "100",
@@ -334,8 +399,26 @@ export async function fetchReplies(messageId, fetcher = fetch) {
       throw new Error("Invalid replies");
     }
     replies.push(...page);
-    if (page.length < 100) return replies;
+    if (page.length < 100) break;
   }
+  // Validate after pagination: a parent can arrive on a later page. Walking
+  // iteratively keeps deep threads safe without imposing a nesting limit.
+  const byId = new Map(replies.map(reply => [reply.id, reply]));
+  if (byId.size !== replies.length) throw new Error("Invalid replies");
+  const resolved = new Set();
+  for (const reply of replies) {
+    let current = reply;
+    const path = new Set();
+    while (!resolved.has(current.id)) {
+      if (path.has(current.id)) throw new Error("Invalid replies");
+      path.add(current.id);
+      if (current.parent_reply_id == null) break;
+      current = byId.get(current.parent_reply_id);
+      if (!current) throw new Error("Invalid replies");
+    }
+    for (const id of path) resolved.add(id);
+  }
+  return replies;
 }
 
 export async function fetchMessageAuthors(messages, fetcher = fetch) {
@@ -381,12 +464,13 @@ export async function fetchBoardPage(slug, messageId, fetcher = fetch) {
   return { board, messages };
 }
 
-async function insertRow(table, values, validate, fetcher, { image } = {}) {
+async function insertRow(table, values, validate, fetcher, { image, idempotencyKey } = {}) {
   const session = readStoredSession();
   if (!session) throw new Error("Your session has expired. Open Account and sign in again to continue.");
   const { apiOrigin } = messageBoardConfig;
   const url = new URL(`/tables/${encodeURIComponent(table)}`, apiOrigin);
   const headers = { authorization: `Bearer ${session.token}` };
+  if (idempotencyKey !== undefined) headers["idempotency-key"] = idempotencyKey;
   let body;
   if (image) {
     body = new FormData();
@@ -413,6 +497,8 @@ async function insertRow(table, values, validate, fetcher, { image } = {}) {
       ? "You don’t have permission to reply to this message."
       : "You don’t have permission to post to this sub-yap.");
   if (response.status === 409 && table === "boards") throw new Error("A sub-yap with that name already exists. Choose another name.");
+  if (response.status === 409 && table === "replies") throw new Error("This reply changed during a retry. Edit your reply and try again.");
+  if (response.status === 404 && table === "replies") throw new Error("This message or reply is no longer available. Reload the thread before trying again.");
   if (image && response.status === 404) throw new Error("This sub-yap is no longer available.");
   if (image && response.status === 413) throw new Error("Choose an image smaller than 5 MB.");
   if (image && response.status === 415) throw new Error("Choose a valid PNG, JPEG, WebP, or GIF image.");
@@ -557,12 +643,21 @@ export async function deleteMessage(message, fetcher = fetch) {
   }
 }
 
-export async function createReply(messageId, body, fetcher = fetch) {
+export async function createReply(messageId, body, fetcher = fetch, { parentReplyId = null, idempotencyKey } = {}) {
   if (typeof messageId !== "string" || typeof body !== "string") {
     throw new Error("Enter a message and reply.");
   }
   const cleanBody = body.trim();
   if (!messageId.trim()) throw new Error("Choose a message to reply to.");
+  if (parentReplyId !== null && (typeof parentReplyId !== "string" || !parentReplyId.trim())) {
+    throw new Error("Choose a valid reply to respond to.");
+  }
+  if (idempotencyKey !== undefined && (typeof idempotencyKey !== "string" || !/^[A-Za-z0-9][A-Za-z0-9._:-]{7,127}$/.test(idempotencyKey))) {
+    throw new Error("Invalid reply request. Reload the thread before trying again.");
+  }
   if (!cleanBody || cleanBody.length > 2000) throw new Error("Enter a reply of 1–2000 characters.");
-  return insertRow("replies", { message_id: messageId, body: cleanBody }, isReply, fetcher);
+  const values = { message_id: messageId, body: cleanBody };
+  if (parentReplyId !== null) values.parent_reply_id = parentReplyId;
+  return insertRow("replies", values,
+    reply => isReply(reply) && (reply.parent_reply_id ?? null) === parentReplyId, fetcher, { idempotencyKey });
 }

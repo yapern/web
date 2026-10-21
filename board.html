@@ -40,7 +40,7 @@
         <section id="message-replies-section" class="message-replies-section" aria-label="Replies" hidden>
           <form id="reply-form" class="reply-form">
             <div class="reply-editor" id="reply-editor">
-              <label class="sr-only" for="reply-body">Add your reply</label>
+              <label id="reply-label" class="reply-label" for="reply-body">Reply to this message</label>
               <textarea id="reply-body" name="body" rows="1" required maxlength="2000" placeholder="add your reply" aria-describedby="reply-error reply-auth"></textarea>
               <div class="reply-editor-footer" id="reply-controls" hidden>
                 <div class="reply-tools" role="group" aria-label="Reply tools">
@@ -59,7 +59,13 @@
             <p id="reply-error" class="create-error" role="alert"></p>
             <p id="reply-feedback" class="reply-feedback" role="status"></p>
           </form>
-          <h2 class="replies-heading">Replies</h2>
+          <div class="replies-toolbar">
+            <h2 class="replies-heading">Replies</h2>
+            <label for="replies-sort">Sort</label>
+            <select id="replies-sort"><option value="new">New</option><option value="top">Top</option></select>
+            <button id="replies-refresh" type="button">Refresh</button>
+          </div>
+          <button id="replies-back" class="replies-back" type="button" hidden>Back to full discussion</button>
           <p id="replies-status" class="messages-status" role="status"></p>
           <button id="replies-retry" class="messages-retry" type="button" hidden>Retry replies</button>
           <ul id="message-replies" aria-label="Replies" aria-busy="false"></ul>

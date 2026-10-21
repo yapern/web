@@ -6,6 +6,7 @@ import { parseMessageText } from "./message-text.js";
 import { externalLinkHref } from "./external-links.js";
 import { mountReplies } from "./replies.js";
 import { createVoteControl } from "./votes.js";
+import { replyAnchor } from "./reply-tree.js";
 
 const list = document.querySelector("#live-messages");
 const status = document.querySelector("#messages-status");
@@ -16,6 +17,7 @@ const isBoardPage = document.body.classList.contains("board-page");
 const isAllPage = /^\/all\/?$/.test(window.location.pathname);
 let route = isBoardPage ? parseBoardRoute(window.location.pathname) : null;
 let messageLoad = 0;
+let disposeReplies;
 const requestedPage = Number(new URLSearchParams(window.location.search).get("page"));
 const page = Number.isSafeInteger(requestedPage) && requestedPage > 0 ? requestedPage : 1;
 const pagination = document.querySelector("#messages-pagination");
@@ -60,10 +62,11 @@ function messageTextLink(part) {
 
 function updateReplyCount(action, count) {
   action.querySelector(".live-message-reply-count").textContent = String(count);
-  action.setAttribute("aria-label", `${count} ${count === 1 ? "reply" : "replies"}${action.href ? "" : "; reply unavailable"}`);
+  const total = `${count} ${count === 1 ? "reply" : "replies"}`;
+  action.setAttribute("aria-label", action.tagName === "BUTTON" ? `Reply; ${total}` : `${total}${action.href ? "" : "; reply unavailable"}`);
 }
 
-function messageRow(message, board, authors) {
+function messageRow(message, board, authors, { onReply } = {}) {
   const item = document.createElement("li");
   const article = document.createElement("article");
   const title = message.title === undefined ? null : document.createElement(isBoardPage ? "h2" : "h3");
@@ -145,13 +148,16 @@ function messageRow(message, board, authors) {
 
   const votes = createVoteControl({ type: message.message_id ? "reply" : "message", id: message.id });
 
-  const reply = document.createElement(boardSlug ? "a" : "span");
+  const reply = document.createElement(onReply ? "button" : boardSlug ? "a" : "span");
   reply.className = `live-message-action live-message-reply${boardSlug ? "" : " live-message-action-static"}`;
-  if (boardSlug) reply.href = `${messageHref(boardSlug, message.message_id ?? message.id)}#message-replies-section`;
+  if (onReply) {
+    reply.type = "button";
+    reply.addEventListener("click", () => onReply(message));
+  } else if (boardSlug) reply.href = `${messageHref(boardSlug, message.message_id ?? message.id)}#message-replies-section`;
   const replyCount = document.createElement("span");
   replyCount.className = "live-message-reply-count";
   reply.append(actionIcon("message", ""), replyCount);
-  updateReplyCount(reply, message.reply_count ?? 0);
+  updateReplyCount(reply, message.reply_count ?? message.direct_reply_count ?? 0);
 
   const repost = document.createElement("span");
   repost.className = "live-message-action live-message-action-static";
@@ -170,10 +176,11 @@ function messageRow(message, board, authors) {
   shareStatus.setAttribute("aria-live", "polite");
   share.addEventListener("click", async () => {
     shareStatus.textContent = "";
-    const url = new URL(messageHref(boardSlug, message.message_id ?? message.id), window.location.origin).href;
+    const url = new URL(messageHref(boardSlug, message.message_id ?? message.id), window.location.origin);
+    if (message.message_id) url.hash = replyAnchor(message.id);
     if (navigator.share) {
       try {
-        await navigator.share({ title: message.title || "Yapern message", url });
+        await navigator.share({ title: message.title || "Yapern message", url: url.href });
         return;
       } catch (error) {
         if (error?.name === "AbortError") return;
@@ -181,7 +188,7 @@ function messageRow(message, board, authors) {
     }
     try {
       if (!navigator.clipboard?.writeText) throw new Error("Clipboard unavailable");
-      await navigator.clipboard.writeText(url);
+      await navigator.clipboard.writeText(url.href);
       shareStatus.textContent = "Link copied.";
     } catch {
       shareStatus.textContent = "Sharing is unavailable.";
@@ -285,6 +292,8 @@ async function loadMessages() {
     const authors = await fetchMessageAuthors(data).catch(() => new Map());
     if (load !== messageLoad) return;
     const byId = new Map(boards.map(board => [board.id, board]));
+    disposeReplies?.();
+    disposeReplies = null;
     list.replaceChildren(...data.map(message => messageRow(message, byId.get(message.board_id), authors)));
     syncDeleteAction();
     status.textContent = data.length ? "" : isAllPage && page > 1 ? "No messages on this page." : "No messages yet.";
@@ -294,7 +303,7 @@ async function loadMessages() {
     if (replies) replies.hidden = !showingMessage;
     if (showingMessage) {
       const message = data[0];
-      mountReplies(message.id, (reply, replyAuthors) => messageRow(reply, null, replyAuthors), () => {
+      disposeReplies = mountReplies(message.id, (reply, replyAuthors, options) => messageRow(reply, null, replyAuthors, options), () => {
         message.reply_count = (message.reply_count ?? 0) + 1;
         const action = list.querySelector(".live-message-reply");
         if (action) updateReplyCount(action, message.reply_count);
@@ -314,6 +323,8 @@ function syncBoardRoute() {
   const nextRoute = parseBoardRoute(window.location.pathname);
   if (nextRoute?.slug === route?.slug && nextRoute?.messageId === route?.messageId) return;
   route = nextRoute;
+  disposeReplies?.();
+  disposeReplies = null;
   list.replaceChildren();
   document.querySelector("#message-replies-section").hidden = true;
   loadMessages();
