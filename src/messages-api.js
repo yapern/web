@@ -1,11 +1,13 @@
 import { messageBoardConfig } from "./config.js";
 import { readStoredSession, storeSession } from "./auth.js";
 import { serializeMessageBody } from "./message-text.js";
+import { isMessageVideo } from "./videos-api.js";
 
 const isMessage = (message) => message &&
   ["id", "board_id", "user_id", "title", "body", "created_at"].every(key => typeof message[key] === "string") &&
   Number.isFinite(Date.parse(message.created_at)) &&
-  (message.reply_count === undefined || (Number.isSafeInteger(message.reply_count) && message.reply_count >= 0));
+  (message.reply_count === undefined || (Number.isSafeInteger(message.reply_count) && message.reply_count >= 0)) &&
+  (message.video == null || isMessageVideo(message.video));
 const isReply = (reply) => reply &&
   ["id", "message_id", "user_id", "body", "created_at"].every(key => typeof reply[key] === "string") &&
   reply.id.trim().length > 0 && reply.message_id.trim().length > 0 && reply.user_id.trim().length > 0 &&
@@ -290,7 +292,7 @@ export async function fetchOgImage(value, fetcher = fetch, { signal } = {}) {
 
 export async function fetchMessages(fetcher = fetch, { boardId, messageId, limit = 20, offset } = {}) {
   const params = {
-    select: "id,board_id,user_id,title,body,created_at,reply_count",
+    select: "id,board_id,user_id,title,body,created_at,reply_count,video",
     order: "created_at.desc",
     limit: messageId === undefined ? String(limit) : "1",
   };
@@ -464,7 +466,7 @@ export async function fetchBoardPage(slug, messageId, fetcher = fetch) {
   return { board, messages };
 }
 
-async function insertRow(table, values, validate, fetcher, { image, idempotencyKey } = {}) {
+async function insertRow(table, values, validate, fetcher, { image, video, idempotencyKey } = {}) {
   const session = readStoredSession();
   if (!session) throw new Error("Your session has expired. Open Account and sign in again to continue.");
   const { apiOrigin } = messageBoardConfig;
@@ -498,6 +500,7 @@ async function insertRow(table, values, validate, fetcher, { image, idempotencyK
       : "You don’t have permission to post to this sub-yap.");
   if (response.status === 409 && table === "boards") throw new Error("A sub-yap with that name already exists. Choose another name.");
   if (response.status === 409 && table === "replies") throw new Error("This reply changed during a retry. Edit your reply and try again.");
+  if (video && response.status === 409) throw new Error("This video is still processing or was already posted. Check the sub-yap before trying again.");
   if (response.status === 404 && table === "replies") throw new Error("This message or reply is no longer available. Reload the thread before trying again.");
   if (image && response.status === 404) throw new Error("This sub-yap is no longer available.");
   if (image && response.status === 413) throw new Error("Choose an image smaller than 5 MB.");
@@ -512,6 +515,11 @@ async function insertRow(table, values, validate, fetcher, { image, idempotencyK
       throw new Error("Could not confirm creation. Check the sub-yap before trying again.");
     }
     expected = { ...values, body: serializeMessageBody(values.body, "", new URL(row.image_url, apiOrigin).href).trim() };
+  }
+  if (video) {
+    const { attachment_id, ...textValues } = values;
+    expected = { ...textValues, body: `${video.watch_url}${values.body ? `\n${values.body}` : ""}` };
+    if (row?.video?.id !== attachment_id) throw new Error("Could not confirm creation. Check the sub-yap before trying again.");
   }
   if (!Array.isArray(payload?.data) || payload.data.length !== 1 || !validate(row) || !row.id ||
     row.user_id !== session.session.user_id || Object.entries(expected).some(([key, value]) => row[key] !== value)) {
@@ -601,14 +609,20 @@ export async function updateBoardDescription(board, description, fetcher = fetch
   return updateBoard(board, { description }, fetcher);
 }
 
-export async function createMessage(boardId, title, body, fetcher = fetch, { image } = {}) {
+export async function createMessage(boardId, title, body, fetcher = fetch, { image, video } = {}) {
   const cleanTitle = title.trim();
   const cleanBody = body.replace(/\r\n?/g, "\n").trim();
   if (!boardId.trim()) throw new Error("Choose a sub-yap for your message.");
   if (!cleanTitle || cleanTitle.length > 200) throw new Error("Enter a title of 1–200 characters.");
   if (image && messageImageError(image)) throw new Error(messageImageError(image));
-  if ((!cleanBody && !image) || messageBodyLength(cleanBody, image) > 2000) throw new Error("Enter a message of 1–2000 characters, including its image URL.");
-  return insertRow(messageBoardConfig.table, { board_id: boardId, title: cleanTitle, body: cleanBody }, isMessage, fetcher, { image });
+  if (video && (image || !isMessageVideo(video) || !["ready", "processing"].includes(video.status) || !video.watch_url)) {
+    throw new Error("Wait for your video upload to finish before posting.");
+  }
+  const length = video ? video.watch_url.length + (cleanBody ? cleanBody.length + 1 : 0) : messageBodyLength(cleanBody, image);
+  if ((!cleanBody && !image && !video) || length > 2000) throw new Error(video
+    ? "Shorten your message to make room for the video." : "Enter a message of 1–2000 characters, including its image URL.");
+  return insertRow(messageBoardConfig.table, { board_id: boardId, title: cleanTitle, body: cleanBody,
+    ...(video ? { attachment_id: video.id } : {}) }, isMessage, fetcher, { image, video });
 }
 
 export async function deleteMessage(message, fetcher = fetch) {
