@@ -11,21 +11,30 @@ function session(email = "oneone@gmail.com", expiresAt = Date.now() + 3600000) {
   };
 }
 
-async function openBackroom(t, saved, hash = "") {
+async function openBackroom(t, saved, hash = "", fetcher = () => assert.fail("Unexpected API request")) {
   const previous = ["window", "document"].map(name => [name, Object.getOwnPropertyDescriptor(globalThis, name)]);
   const listeners = new Map();
   const timers = new Map();
   let timerId = 0;
   function element(textContent = "") {
     const attributes = new Map();
-    return { hidden: true, textContent,
+    const listeners = new Map();
+    return { hidden: true, textContent, value: "", disabled: false, listeners,
+      addEventListener: (name, listener) => listeners.set(name, listener),
+      reportValidity: () => true,
       setAttribute: (name, value) => attributes.set(name, value),
       removeAttribute: name => attributes.delete(name),
       getAttribute: name => attributes.get(name) ?? null };
   }
-  const elements = Object.fromEntries(["layout", "access", "status", "login", "content"]
+  const elements = Object.fromEntries(["layout", "access", "status", "login", "content",
+    "email-view", "email-form", "email-to", "email-from", "email-subj", "email-body", "email-submit", "email-status", "email-error"]
     .map(name => [name, element()]));
-  const links = ["Users", "Sub-Yaps", "Messages", "Replies"].map(label => ({
+  elements["email-to"].value = "oneone@gmail.com";
+  elements["email-from"].value = "hello@yapern.com";
+  elements["email-subj"].value = "A test email";
+  elements["email-body"].value = "Hello, Yapern.\nSecond line.";
+  elements["email-form"].elements = ["to", "from", "subj", "body", "submit"].map(name => elements[`email-${name}`]);
+  const links = ["Users", "Sub-Yaps", "Messages", "Replies", "Email"].map(label => ({
     ...element(label), hash: `#${label.toLowerCase()}`,
   }));
   const window = {
@@ -46,10 +55,11 @@ async function openBackroom(t, saved, hash = "") {
       else delete globalThis[name];
     }
   });
-  t.mock.method(globalThis, "fetch", () => assert.fail("Backroom must not call an API"));
+  t.mock.method(globalThis, "fetch", fetcher);
   storeSession(saved);
   await import(`../src/backroom.js?test=${++moduleId}`);
-  return { ...elements, links, window, timers, dispatch: name => listeners.get(name)() };
+  return { ...elements, links, window, timers, dispatch: name => listeners.get(name)(),
+    submitEmail: () => elements["email-form"].listeners.get("submit")({ preventDefault() {} }) };
 }
 
 test("only the allowed email with a valid session can see the admin shell, without API requests", async t => {
@@ -92,16 +102,70 @@ test("the shell closes when its session expires, and long sessions use a safe ti
   assert.equal(page.login.hidden, false);
 });
 
-test("menu selection follows URL fragments and leaves both content columns empty", async t => {
+test("menu selection follows URL fragments and shows the email form only in Email", async t => {
   const page = await openBackroom(t, session(), "#sub-yaps");
   assert.equal(page.links[1].getAttribute("aria-current"), "page");
   assert.equal(page.content.getAttribute("aria-label"), "Sub-Yaps");
-  for (const hash of ["#replies", "#users", "#unknown"]) {
+  for (const [hash, label] of [["#email", "Email"], ["#replies", "Replies"], ["#users", "Users"], ["#unknown", "Users"]]) {
     page.window.location.hash = hash;
     page.dispatch("hashchange");
     const current = page.links.filter(link => link.getAttribute("aria-current") === "page");
     assert.equal(current.length, 1);
-    assert.equal(current[0].textContent, hash === "#replies" ? "Replies" : "Users");
-    assert.equal(page.content.textContent, "");
+    assert.equal(current[0].textContent, label);
+    assert.equal(page["email-view"].hidden, hash !== "#email");
   }
+});
+
+test("sending blocks duplicate submits, preserves the draft across navigation, and confirms acceptance", async t => {
+  let finish;
+  let requests = 0;
+  const page = await openBackroom(t, session(), "#email", () => {
+    requests++;
+    return new Promise(resolve => { finish = resolve; });
+  });
+  const pending = page.submitEmail();
+  assert.equal(page["email-form"].getAttribute("aria-busy"), "true");
+  assert.ok(page["email-form"].elements.every(control => control.disabled));
+  await page.submitEmail();
+  assert.equal(requests, 1);
+  page.window.location.hash = "#users";
+  page.dispatch("hashchange");
+  page.window.location.hash = "#email";
+  page.dispatch("hashchange");
+  assert.equal(page["email-body"].value, "Hello, Yapern.\nSecond line.");
+  finish(Response.json({ ok: true, messageId: "test-message" }, { status: 202 }));
+  await pending;
+  assert.match(page["email-status"].textContent, /accepted for delivery to oneone@gmail.com/);
+  assert.equal(page["email-error"].textContent, "");
+  assert.equal(page["email-form"].getAttribute("aria-busy"), "false");
+  assert.ok(page["email-form"].elements.every(control => !control.disabled));
+});
+
+test("failed sends preserve the draft and show inline errors without retrying", async t => {
+  let requests = 0;
+  const page = await openBackroom(t, session(), "#email", () => {
+    requests++;
+    return Response.json({ error: "recipient_unsubscribed" }, { status: 409 });
+  });
+  await page.submitEmail();
+  assert.equal(requests, 1);
+  assert.match(page["email-error"].textContent, /unsubscribed/);
+  assert.equal(page["email-status"].textContent, "");
+  assert.equal(page["email-subj"].value, "A test email");
+  assert.equal(page["email-body"].value, "Hello, Yapern.\nSecond line.");
+  assert.ok(page["email-form"].elements.every(control => !control.disabled));
+});
+
+test("hidden, invalid, and signed-out forms cannot issue a send request", async t => {
+  const page = await openBackroom(t, session());
+  await page.submitEmail();
+  page.window.location.hash = "#email";
+  page.dispatch("hashchange");
+  page["email-form"].reportValidity = () => false;
+  await page.submitEmail();
+  page["email-form"].reportValidity = () => true;
+  storeSession(null);
+  await page.submitEmail();
+  assert.equal(page.layout.hidden, true);
+  assert.equal(page.login.hidden, false);
 });

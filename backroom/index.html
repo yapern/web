@@ -32,10 +32,37 @@
               <li><a class="detail-nav-link" href="#sub-yaps">Sub-Yaps</a></li>
               <li><a class="detail-nav-link" href="#messages">Messages</a></li>
               <li><a class="detail-nav-link" href="#replies">Replies</a></li>
+              <li><a class="detail-nav-link" href="#email">Email</a></li>
             </ul>
           </nav>
         </aside>
-        <section id="backroom-content" aria-label="Users"></section>
+        <section id="backroom-content" aria-label="Users">
+          <div id="backroom-email-view" class="backroom-email-view" hidden>
+            <h2 id="backroom-email-title">Test marketing email</h2>
+            <form id="backroom-email-form" class="create-form backroom-email-form" aria-labelledby="backroom-email-title" aria-busy="false">
+              <label class="create-field" for="backroom-email-to">
+                <span>To</span>
+                <input id="backroom-email-to" name="to" type="email" autocomplete="off" maxlength="254" value="oneone@gmail.com" required />
+              </label>
+              <label class="create-field" for="backroom-email-from">
+                <span>From</span>
+                <input id="backroom-email-from" name="from" type="email" autocomplete="off" maxlength="254" value="hello@yapern.com" aria-describedby="backroom-email-from-help" required />
+                <span id="backroom-email-from-help" class="backroom-email-hint">Use an address on your verified sending domain.</span>
+              </label>
+              <label class="create-field" for="backroom-email-subj">
+                <span>Subject</span>
+                <input id="backroom-email-subj" name="subj" type="text" maxlength="998" required />
+              </label>
+              <label class="create-field" for="backroom-email-body">
+                <span>Body</span>
+                <textarea id="backroom-email-body" name="message" rows="8" maxlength="100000" required></textarea>
+              </label>
+              <button id="backroom-email-submit" class="button button-small" type="submit">Send test email</button>
+              <p id="backroom-email-status" class="backroom-email-feedback" role="status"></p>
+              <p id="backroom-email-error" class="create-error" role="alert"></p>
+            </form>
+          </div>
+        </section>
         <aside class="backroom-details" aria-label="Details"></aside>
       </div>
     </main>

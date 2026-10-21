@@ -615,6 +615,13 @@ button.create-toolbar-icon:focus-visible { outline-offset: 1px; }
 .backroom-navigation { padding-right: 16px; border-right: 1px solid var(--line); }
 .backroom-navigation h1 { margin: 0 8px 16px; }
 .backroom-details { border-left: 1px solid var(--line); }
+.backroom-email-view { max-width: 640px; }
+.backroom-email-view h2 { font-size: 20px; font-weight: 650; }
+.backroom-email-form { gap: 16px; margin-top: 16px; }
+.backroom-email-form .button { justify-self: start; }
+.backroom-email-hint { font-weight: 400; }
+.backroom-email-feedback { color: var(--muted); font-size: 14px; overflow-wrap: anywhere; }
+.backroom-email-feedback:empty { display: none; }
 @media (max-width: 1100px) {
   .backroom-layout { grid-template-columns: 184px minmax(0, 1fr); gap: 24px; }
   .backroom-details { display: none; }

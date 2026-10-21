@@ -86,10 +86,17 @@ as the first line of the message body and rendered with a clickable fallback.
 ## Static routes and blog
 
 The admin shell at `/backroom/` checks the stored, unexpired session locally and
-allows only `oneone@gmail.com`. Its Users, Sub-Yaps, Messages, and Replies menu
-selects empty content and detail columns without making API requests. This is a
-client-side layout guard; future admin endpoints must enforce authorization on
-the server.
+allows only `oneone@gmail.com`. Users, Sub-Yaps, Messages, and Replies remain
+empty. Email opens a test marketing email form with To, From, Subject, and Body.
+The recipient defaults to the admin address; the editable sender defaults to
+`hello@yapern.com` and must use a domain configured for email sending.
+Submitting calls `POST /api/send-marketing-email` with the current bearer token
+and `fancy: true` for the branded template with unsubscribe links. No API calls
+run when opening the page or switching sections. The backend enforces admin
+authorization and recipient opt-outs. The form prevents concurrent submissions,
+preserves the draft, and never retries a send automatically. Success confirms
+provider acceptance, not inbox delivery. Deploy backend migration `015` and
+configure its email binding and sender domain before live sends.
 
 The about page at `/about/` uses the blog article layout to explain Yapern’s
 aim to build a better Reddit in the open, its current state, and how to contribute.
