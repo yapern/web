@@ -67,7 +67,7 @@ function boardPageRoutes(server) {
 
 function pageRedirects(server) {
   server.middlewares.use((request, response, next) => {
-    const match = request.url?.match(/^\/(about|privacy|terms|download|login|account|notifications|search|blog|blog\/building-yapern|blog\/turso-vs-layerbase-free-plan-sqlite-systems)(\?.*)?$/);
+    const match = request.url?.match(/^\/(about|privacy|terms|download|login|account|notifications|search|blog|blog\/building-yapern|blog\/turso-vs-layerbase-free-plan-sqlite-systems|blog\/not-a-tavern-a-yapern)(\?.*)?$/);
     if (!match) {
       next();
       return;
@@ -120,6 +120,7 @@ export default defineConfig({
         privacy: fileURLToPath(new URL("./privacy/index.html", import.meta.url)),
         terms: fileURLToPath(new URL("./terms/index.html", import.meta.url)),
         blog: fileURLToPath(new URL("./blog/index.html", import.meta.url)),
+        blogNotATavernAYapern: fileURLToPath(new URL("./blog/not-a-tavern-a-yapern/index.html", import.meta.url)),
         blogArticle: fileURLToPath(new URL("./blog/building-yapern/index.html", import.meta.url)),
         blogTursoLayerbase: fileURLToPath(new URL("./blog/turso-vs-layerbase-free-plan-sqlite-systems/index.html", import.meta.url)),
       },

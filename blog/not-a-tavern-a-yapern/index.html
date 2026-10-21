@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#090d17" />
+    <meta name="description" content="How Yapern runs on Cloudflare, from SQLite search and reply trees to live notifications, and why we’re building an open source Reddit." />
+    <link rel="canonical" href="https://yapern.com/blog/not-a-tavern-a-yapern/" />
+    <link rel="icon" href="/images/favicon.png" type="image/png" />
+    <meta property="og:type" content="article" />
+    <meta property="og:site_name" content="Yapern" />
+    <meta property="og:title" content="Not a tavern, a yapern" />
+    <meta property="og:description" content="Inside our open source forum: Cloudflare Workers, D1 full-text search, nested replies, hibernating WebSockets, and a ScrollSnap conversation with its creator." />
+    <meta property="og:url" content="https://yapern.com/blog/not-a-tavern-a-yapern/" />
+    <meta property="og:image" content="https://yapern.com/images/blog/not-a-tavern-a-yapern/scrollsnap-release.png" />
+    <meta property="og:image:alt" content="ScrollSnap’s creator, Brkgng, posts the v3.2 release in y/scrollsnap." />
+    <meta property="article:published_time" content="2026-10-21" />
+    <meta property="article:author" content="Yapern" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Not a tavern, a yapern" />
+    <meta name="twitter:description" content="How a small open source forum handles search, replies to replies, and live notifications on Cloudflare." />
+    <meta name="twitter:url" content="https://yapern.com/blog/not-a-tavern-a-yapern/" />
+    <meta name="twitter:image" content="https://yapern.com/images/blog/not-a-tavern-a-yapern/scrollsnap-release.png" />
+    <meta name="twitter:image:alt" content="ScrollSnap’s creator, Brkgng, posts the v3.2 release in y/scrollsnap." />
+    <link rel="stylesheet" href="/yapern.css" />
+    <link rel="stylesheet" href="/blog.css" />
+    <script type="module" src="/src/auth-nav.js"></script>
+    <script type="module" src="/src/create.js"></script>
+    <title>Not a tavern, a yapern · Yapern</title>
+  </head>
+  <body class="blog-page">
+    <a class="skip-link" href="#main">Skip to content</a>
+    <!-- site-header -->
+    <main id="main" class="blog-main shell">
+      <p class="blog-back"><a href="/blog/">← Blog</a></p>
+      <article class="blog-article" aria-labelledby="article-title">
+        <h1 id="article-title">Not a tavern, a yapern</h1>
+        <p class="blog-meta"><time datetime="2026-10-21">October 21, 2026</time> · Yapern</p>
+
+        <p>There’s a post in <a href="/y/scrollsnap">y/scrollsnap</a> about getting a macOS app running in Xcode. A few hours later, the app’s creator replied. He also posted a <a href="/y/scrollsnap/32d65f19c7df2a81a5298e1c5bfe8763">ScrollSnap v3.2 release announcement</a>, including improvements to scrolling captures, sharper text, and warnings about incomplete screenshots.</p>
+        <p>That creator is Berker Güngör, <code>Brkgng</code> on the site, who builds <a href="https://github.com/Brkgng/ScrollSnap">ScrollSnap</a>. His participation gives this little sub-yap a useful start: someone tries the software, shares what happened, and hears from the person who made it. A screenshot of a working build is a perfectly good conversation starter.</p>
+
+        <figure>
+          <picture>
+            <source media="(max-width: 650px)" srcset="/images/blog/not-a-tavern-a-yapern/scrollsnap-release-mobile.png" width="346" height="403" />
+            <img class="article-screenshot" src="/images/blog/not-a-tavern-a-yapern/scrollsnap-release.png" width="788" height="318" alt="Brkgng’s actual ScrollSnap v3.2 post in y/scrollsnap lists capture improvements and thanks Andrew for creating the space and trying the app." decoding="async" />
+          </picture>
+        </figure>
+
+        <p>Yapern is our open source Reddit clone. Communities here are called sub-yaps, and the whole thing runs on Cloudflare. Once someone starts a conversation like that ScrollSnap thread, a surprisingly large part of the backend’s job is keeping small promises: a reply belongs under the right person, a retry doesn’t post it twice, and the notification is still there if nobody has the site open.</p>
+
+        <h2>Why another Reddit?</h2>
+        <p>A community puts time into its forum. People write answers, explain their projects, and leave behind knowledge that somebody else will need six months later. The <a href="/about/">About page</a> makes a fairly modest argument: the people doing that work should be able to understand how the place runs and help improve it. We think the world needs that option for a familiar, useful kind of website.</p>
+        <p>The familiar part matters. Posts have addresses. Replies form conversations. A community can gather around one peculiar interest without explaining itself to the entire internet. Yapern’s version should load quickly, read comfortably on a phone, and keep the controls out of the way. “Better Reddit” has to show up in those ordinary interactions.</p>
+        <p>Both the <a href="https://github.com/yapern/web">web app</a> and the <a href="https://github.com/yapern/backend">backend</a> are available under GPL v3. You can inspect how a vote is stored, report a bug, contribute a fix, or adapt the code under the license’s terms. Publishing the source gives people those options. Earning their trust also takes clear rules, good moderation tools, and competent operation; those jobs don’t come free with a license.</p>
+        <p>The early sub-yaps already have different subjects. Alongside ScrollSnap, <a href="/y/duckling">y/duckling</a> has posts about trying a Tauri-based viewer for CSV, Parquet, and databases. <a href="/y/flowkeeper">y/flowkeeper</a> follows a desktop Pomodoro timer from download through installation. There’s also <a href="/y/ai">y/ai</a> for AI discussion and <a href="/y/los-angeles">y/los-angeles</a> for the city. ScrollSnap is the example where the project’s creator has joined in. We’re early, and broader moderation tools still need work.</p>
+
+        <h2>A static site with its own Worker</h2>
+        <p>The frontend is HTML, CSS, and JavaScript, built with Vite and served through <a href="https://github.com/yapern/web/blob/ee309d8/wrangler.jsonc">Workers Static Assets</a>. A request for <code>/y/scrollsnap</code> loads the shared board page; the browser reads the URL and asks <code>api.yapern.com</code> for the records. Each post has a URL inside its sub-yap, so finding it doesn’t depend on its position in the latest feed.</p>
+        <p>Our <a href="/blog/building-yapern/">earlier article</a> described the app when its data lived behind Mainbrella’s shared backend. The <a href="https://github.com/yapern/web/commit/7e86fd2">October 20 cutover</a> moved the frontend onto Yapern’s own API. That API is a TypeScript Worker using Hono for routing and Zod for request and response schemas. The same route declarations produce the <a href="https://api.yapern.com/docs">interactive API documentation</a> and <a href="https://api.yapern.com/openapi.json">OpenAPI document</a>.</p>
+
+        <div class="article-table">
+          <table>
+            <caption>Where the work happens</caption>
+            <thead><tr><th scope="col">Cloudflare service</th><th scope="col">What Yapern puts there</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">Workers</th><td>Static frontend delivery and a separate API Worker.</td></tr>
+              <tr><th scope="row">D1</th><td>Accounts, sessions, posts, reply trees, votes, notifications, and full-text indexes.</td></tr>
+              <tr><th scope="row">R2</th><td>Uploaded post images, sub-yap logos, and cached link screenshots.</td></tr>
+              <tr><th scope="row">Durable Objects</th><td>One notification coordinator per recipient, with WebSockets to their open tabs.</td></tr>
+              <tr><th scope="row">Queues and Browser Run</th><td>Background screenshots for links that don’t supply a preview image.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p>Sign-in uses email and password, with scrypt password hashes and hashed session tokens stored in D1. The browser sends its session as a bearer token, and the Worker derives the author of a write from that session. The board owner check happens there too. The frontend can hide an edit button, but the server still has to refuse somebody else’s edit.</p>
+
+        <h2>Search stays in SQLite</h2>
+        <p>A useful post needs a way to be found after it falls out of the feed. The search field in the header searches message titles and bodies, or sub-yap names, slugs, and descriptions. It can narrow results to a particular sub-yap and sort by relevance or newest.</p>
+        <p>D1 <a href="https://developers.cloudflare.com/d1/sql-api/sql-statements/#supported-sqlite-extensions">supports SQLite’s FTS5 extension</a>, so we can keep the search index beside the content. The <a href="https://github.com/yapern/backend/blob/da362b3/migrations/011_full_text_search.sql">migration</a> creates external-content FTS tables: the original tables keep the text, while the index refers back to their integer <code>rowid</code>. Public post IDs stay the same. Insert, update, and delete triggers maintain the indexes in the transaction that changes the content, which avoids a separate indexing job falling behind.</p>
+        <p>The query syntax is intentionally small. We extract literal words, require all of them, and let the last word match a prefix. A search for <a href="/search/?q=scrollsnap+screenshot"><code>scrollsnap screenshot</code></a> becomes this FTS expression:</p>
+
+        <pre tabindex="0" aria-label="FTS5 expression for the example search"><code>"scrollsnap" AND "screenshot"*</code></pre>
+
+        <p>That last term can match “screenshots.” Case and diacritics are ignored. FTS operators in the input become ordinary words, and the expression goes into a bound SQL parameter. The <a href="https://github.com/yapern/backend/blob/da362b3/worker/app/search.ts">ranking query</a> uses BM25 with more weight on message titles and sub-yap names than body text. Snippets come back as plain text, so the renderer can display them without interpreting somebody’s post as HTML.</p>
+        <p>This first version searches posts and sub-yaps; replies aren’t indexed yet. It doesn’t do typo correction or semantic matching. We cap queries at 200 characters and 20 words, pages at 50 results, and offsets at 1,000. The API asks for one extra result to decide whether to show another page. FTS still takes storage and adds work to writes, but there’s no second search service to keep in sync.</p>
+
+        <h2>Replies to replies need more than indentation</h2>
+        <p>In the <a href="/y/scrollsnap/89dc41d33945a2c31dcad12039a2b5e1">Xcode thread</a>, Berker replied to the original post and Andrew answered him. That second response now belongs under Berker’s reply. The connecting line and collapse control make the relationship visible, and the composer opens beside the reply you’re answering.</p>
+
+        <figure>
+          <picture>
+            <source media="(max-width: 650px)" srcset="/images/blog/not-a-tavern-a-yapern/scrollsnap-replies-mobile.png" width="346" height="436" />
+            <img class="article-screenshot" src="/images/blog/not-a-tavern-a-yapern/scrollsnap-replies.png" width="788" height="359" alt="The live Xcode thread shows Brkgng’s reply and Andrew’s indented answer connected by a subtle thread line. Brkgng’s reply has one direct child; Andrew’s has zero." loading="lazy" decoding="async" />
+          </picture>
+        </figure>
+
+        <p>Every reply keeps the root post’s <code>message_id</code> and a nullable <code>parent_reply_id</code>. A null parent means a direct reply to the post. Otherwise it points to another reply in that same thread. The <a href="https://github.com/yapern/backend/blob/da362b3/migrations/014_nested_replies.sql">database guards</a> require an existing parent in the same message and keep thread pointers immutable. A client can’t attach a reply to a different post’s conversation or reparent old rows into a cycle. Existing replies kept their IDs and became direct children of their original posts.</p>
+        <p>There’s no application limit on stored reply depth. Loading the page is bounded, though. The API returns a page of immediate children, twenty by default, and expanding a branch fetches its children separately. Each branch and sort order has its own keyset cursor. Instead of “skip the first twenty rows,” that cursor says where to continue after the last returned timestamp or score and ID. Deleting that last reply doesn’t invalidate the cursor. Top sorting uses a cached, indexed vote score; because votes can change between requests, the client deduplicates appended replies and offers a refresh.</p>
+        <p>The browser shows five reply levels before offering “Continue this thread,” which opens a focused view. A deep link can fetch a bounded chain of ancestors without downloading the whole conversation. Those are display and loading choices, so a long discussion doesn’t have to squeeze itself into an ever-narrower strip on a phone.</p>
+        <p>The counts describe two different things. A post’s <code>reply_count</code> includes every reply below it. A reply’s <code>direct_reply_count</code> includes only its immediate children. In the pictured exchange, the post has two replies in total, Berker’s reply has one child, and Andrew’s has none. Database triggers update the root total and immediate parent counter alongside the insert. Adding a reply fifty levels down still changes those two counters; it doesn’t walk fifty ancestors. Feed reads can use the stored total without counting the thread again.</p>
+        <p>The composer also generates an <code>Idempotency-Key</code> for each submission and reuses it on a retry. If a connection drops after D1 has saved the reply, retrying the same body and target returns the original row. It creates no second reply, vote, counter increment, or notification. Reusing the key with different content returns a conflict. A flaky connection is a lousy reason to make someone repeat themselves.</p>
+
+        <h2>The bell has a Durable Object</h2>
+        <p>A reply to Berker should notify Berker. It shouldn’t notify the original post’s author every time two other people answer each other. The nested-reply trigger chooses the immediate parent’s author, or the post’s author for a direct reply, and suppresses self-notifications.</p>
+        <p>D1 saves that notification in the same transaction as the reply. The unread record therefore exists even if the recipient has no tabs open. After the save, the Worker asks the recipient’s <a href="https://github.com/yapern/backend/blob/da362b3/worker/durable-objects/user-notifications.ts"><code>UserNotifications</code> Durable Object</a> to read a fresh snapshot from D1 and broadcast it to their connected tabs. Each recipient gets their own object, so one person’s bell doesn’t need a global coordinator.</p>
+
+        <figure>
+          <picture>
+            <source media="(max-width: 650px)" srcset="/images/blog/not-a-tavern-a-yapern/notification-path-mobile.svg" width="380" height="510" />
+            <img src="/images/blog/not-a-tavern-a-yapern/notification-path.svg" width="760" height="470" alt="Sequence diagram: the Worker inserts a reply into D1, where the reply, counters, author vote, and notification commit together. After commit, the Worker requests a publish from the recipient’s Durable Object. The object reads a D1 snapshot and broadcasts it to connected tabs." loading="lazy" decoding="async" />
+          </picture>
+        </figure>
+
+        <p>The object uses Cloudflare’s <a href="https://developers.cloudflare.com/durable-objects/best-practices/websockets/">WebSocket Hibernation API</a>, which lets it sleep while idle with clients still connected. Its own SQLite storage keeps single-use socket tickets and a monotonically increasing snapshot version; the notification history stays in D1. Clients use the version to discard delayed snapshots. A failed publish leaves the D1 delivery record pending, and the five-minute scheduled job retries it. Reconnecting also reads the saved state.</p>
+        <p>Opening notifications acknowledges only the IDs the client has observed. Suppose the inbox snapshot ends at notification 41 and a new reply creates 42 before the acknowledgement arrives. Marking everything read would quietly erase the new notification. We send <code>through_id: 41</code>, so 42 stays unread, and the updated snapshot goes to the other tabs too.</p>
+        <p>The socket connection needs a little care as well. The browser exchanges its bearer session for a single-use ticket that expires after sixty seconds. The ticket goes in the WebSocket URL, keeping the bearer token out of it. The server checks the browser’s Origin, rechecks the session when consuming the ticket, and checks attached sessions again on broadcasts. Runtime-level ping/pong can keep the connection alive without waking the object.</p>
+
+        <h2>One vote per person</h2>
+        <p>The vote arrows used to sit beside a hard-coded one. They now represent rows in D1 with a unique key for each user and target, and a value restricted to minus one, zero, or plus one. A new post or reply gets its author’s initial plus one. Clicking again can’t stack another contribution from the same person.</p>
+        <p>The transition rule is deliberate: pressing down after your upvote removes it first, returning your contribution to zero. You can then downvote. The API enforces that rule, so a direct request can’t skip the neutral state. A first upvote from someone else creates a notification, and a unique actor-and-target record prevents toggling the vote off and on from sending repeated notifications. The saved notification keeps its read state.</p>
+
+        <h2>Links get a slower path</h2>
+        <p>Posts can contain uploaded images, and sub-yaps can have logos. Those files go into R2 after type, signature, and size checks. Their paths live in D1. R2 uploads aren’t part of a D1 transaction, so the API cleans up a new object if saving the row fails and removes an old logo after a successful replacement.</p>
+        <p>Link previews sometimes need more work than an upload. We first look for an Open Graph or Twitter image in the linked page. If neither is available, the API queues a job and gives the composer a favicon or placeholder while it waits. The queue consumer uses Browser Run to capture a 1200 × 630 JPEG, saves it in R2, and records the result in D1. The browser polls the job’s status; it doesn’t hold the original request open while a remote website renders.</p>
+
+        <div class="article-table">
+          <table>
+            <caption>What the composer gets back</caption>
+            <thead><tr><th scope="col">Preview result</th><th scope="col">API behavior</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">Page supplies an image</th><td>200 with the image URL, ready to display.</td></tr>
+              <tr><th scope="row">Screenshot is queued</th><td>202 with a job ID, status URL, and a three-second retry hint.</td></tr>
+              <tr><th scope="row">Rendering finishes</th><td>Status polling returns the R2 image, or a failed result with fallback and diagnostics.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p>Cloudflare Queues provides <a href="https://developers.cloudflare.com/queues/reference/delivery-guarantees/">at-least-once delivery</a>, so the consumer uses expiring job leases to handle duplicates and checks that it still owns the lease before publishing a result. Successful screenshots are cached for fourteen days, failures for six hours. A scheduled cleanup removes expired jobs and their R2 objects. Per-user quotas, a browser deadline, and concurrency limits bound how much work a pasted URL can start.</p>
+        <p>One of the more revealing fixes in the commits is in <a href="https://github.com/yapern/backend/blob/da362b3/worker/app/preview-metadata.ts">DNS validation</a>. The resolver could return CNAME hostnames alongside IP addresses, and the earlier check treated those names as unsafe addresses. Legitimate previews failed. The fix filters out names, requires at least one resolved IP, and checks every returned address against the public-address rules. Rejecting a CNAME string never told us whether the destination was private. It just broke some websites.</p>
+
+        <p>We still have to earn the “better” in the <a href="/about/">About page</a>, especially as communities need more ways to look after themselves. Having the source available gives people a way to help build those tools and question the choices we make.</p>
+        <p>For now, the useful test is small enough to visit: open <a href="/y/scrollsnap">y/scrollsnap</a>, read the creator’s release post, and follow the exchange about running his app. A project has a place where its users and author can talk, the conversation has an address, and the code behind it is available to change. That’s a forum worth working on.</p>
+      </article>
+    </main>
+    <footer class="site-footer shell">
+      <a class="brand footer-brand" href="/">yapern<span class="brand-dot">.</span></a>
+      <nav aria-label="Footer"><a href="/#features">Features</a><a href="/#communities">Sub-yaps &amp; moderators</a><a href="/#open-source">Open source</a><a href="/about/">About</a><a href="/blog/">Blog</a><a href="https://github.com/yapern/web">GitHub</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a></nav>
+    </footer>
+  </body>
+</html>

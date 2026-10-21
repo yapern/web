@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="380" height="510" viewBox="0 0 380 510" role="img" aria-labelledby="title desc">
+  <title id="title">Saving a reply before delivering its notification</title>
+  <desc id="desc">The Worker’s insert commits the reply, counters, author vote, and notification in D1. The Worker then asks the recipient’s Durable Object to read a saved snapshot from D1 and push it to open tabs.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 10 5 0 10Z" fill="#285c6b" /></marker>
+    <marker id="return" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 10 5 0 10Z" fill="#53616a" /></marker>
+    <style>
+      text { font-family: system-ui, -apple-system, sans-serif; fill: #263238; }
+      .heading { font-size: 17px; font-weight: 650; }
+      .actor { font-size: 14px; font-weight: 650; text-anchor: middle; }
+      .label { font-size: 14px; text-anchor: middle; }
+      .lifeline { stroke: #c4c4b9; stroke-width: 1.5; stroke-dasharray: 4 5; }
+      .request { fill: none; stroke: #285c6b; stroke-width: 2; marker-end: url(#arrow); }
+      .response { fill: none; stroke: #53616a; stroke-width: 1.8; stroke-dasharray: 5 4; marker-end: url(#return); }
+    </style>
+  </defs>
+  <rect width="380" height="510" rx="4" fill="#f7f4ec" />
+  <text class="heading" x="16" y="30">After a reply to someone else</text>
+  <text class="actor" x="32" y="65">API</text>
+  <text class="actor" x="32" y="84">Worker</text>
+  <text class="actor" x="144" y="84">D1</text>
+  <text class="actor" x="250" y="65">Recipient’s</text>
+  <text class="actor" x="250" y="84">Durable Object</text>
+  <text class="actor" x="348" y="65">Open</text>
+  <text class="actor" x="348" y="84">tabs</text>
+  <path class="lifeline" d="M32 101V480M144 101V480M250 101V480M348 101V480" />
+  <text class="label" x="88" y="112">insert reply</text>
+  <path class="request" d="M32 122H144" />
+  <rect x="70" y="138" width="148" height="111" rx="4" fill="#dfebe4" stroke="#79978a" />
+  <text class="label" x="144" y="161" font-weight="650">One transaction</text>
+  <text class="label" x="144" y="185">reply + counters</text>
+  <text class="label" x="144" y="209">author vote</text>
+  <text class="label" x="144" y="233">notification</text>
+  <text class="label" x="88" y="273">commit</text>
+  <path class="response" d="M144 283H32" />
+  <text class="label" x="197" y="315">publish</text>
+  <path class="request" d="M32 325H250" />
+  <text class="label" x="197" y="357">read</text>
+  <path class="request" d="M250 367H144" />
+  <text class="label" x="197" y="399">snapshot</text>
+  <path class="response" d="M144 409H250" />
+  <text class="label" x="299" y="446">push</text>
+  <path class="request" d="M250 456H348" />
+</svg>

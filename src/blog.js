@@ -2,6 +2,13 @@ export const BLOG_PAGE_SIZE = 6;
 
 export const blogPosts = [
   {
+    slug: "not-a-tavern-a-yapern",
+    title: "Not a tavern, a yapern",
+    published: "2026-10-21",
+    author: "Yapern",
+    summary: "How Yapern runs on Cloudflare, from SQLite search and reply trees to live notifications, and why we’re building an open source Reddit.",
+  },
+  {
     slug: "turso-vs-layerbase-free-plan-sqlite-systems",
     title: "Turso vs Layerbase Free Plan sqlite Systems",
     published: "2026-10-19",
