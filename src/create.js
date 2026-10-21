@@ -546,7 +546,8 @@ messageForm.addEventListener("submit", event => void submit(event, messageDialog
   let video;
   if (pickedVideo) {
     const owner = readStoredSession()?.user.id;
-    if (!videoUpload || videoUpload.boardId !== board.id || videoUpload.owner !== owner) {
+    if (!videoUpload || videoUpload.boardId !== board.id || videoUpload.owner !== owner ||
+      (!videoUpload.complete && Date.parse(videoUpload.expires_at) <= Date.now())) {
       if (videoUpload) void cancelVideoUpload(videoUpload.id).catch(() => {});
       videoUpload = null;
       videoStatus.textContent = "Preparing video upload…";
@@ -554,10 +555,20 @@ messageForm.addEventListener("submit", event => void submit(event, messageDialog
     }
     if (!videoUpload.complete) {
       videoProgress.hidden = false;
-      await uploadVideoFile(pickedVideo, videoUpload, { onProgress: percent => {
-        videoProgress.value = percent;
-        videoStatus.textContent = `Uploading video… ${percent}%`;
-      } });
+      try {
+        await uploadVideoFile(pickedVideo, videoUpload, { onProgress: percent => {
+          videoProgress.value = percent;
+          videoStatus.textContent = `Uploading video… ${percent}%`;
+        } });
+      } catch (error) {
+        if (videoUpload.upload_protocol === "multipart") {
+          void cancelVideoUpload(videoUpload.id).catch(() => {});
+          videoUpload = null;
+          videoProgress.hidden = true;
+          videoProgress.value = 0;
+        }
+        throw error;
+      }
       videoUpload.complete = true;
     }
     videoProgress.hidden = true;

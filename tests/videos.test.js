@@ -20,6 +20,10 @@ const reservation = () => ({ id, upload_url: `https://upload.videodelivery.net/t
   expires_at: new Date(Date.now() + 60_000).toISOString(), max_duration_seconds: 120 });
 function signedIn(t) { storeSession(session); t.after(() => storeSession(null)); }
 
+function multipartReservation(overrides = {}) {
+  return { ...reservation(), upload_protocol: "multipart", upload_url: `https://upload.cloudflarestream.com/${uid}`, ...overrides };
+}
+
 test("video reservations use the app session and validate the direct upload destination", async t => {
   signedIn(t);
   const record = await createVideoUpload("general", file(), async (url, options) => {
@@ -31,9 +35,21 @@ test("video reservations use the app session and validate the direct upload dest
     return Response.json({ data: reservation() }, { status: 201 });
   });
   assert.equal(record.id, id);
-  for (const upload_url of ["https://evil.example/upload", "http://upload.videodelivery.net/upload", "https://upload.videodelivery.net.evil.example/upload", "https://user:pass@upload.videodelivery.net/upload"]) {
-    await assert.rejects(createVideoUpload("general", file(), async () => Response.json({ data: { ...reservation(), upload_url } })), /safe video upload destination/);
+  assert.equal(record.upload_protocol, "tus", "older servers default to the resumable protocol");
+  const multipart = await createVideoUpload("general", file(), async () => Response.json({ data: { ...multipartReservation(), expires_at: new Date(Date.now() + 60_000).toISOString() } }));
+  assert.equal(multipart.upload_protocol, "multipart");
+  const unsafeUploads = ["upload.cloudflarestream.com", "upload.videodelivery.net"].flatMap(host => {
+    const upload_protocol = host === "upload.cloudflarestream.com" ? "multipart" : "tus";
+    return [
+      `http://${host}/upload`,
+      `https://${host}.evil.example/upload`,
+      `https://user:pass@${host}/upload`,
+    ].map(upload_url => ({ upload_protocol, upload_url }));
+  });
+  for (const unsafe of [{ upload_url: "https://evil.example/upload" }, ...unsafeUploads]) {
+    await assert.rejects(createVideoUpload("general", file(), async () => Response.json({ data: { ...reservation(), ...unsafe } })), /safe video upload destination/);
   }
+  await assert.rejects(createVideoUpload("general", file(), async () => Response.json({ data: { ...reservation(), upload_protocol: "other" } })), /safe video upload destination/);
 });
 
 test("resumable uploads use constrained chunks, resume the same URL and never send the app bearer", async () => {
@@ -58,6 +74,58 @@ test("resumable uploads use constrained chunks, resume the same URL and never se
   assert.deepEqual(progress, [100]);
   await assert.rejects(uploadVideoFile(file(), { ...record, expires_at: "2000-01-01" }, { createUpload }), /expired/);
   assert.equal(attempts, 2);
+});
+
+test("multipart uploads send the file without credentials and report progress", async t => {
+  signedIn(t);
+  const progress = [];
+  let request;
+  await uploadVideoFile(file(), multipartReservation(), {
+    onProgress: value => progress.push(value),
+    createRequest: () => request = {
+      upload: { addEventListener(type, callback) { assert.equal(type, "progress"); this.progress = callback; } },
+      open(method, url) { this.method = method; this.url = url; },
+      send(body) {
+        this.body = body;
+        this.upload.progress({ lengthComputable: true, loaded: 2, total: 4 });
+        this.status = 201;
+        this.onload();
+      },
+    },
+  });
+  assert.equal(request.method, "POST");
+  assert.equal(request.url, multipartReservation().upload_url);
+  assert.equal(request.withCredentials, false);
+  assert.equal(request.timeout, 10 * 60 * 1000);
+  assert.equal(request.setRequestHeader, undefined);
+  assert.equal(request.body instanceof FormData, true);
+  assert.equal(request.body.get("file").name, "clip.mov");
+  assert.deepEqual(progress, [50, 100]);
+});
+
+test("multipart upload failures are sanitized and expired URLs never start a request", async () => {
+  for (const failure of [
+    { status: 403, trigger: "load" },
+    { trigger: "error" },
+    { trigger: "timeout" },
+    { trigger: "abort" },
+  ]) {
+    await assert.rejects(uploadVideoFile(file(), multipartReservation(), {
+      createRequest: () => ({
+        upload: { addEventListener() {} },
+        open() {},
+        send() {
+          if (failure.status) this.status = failure.status;
+          this[`on${failure.trigger}`]();
+        },
+      }),
+    }), { message: "The video upload failed. Try posting again." });
+  }
+  let created = false;
+  await assert.rejects(uploadVideoFile(file(), multipartReservation({ expires_at: "2000-01-01" }), {
+    createRequest: () => { created = true; throw new Error("must not start"); },
+  }), /expired/);
+  assert.equal(created, false);
 });
 
 test("video metadata rejects unsafe, mismatched and incomplete player URLs", async () => {

@@ -5,6 +5,7 @@ const idPattern = /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}
 const states = new Set(["uploading", "processing", "ready", "failed"]);
 export const maxVideoBytes = 100 * 1024 * 1024;
 export const maxVideoSeconds = 120;
+const uploadHosts = new Set(["upload.cloudflarestream.com", "upload.videodelivery.net"]);
 
 function streamUrl(value, suffix) {
   if (typeof value !== "string") return null;
@@ -67,16 +68,49 @@ export async function createVideoUpload(boardId, file, fetcher = fetch) {
   const error = messageVideoError(file);
   if (error) throw new Error(error);
   const { data } = await videoRequest("/videos", "POST", fetcher, { board_id: boardId, size_bytes: file.size });
+  const uploadProtocol = data?.upload_protocol ?? "tus";
+  if (uploadProtocol !== "multipart" && uploadProtocol !== "tus") throw new Error("Could not confirm a safe video upload destination.");
   let url;
   try { url = new URL(data?.upload_url); } catch {}
-  if (!idPattern.test(data?.id) || !url || url.protocol !== "https:" || url.hostname !== "upload.videodelivery.net" ||
+  if (!idPattern.test(data?.id) || !url || url.protocol !== "https:" || !uploadHosts.has(url.hostname) ||
     url.username || url.password || url.port || url.hash || !Number.isFinite(Date.parse(data.expires_at)) ||
     Date.parse(data.expires_at) <= Date.now()) throw new Error("Could not confirm a safe video upload destination.");
-  return data;
+  return { ...data, upload_protocol: uploadProtocol };
 }
 
-export async function uploadVideoFile(file, reservation, { onProgress = () => {}, createUpload } = {}) {
+const multipartUploadError = "The video upload failed. Try posting again.";
+
+function uploadMultipartVideo(file, reservation, onProgress, createRequest) {
+  return new Promise((resolve, reject) => {
+    try {
+      const request = createRequest();
+      const form = new FormData();
+      form.append("file", file);
+      request.open("POST", reservation.upload_url);
+      request.withCredentials = false;
+      request.timeout = 10 * 60 * 1000;
+      request.upload.addEventListener("progress", event => {
+        if (event.lengthComputable && event.total > 0) onProgress(Math.min(100, Math.round(event.loaded / event.total * 100)));
+      });
+      request.onload = () => {
+        if (request.status >= 200 && request.status < 300) {
+          onProgress(100);
+          resolve();
+        } else reject(new Error(multipartUploadError));
+      };
+      request.onerror = () => reject(new Error(multipartUploadError));
+      request.ontimeout = () => reject(new Error(multipartUploadError));
+      request.onabort = () => reject(new Error(multipartUploadError));
+      request.send(form);
+    } catch {
+      reject(new Error(multipartUploadError));
+    }
+  });
+}
+
+export async function uploadVideoFile(file, reservation, { onProgress = () => {}, createUpload, createRequest = () => new XMLHttpRequest() } = {}) {
   if (Date.parse(reservation.expires_at) <= Date.now()) throw new Error("This video upload expired. Remove the video and choose it again.");
+  if (reservation.upload_protocol === "multipart") return uploadMultipartVideo(file, reservation, onProgress, createRequest);
   // Load the protocol client only when somebody uploads a video. It handles
   // offsets and retries so a dropped connection can resume the same upload.
   const factory = createUpload ?? ((file, options) => new tus.Upload(file, options));
