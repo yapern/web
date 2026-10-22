@@ -112,7 +112,7 @@ All messages use `/all`, board links use `/y/:slug`, and message links use
 `/y/:slug/:id`. These routes load `board.html` and fetch data in the browser.
 `public/_redirects` rewrites `/all`, `/all/`, and `/y/*` to `/board` with a 200
 response. Vite development and preview apply the same rewrite. Other static
-hosts need equivalent rules; there is no SSR. The all-messages feed shows 20
+hosts need equivalent rules. The all-messages feed shows 20
 messages per page with older pages at `/all?page=2` and onward; the homepage
 shows the latest three messages.
 
@@ -126,6 +126,17 @@ create `blog/<slug>/index.html`, register it in `vite.config.js`, and add the UR
 to `public/sitemap.xml`. Article media lives in `public/images/blog/<slug>/`.
 Historical articles describe the architecture at the time they were written.
 
-Wrangler publishes `dist/` as static assets only, without a frontend API Worker.
-Run `npm run build` before previewing or deploying. Use
+Wrangler publishes `dist/` as static assets, with a small `worker.js` that runs
+before assets only for `/y/*`. On sub-yap pages (`/y/:slug`, with or without a
+trailing slash), it injects the current name, description, canonical URL, and
+Open Graph/Twitter metadata into the shared HTML. Images use the sub-yap logo
+or the homepage's Yapern logo when none is set. Public board lookups have a
+60-second edge cache and a two-second timeout; failures keep the page available
+with basic metadata and the Yapern logo. Message pages and other routes retain
+their static behavior. No per-sub-yap pages are generated at build time.
+
+Run `npm run build` before previewing or deploying. Vite development and preview
+serve the static fallback metadata. Use `npx wrangler dev --port 8788` to test
+dynamic metadata locally against the production API, or add
+`--var API_ORIGIN:http://localhost:8787` to use the local backend. Use
 `npx wrangler deploy --dry-run` to validate deployment without publishing.

@@ -2,6 +2,8 @@ import { messageBoardConfig } from "./config.js";
 import { readStoredSession, storeSession } from "./auth.js";
 import { serializeMessageBody } from "./message-text.js";
 import { isMessageVideo } from "./videos-api.js";
+import { boardLogoPathPattern } from "./board-logo.js";
+export { boardLogoUrl } from "./board-logo.js";
 
 const isMessage = (message) => message &&
   ["id", "board_id", "user_id", "title", "body", "created_at"].every(key => typeof message[key] === "string") &&
@@ -16,7 +18,6 @@ const isReply = (reply) => reply &&
     reply.parent_reply_id.trim().length > 0 && reply.parent_reply_id !== reply.id)) &&
   (reply.author_name === undefined || reply.author_name === null || typeof reply.author_name === "string") &&
   (reply.direct_reply_count === undefined || (Number.isSafeInteger(reply.direct_reply_count) && reply.direct_reply_count >= 0));
-const boardLogoPathPattern = /^\/board-logos\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.(?:png|jpg|gif|webp)$/i;
 const acceptedBoardLogoTypes = new Set(["image/png", "image/jpeg", "image/webp", "image/gif"]);
 const maxBoardLogoBytes = 5 * 1024 * 1024;
 const messageImagePathPattern = /^\/board-messages\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.(?:png|jpg|gif|webp)$/;
@@ -39,17 +40,6 @@ const isBoard = (board) => board && typeof board.id === "string" &&
   typeof board.name === "string" && typeof board.description === "string" &&
   (board.logo_url === undefined || board.logo_url === null ||
     (typeof board.logo_url === "string" && boardLogoPathPattern.test(board.logo_url)));
-
-export function boardLogoUrl(value) {
-  if (typeof value !== "string" || !boardLogoPathPattern.test(value)) return null;
-  try {
-    const origin = new URL(messageBoardConfig.apiOrigin);
-    const url = new URL(value, origin);
-    return url.origin === origin.origin && url.pathname === value && !url.search && !url.hash ? url.href : null;
-  } catch {
-    return null;
-  }
-}
 
 // The browser calls the Yapern API directly; the Worker handles CORS.
 async function readRows(table, params, fetcher) {
