@@ -43,14 +43,14 @@ test("message reads preserve stored reply totals and reject invalid counts", asy
   }
 });
 
-test("all-message pagination includes every message once across full and partial pages", async () => {
+test("all-message pagination ranks by votes and includes every message once across full and partial pages", async () => {
   const messages = Array.from({ length: 45 }, (_, index) => ({ ...message, id: `message-${index}` }));
   const requests = [];
   const fetcher = async url => {
     const limit = Number(url.searchParams.get("limit"));
     const offset = Number(url.searchParams.get("offset"));
     assert.equal(url.searchParams.get("board_id"), null);
-    assert.equal(url.searchParams.get("order"), "created_at.desc");
+    assert.equal(url.searchParams.get("order"), "votes.desc,created_at.desc");
     requests.push({ limit, offset });
     return Response.json({ data: messages.slice(offset, offset + limit) });
   };
@@ -88,12 +88,13 @@ test("invalid page numbers never fetch, and pagination failures remain retryable
     : new Response(null, { status: 503 })));
 });
 
-test("homepage previews can still request only three messages", async () => {
+test("homepage previews request the top three messages", async () => {
   const messages = await fetchMessages(async url => {
     assert.equal(url.searchParams.get("limit"), "3");
     assert.equal(url.searchParams.get("offset"), null);
+    assert.equal(url.searchParams.get("order"), "votes.desc,created_at.desc");
     return Response.json({ data: [message] });
-  }, { limit: 3 });
+  }, { limit: 3, order: "votes.desc,created_at.desc" });
   assert.deepEqual(messages, [message]);
 });
 

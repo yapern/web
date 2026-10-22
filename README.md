@@ -113,8 +113,11 @@ All messages use `/all`, board links use `/y/:slug`, and message links use
 `public/_redirects` rewrites `/all`, `/all/`, and `/y/*` to `/board` with a 200
 response. Vite development and preview apply the same rewrite. Other static
 hosts need equivalent rules. The all-messages feed shows 20
-messages per page with older pages at `/all?page=2` and onward; the homepage
-shows the latest three messages.
+messages per page ordered by votes descending, with newest messages first for
+vote ties; pages at `/all?page=2` and onward continue through lower-ranked
+messages. The homepage shows the top three messages using the same ordering.
+Deploy the API's message vote ordering support before this frontend; no new
+database migration is required.
 
 The homepage and board pages share board navigation, message lists, and recent
 posts. These load independently and provide inline loading, empty, unavailable,

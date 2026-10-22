@@ -299,7 +299,10 @@ async function loadMessages() {
       heading.textContent = `y/${result.board.slug}`;
       document.title = `${route.messageId === undefined ? `y/${result.board.slug}` : data[0].title} · Yapern`;
     } else {
-      [data, boards] = await Promise.all([fetchMessages(undefined, { limit: 3 }), fetchBoards()]);
+      [data, boards] = await Promise.all([
+        fetchMessages(undefined, { limit: 3, order: "votes.desc,created_at.desc" }),
+        fetchBoards(),
+      ]);
     }
     // Keep posts readable if profile lookups are temporarily unavailable.
     const authors = await fetchMessageAuthors(data).catch(() => new Map());
