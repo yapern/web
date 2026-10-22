@@ -115,7 +115,9 @@ function messageRow(message, board, authors, { onReply } = {}) {
       let imageContainer = image;
       if (board) {
         const link = document.createElement("a");
-        link.href = messageHref(board.slug, message.id);
+        link.href = route?.slug === board.slug && route?.messageId === message.id
+          ? part.imageUrl
+          : messageHref(board.slug, message.id);
         link.append(image);
         imageContainer = link;
       }
