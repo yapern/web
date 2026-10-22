@@ -2,6 +2,13 @@ export const BLOG_PAGE_SIZE = 6;
 
 export const blogPosts = [
   {
+    slug: "hosted-videos-with-cloudflare-images-streams",
+    title: "Hosted Videos with Cloudflare Images & Streams",
+    published: "2026-10-22",
+    author: "Yapern",
+    summary: "Why we kept images in R2 and chose Stream over Mux, Bunny, and our own video pipeline, plus the upload and cleanup work a managed service still leaves us.",
+  },
+  {
     slug: "not-a-tavern-a-yapern",
     title: "Not a tavern, a yapern",
     published: "2026-10-21",

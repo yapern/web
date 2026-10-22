@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="340" viewBox="0 0 760 340" role="img" aria-labelledby="title desc"><title id="title">The upload finishes before playback is ready</title><desc id="desc">A schematic timeline separates transferring the file, waiting for encoding, and displaying the player. A post may be saved during processing once its watch URL is known. No time scale is implied.</desc><defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" fill="context-stroke"/></marker></defs>
+<rect width="760" height="340" rx="8" fill="#f7f4ec"/>
+<g font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Arial,sans-serif" fill="#263238">
+<text x="28" y="36" font-size="21" fill="#263238" font-weight="600" text-anchor="start">Upload acceptance and playback readiness are separate</text>
+<path d="M350 83V274" fill="none" stroke="#a5aaa6" stroke-width="1.5" stroke-dasharray="5 5"/>
+<text x="350" y="72" font-size="16" fill="#263238" font-weight="600" text-anchor="middle">Upload accepted</text>
+<path d="M610 83V274" fill="none" stroke="#a5aaa6" stroke-width="1.5" stroke-dasharray="5 5"/>
+<text x="610" y="72" font-size="16" fill="#263238" font-weight="600" text-anchor="middle">Playable</text>
+<text x="28" y="128" font-size="17" fill="#263238" font-weight="500" text-anchor="start">Transfer</text>
+<rect x="140" y="115" width="570" height="14" rx="7" fill="#e1e2da"/>
+<text x="28" y="191" font-size="17" fill="#263238" font-weight="500" text-anchor="start">Encoding</text>
+<rect x="140" y="178" width="570" height="14" rx="7" fill="#e1e2da"/>
+<text x="28" y="254" font-size="17" fill="#263238" font-weight="500" text-anchor="start">Feed</text>
+<rect x="140" y="241" width="570" height="14" rx="7" fill="#e1e2da"/>
+<rect x="140" y="115" width="210" height="14" rx="7" fill="#7654ba"/><circle cx="350" cy="122" r="9" fill="#7654ba"/>
+<text x="231" y="105" font-size="15" fill="#7654ba" font-weight="500" text-anchor="middle">up to 99%</text>
+<text x="382" y="128" font-size="15" fill="#7654ba" font-weight="600" text-anchor="start">100%</text>
+<rect x="350" y="178" width="260" height="14" rx="7" fill="#d28c45"/>
+<text x="472" y="167" font-size="15" fill="#b25320" font-weight="500" text-anchor="middle">processing</text>
+<rect x="610" y="241" width="100" height="14" rx="7" fill="#246746"/>
+<text x="480" y="230" font-size="15" fill="#263238" font-weight="400" text-anchor="middle">post can be saved*</text>
+<text x="660" y="279" font-size="16" fill="#246746" font-weight="600" text-anchor="middle">Play</text>
+<path d="M448 270H580" fill="none" stroke="#526169" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="28" y="315" font-size="15" fill="#526169" font-weight="400" text-anchor="start">Schematic timing · * once a valid watch URL is known</text>
+</g></svg>

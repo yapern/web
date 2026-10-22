@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="440" viewBox="0 0 760 440" role="img" aria-labelledby="title desc"><title id="title">Two uploads, different paths</title><desc id="desc">Images pass through a Worker to R2. Video control requests go through the Worker, but the file goes directly from the browser to Stream. The Worker stores its identity in D1.</desc><defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" fill="context-stroke"/></marker></defs>
+<rect width="760" height="440" rx="8" fill="#f7f4ec"/>
+<g font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Arial,sans-serif" fill="#263238">
+<text x="28" y="38" font-size="21" fill="#263238" font-weight="600" text-anchor="start">Images go through the Worker</text>
+<path d="M122 102H350" fill="none" stroke="#7654ba" stroke-width="4" marker-end="url(#arrow)"/>
+<path d="M415 102H640" fill="none" stroke="#7654ba" stroke-width="4" marker-end="url(#arrow)"/>
+<rect x="68" y="82" width="48" height="36" rx="3" fill="#f7f4ec" stroke="#263238" stroke-width="2"/><path d="M68 92h48" stroke="#263238"/><circle cx="75" cy="87" r="1.5" fill="#263238"/><path d="M80 110l8-9 7 6 5-3 6 6z" fill="#b5a1d2"/>
+<path d="M367 79h34l13 23-13 23h-34l-13-23z" fill="#f7f4ec" stroke="#263238" stroke-width="2"/>
+<text x="384" y="108" font-size="19" fill="#263238" font-weight="600" text-anchor="middle">W</text>
+<path d="M648 87v30c0 13 48 13 48 0v-30" fill="#f7f4ec" stroke="#263238" stroke-width="2"/><ellipse cx="672" cy="87" rx="24" ry="9" fill="#f7f4ec" stroke="#263238" stroke-width="2"/>
+<text x="672" y="112" font-size="15" fill="#263238" font-weight="600" text-anchor="middle">R2</text>
+<text x="92" y="156" font-size="17" fill="#263238" font-weight="500" text-anchor="middle">Browser</text>
+<text x="384" y="156" font-size="17" fill="#263238" font-weight="500" text-anchor="middle">Worker</text>
+<text x="672" y="156" font-size="17" fill="#263238" font-weight="500" text-anchor="middle">Images</text>
+<text x="236" y="88" font-size="15" fill="#7654ba" font-weight="500" text-anchor="middle">image bytes</text>
+<text x="526" y="88" font-size="15" fill="#7654ba" font-weight="500" text-anchor="middle">validated image</text>
+<path d="M28 188H732" stroke="#d3d3ca"/>
+<text x="28" y="226" font-size="21" fill="#263238" font-weight="600" text-anchor="start">Video uploads go directly to Stream</text>
+<path d="M115 330L354 264" fill="none" stroke="#263238" stroke-width="2" stroke-dasharray="5 5" marker-end="url(#arrow)" marker-start="url(#arrow)"/>
+<path d="M414 264L648 330" fill="none" stroke="#263238" stroke-width="2" stroke-dasharray="5 5" marker-end="url(#arrow)" marker-start="url(#arrow)"/>
+<text x="214" y="280" font-size="15" fill="#526169" font-weight="400" text-anchor="middle">reservation + URL</text>
+<text x="560" y="280" font-size="15" fill="#526169" font-weight="400" text-anchor="middle">provision upload</text>
+<path d="M122 350H640" fill="none" stroke="#b25320" stroke-width="5" marker-end="url(#arrow)"/>
+<text x="234" y="378" font-size="16" fill="#b25320" font-weight="600" text-anchor="middle">video bytes</text>
+<path d="M384 286V363" fill="none" stroke="#263238" stroke-width="2" stroke-dasharray="5 5" marker-end="url(#arrow)"/>
+<path d="M367 238h34l13 23-13 23h-34l-13-23z" fill="#f7f4ec" stroke="#263238" stroke-width="2"/>
+<text x="384" y="267" font-size="19" fill="#263238" font-weight="600" text-anchor="middle">W</text>
+<rect x="68" y="330" width="48" height="36" rx="3" fill="#f7f4ec" stroke="#263238" stroke-width="2"/><path d="M68 340h48" stroke="#263238"/><circle cx="75" cy="335" r="1.5" fill="#263238"/><path d="M80 358l8-9 7 6 5-3 6 6z" fill="#b5a1d2"/>
+<circle cx="672" cy="350" r="28" fill="#f7f4ec" stroke="#b25320" stroke-width="2"/><path d="M665 338l20 12-20 12z" fill="#b25320"/>
+<path d="M360 375v30c0 13 48 13 48 0v-30" fill="#f7f4ec" stroke="#263238" stroke-width="2"/><ellipse cx="384" cy="375" rx="24" ry="9" fill="#f7f4ec" stroke="#263238" stroke-width="2"/>
+<text x="384" y="400" font-size="15" fill="#263238" font-weight="600" text-anchor="middle">D1</text>
+<text x="92" y="407" font-size="17" fill="#263238" font-weight="500" text-anchor="middle">Browser</text>
+<text x="672" y="407" font-size="17" fill="#263238" font-weight="500" text-anchor="middle">Stream</text>
+<text x="384" y="313" font-size="15" fill="#263238" font-weight="500" text-anchor="middle">Worker</text>
+<text x="422" y="391" font-size="14" fill="#526169" font-weight="400" text-anchor="start">asset ID + state</text>
+</g></svg>

@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#090d17" />
+    <meta name="description" content="Why Yapern keeps images in R2 and chose Cloudflare Stream over Mux, Bunny, and a custom HLS pipeline, with a look at the upload implementation." />
+    <link rel="canonical" href="https://yapern.com/blog/hosted-videos-with-cloudflare-images-streams/" />
+    <link rel="icon" href="/images/favicon.png" type="image/png" />
+    <meta property="og:type" content="article" />
+    <meta property="og:site_name" content="Yapern" />
+    <meta property="og:title" content="Hosted Videos with Cloudflare Images &amp; Streams" />
+    <meta property="og:description" content="Images in R2, video in Stream, and why keeping Yapern entirely on Cloudflare was worth the tradeoff." />
+    <meta property="og:url" content="https://yapern.com/blog/hosted-videos-with-cloudflare-images-streams/" />
+    <meta property="og:image" content="https://yapern.com/images/blog/hosted-videos-with-cloudflare-images-streams/upload-path.png" />
+    <meta property="og:image:alt" content="Image uploads pass through Yapern’s Worker to R2; video bytes go directly from the browser to Stream." />
+    <meta property="article:published_time" content="2026-10-22" />
+    <meta property="article:author" content="Yapern" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Hosted Videos with Cloudflare Images &amp; Streams" />
+    <meta name="twitter:description" content="Why we chose Stream, what it costs, and why uploading a video still needs more than a progress bar." />
+    <meta name="twitter:url" content="https://yapern.com/blog/hosted-videos-with-cloudflare-images-streams/" />
+    <meta name="twitter:image" content="https://yapern.com/images/blog/hosted-videos-with-cloudflare-images-streams/upload-path.png" />
+    <meta name="twitter:image:alt" content="Image uploads pass through Yapern’s Worker to R2; video bytes go directly from the browser to Stream." />
+    <link rel="stylesheet" href="/yapern.css" />
+    <link rel="stylesheet" href="/blog.css" />
+    <script type="module" src="/src/auth-nav.js"></script>
+    <script type="module" src="/src/create.js"></script>
+    <title>Hosted Videos with Cloudflare Images &amp; Streams · Yapern</title>
+  </head>
+  <body class="blog-page">
+    <a class="skip-link" href="#main">Skip to content</a>
+    <!-- site-header -->
+    <main id="main" class="blog-main shell">
+      <p class="blog-back"><a href="/blog/">← Blog</a></p>
+      <article class="blog-article" aria-labelledby="article-title">
+        <h1 id="article-title">Hosted Videos with Cloudflare Images &amp; Streams</h1>
+        <p class="blog-meta"><time datetime="2026-10-22">October 22, 2026</time> · Yapern</p>
+
+        <p>Yapern already let people attach a screenshot to a post. Attaching a phone recording looks like the same feature with a different file picker, until someone has to play it. Storing the original file is easy. Getting it into a format that plays well on somebody else’s phone, over somebody else’s connection, is more work.</p>
+        <p>We chose Cloudflare Stream for video and kept our images in R2. That keeps <a href="/blog/not-a-tavern-a-yapern/">our forum entirely on Cloudflare</a>, including encoding and delivery, without making a video pipeline our next project. To be precise about the product names, we aren’t using the hosted Cloudflare Images service: our image uploads go through a Worker into R2, and the video service is called Stream. The interesting part of adding it was deciding which work to hand over and which promises the application still has to keep.</p>
+
+        <h2>Five ways to host an attachment</h2>
+        <p>We considered keeping video in R2 too. We also looked at Mux and Bunny, because “we already use Cloudflare” would be a lousy excuse to ignore a service that suits the job better. These were the choices for the first version:</p>
+
+        <div class="article-table">
+          <table>
+            <caption>Options for Yapern’s video uploads</caption>
+            <thead><tr><th scope="col">Option</th><th scope="col">What it gives us</th><th scope="col">Our assessment</th></tr></thead>
+            <tbody>
+              <tr><th scope="row"><a href="https://developers.cloudflare.com/stream/">Cloudflare Stream</a></th><td>Direct uploads, encoding, adaptive playback up to 1080p, thumbnails, and a hosted player.</td><td>The managed service that fits our existing Cloudflare stack.</td></tr>
+              <tr><th scope="row">MP4 files in R2</th><td>Storage and delivery of the files we put there.</td><td>Reasonable for short clips if we control their encoding. Arbitrary phone uploads leave us with more compatibility work.</td></tr>
+              <tr><th scope="row">Our own HLS in R2</th><td>A place for playlists and video segments.</td><td>We would own encoding, packaging, jobs, retries, and cleanup. Too much infrastructure for this version.</td></tr>
+              <tr><th scope="row"><a href="https://www.mux.com/docs/pricing/overview">Mux</a></th><td>Managed video, player tooling, playback analytics, and automatic cold storage discounts.</td><td>A serious alternative, especially as old attachments accumulate.</td></tr>
+              <tr><th scope="row"><a href="https://bunny.net/docs/stream/pricing">Bunny Stream</a></th><td>Managed video with free standard encoding and storage and bandwidth billing.</td><td>Worth comparing when bandwidth cost becomes a bigger part of the bill.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p>An ordinary MP4 isn’t automatically a bad answer. A short H.264/AAC clip can play progressively and seek when it has fast-start metadata and the server supports byte-range requests. If we controlled the recordings, that could be enough. A forum’s upload button gives us much less control over the files arriving.</p>
+        <p>HLS handles a different part of that problem. An <code>.m3u8</code> playlist points to video segments; an adaptive stream offers several encoded quality levels so the player can switch as the connection changes. Splitting the original recording into chunks doesn’t create those other versions. Building that ourselves means operating the encoders and jobs behind the playlists, as well as hosting their output.</p>
+        <p>There’s also a smaller Cloudflare option: <a href="https://developers.cloudflare.com/stream/transform-videos/">R2 with Media Transformations</a> can produce optimized MP4s and still frames. Its documented limits include 60-second video outputs and inputs under 100 MB, with H.264 MP4 as the recommended source format. That’s useful for controlled clips or previews. We wanted uploads up to two minutes without requiring people to prepare the right MP4 first.</p>
+
+        <h2>Stream wins on fit, not every price</h2>
+        <p>The cost we’ll keep paying is storage. A video in an old thread can go unwatched for months and still occupy space. These are published starting rates checked on October 22, 2026, not measurements of Yapern’s usage:</p>
+
+        <div class="article-table">
+          <table>
+            <caption>Managed video pricing uses different units</caption>
+            <thead><tr><th scope="col">Service</th><th scope="col">Storage per month</th><th scope="col">Delivery</th></tr></thead>
+            <tbody>
+              <tr><th scope="row"><a href="https://developers.cloudflare.com/stream/pricing/">Stream</a></th><td>$5 per 1,000 minutes of capacity, bought in increments.</td><td>$1 per 1,000 minutes delivered. Encoding is included.</td></tr>
+              <tr><th scope="row"><a href="https://www.mux.com/docs/pricing/overview">Mux Basic</a></th><td>$2.40 per 1,000 minutes at 720p; $3 at 1080p, before cold storage discounts.</td><td>First 100,000 delivery minutes free each month.</td></tr>
+              <tr><th scope="row"><a href="https://bunny.net/docs/stream/pricing">Bunny Stream</a></th><td>From $0.01 per GB in one region.</td><td>Volume network starts at $0.005 per GB; Standard rates vary by region.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p>For a hypothetical library of 10,000 one-minute videos, all retained for a month, with 10,000 minutes delivered that month, Stream comes to $50 for storage capacity plus $10 for delivery: <strong>$60 a month</strong>. That’s the video service alone. It excludes the rest of the application and assumes no extra capacity needed for pending uploads.</p>
+        <p>For comparison, <a href="https://developers.cloudflare.com/r2/pricing/">R2 Standard storage</a> is $0.015 per GB-month with free Internet egress. At an assumed 20 MB per original, those same 10,000 clips occupy about 200 GB, or roughly $3 a month in base storage before the free allowance. That buys storage for the originals. Encoding compute, extra renditions, requests, and Worker usage still need accounting for.</p>
+        <p>Mux’s lower base storage rate, free delivery allowance, and discounts for unwatched assets deserve attention. Basic encoding is free, though Basic assets have a one-month minimum storage charge. Bunny’s bill depends on encoded file sizes, replication, and the chosen delivery network, so minutes alone won’t produce a fair comparison.</p>
+        <p>We chose Stream because the site, API, database, and images already run on Cloudflare, and Stream adds the missing encoding and playback service there. Keeping that work in the same platform is worth something to us while we’re building the forum. It isn’t evidence that Stream is the cheapest provider. If retention or viewing costs start to dominate, we have a concrete reason to revisit Mux and Bunny.</p>
+
+        <h2>The video bytes skip our Worker</h2>
+        <p>Our <a href="https://github.com/yapern/backend/blob/4f16440/worker/app/data.ts#L263">existing image route</a> accepts one image per message. The Worker checks its size, MIME type, and file signature, writes it to R2, and saves its URL with the post. PNG, JPEG, GIF, and WebP uploads are limited to 5 MiB. The image is then available through a public API route.</p>
+        <p>Video uses a separate reservation. The browser sends <code>POST /videos</code> with the intended board and file size. After checking the session and limits, the API records an upload in D1 and asks Stream for an expiring upload URL. The browser sends the file straight to that URL. Its Yapern bearer token goes to our API, never to the file upload destination.</p>
+
+        <figure>
+          <picture>
+            <source media="(max-width: 650px)" srcset="/images/blog/hosted-videos-with-cloudflare-images-streams/upload-path-mobile.svg" width="380" height="580" />
+            <img src="/images/blog/hosted-videos-with-cloudflare-images-streams/upload-path.svg" width="760" height="440" alt="Two upload paths. Image bytes pass from the browser through the Worker to R2. For video, the browser and Worker exchange a reservation, the Worker provisions an upload in Stream and records its identity in D1, and the large video transfer goes directly from the browser to Stream." decoding="async" />
+          </picture>
+        </figure>
+
+        <p>The <a href="https://github.com/yapern/backend/blob/4f16440/worker/app/message-videos.ts">reservation code</a> limits each video to 100 MiB and 120 seconds, allows twenty reservations per user per UTC day, and caps active, unattached uploads at three. Upload URLs expire after thirty minutes. Those limits matter before a file arrives: Stream temporarily reserves the upload’s maximum duration against storage capacity until the upload completes or expires.</p>
+
+        <h2>The binding changed the upload protocol</h2>
+        <p>The <a href="https://github.com/yapern/web/commit/f519d0d">first frontend commit</a> used tus, a resumable upload protocol. The REST path creates a tus upload URL, and the browser sends 5 MiB chunks with retries. Keeping the same URL lets it resume an interrupted upload while that draft and reservation remain usable; we don’t persist a resume fingerprint across page reloads.</p>
+        <p>The backend’s <a href="https://github.com/yapern/backend/commit/4f16440">Stream binding change</a> added a second path. With the binding configured, the Worker provisions the upload directly:</p>
+
+        <pre tabindex="0" aria-label="Excerpt of the native Stream binding upload call"><code>await env.STREAM.createDirectUpload({
+  maxDurationSeconds: 120,
+  expiry: new Date(expires).toISOString(),
+  creator: session.user_id,
+  meta: { name: id },
+});</code></pre>
+
+        <p>That call returns a basic POST upload URL. <a href="https://developers.cloudflare.com/stream/uploading-videos/direct-creator-uploads/">Cloudflare documents the difference</a>: the binding currently provisions POST uploads; tus uses the REST API. Our API therefore returns <code>upload_protocol</code>, and the browser chooses multipart POST or tus accordingly. The configured binding takes the multipart path, which <strong>doesn’t resume an interrupted transfer</strong>. On failure, the composer discards that reservation and starts a fresh one on retry. The REST fallback retains tus support. Staying on one platform didn’t make the two protocols interchangeable.</p>
+
+        <h2>100% uploaded still isn’t ready</h2>
+        <p>The <a href="https://github.com/yapern/web/commit/446ab1c">next frontend fix</a> makes a small but useful promise: upload progress stops at 99% until Stream accepts the request. Sending the last byte isn’t enough to claim success. Even after acceptance, the video may need encoding, so the composer moves on to “Processing video…” and asks our completion endpoint for its state.</p>
+        <p>The client can’t mark its own video ready. The API reads Stream’s status and requires a valid playback origin, a positive duration, and dimensions before exposing a ready player. It checks reported size and duration against our limits too. D1 keeps the provider asset ID and processing state separately from the message text.</p>
+
+        <figure>
+          <picture>
+            <source media="(max-width: 650px)" srcset="/images/blog/hosted-videos-with-cloudflare-images-streams/processing-mobile.svg" width="380" height="460" />
+            <img src="/images/blog/hosted-videos-with-cloudflare-images-streams/processing.svg" width="760" height="340" alt="A schematic timeline separates bytes sent, upload acceptance, and playback readiness. Progress stays at 99% until acceptance, then shows processing until trusted provider metadata makes the player available. A post may be saved during processing when a watch URL is known." loading="lazy" decoding="async" />
+          </picture>
+        </figure>
+
+        <p>A post can be saved while the video is processing, once Stream supplies a valid watch URL. That avoids making the entire message wait for the final rendition. The <a href="https://github.com/yapern/backend/blob/4f16440/worker/app/message-videos.ts#L204">attachment operation</a> checks the owner and board, then links one upload to one message in a D1 batch. Retrying the same attachment with the same title and body returns the existing message. Different content gets a conflict.</p>
+        <p>We also prepend Stream’s watch URL to the saved body for older clients. The current renderer uses the structured video object and strips that fallback link from the displayed caption, so the post doesn’t show the same attachment twice.</p>
+        <p>Processing updates can arrive through a <a href="https://developers.cloudflare.com/stream/manage-video-library/using-webhooks/">Stream webhook</a>. Our handler verifies HMAC-SHA256 over the timestamp and exact request body, compares signatures in constant time, and rejects timestamps more than five minutes away. Updates only change uploads still in <code>uploading</code> or <code>processing</code>. A repeated or delayed event can’t turn a ready video back into a pending one or revive a deletion.</p>
+        <p>Webhooks aren’t the only way forward. Status requests refresh pending videos, with a D1 timestamp limiting ordinary provider checks to once per fifteen seconds. A scheduled job runs every five minutes and reconciles a bounded batch as well. In the feed, pending videos show a processing message, make a limited run of automatic checks, and retain a “Check again” button.</p>
+
+        <h2>Let people choose what to play</h2>
+        <p>A ready attachment starts as a lazy-loaded poster with its duration. The <a href="https://github.com/yapern/web/blob/446ab1c/src/message-video.js">renderer</a> only creates Stream’s player iframe when someone presses Play. It uses the reported dimensions to preserve the aspect ratio and treats portrait recordings separately. Scrolling past a video doesn’t create a player.</p>
+        <p>That also affects the bill. Stream counts client preloading and buffering as delivered video, so filling a feed with eager players could charge us for clips nobody chose to watch. When playback starts, Stream serves the video. We don’t copy its HLS playlists or segments into R2; Cloudflare <a href="https://developers.cloudflare.com/stream/viewing-videos/using-own-player/">specifically advises reading dynamic manifests directly from Stream</a>.</p>
+        <p>These attachments are public, like the messages and images they belong to. Unattached upload status requires the owner’s session, but a public playback URL isn’t a private attachment. Private messages would need viewer authorization and <a href="https://developers.cloudflare.com/stream/viewing-videos/securing-your-stream/">signed playback</a>, including thumbnail access. We haven’t implemented that private-media flow.</p>
+
+        <h2>Deleting the post has to delete the video</h2>
+        <p>Saving a message and deleting an asset from Stream aren’t one transaction. If the provider is unavailable when somebody deletes a post, losing the asset ID would leave us paying for a video we can’t find through the message anymore.</p>
+        <p>The <a href="https://github.com/yapern/backend/blob/4f16440/migrations/016_message_videos.sql">video migration</a> keeps the upload row after message deletion. A trigger marks it <code>deleting</code> before the message disappears, and the foreign key clears its message reference. The API attempts the provider deletion immediately. If that fails, the row survives for the scheduled job to retry. Only after Stream confirms deletion, or says the asset is already absent, do we remove that row.</p>
+        <p>The same maintenance job removes unattached uploads older than twenty-four hours and marks attached uploads still pending after an hour as failed. Those age checks use the upload’s creation time. Failed assets with a provider ID also get cleanup attempts. Otherwise an abandoned composer would quietly become permanent paid storage.</p>
+        <p>Stream took encoding, renditions, and video delivery off our list. We still own the upload’s identity, its relationship to a post, what the feed shows while it processes, and whether deletion eventually finishes. That’s a manageable amount of video work for a forum. We get hosted clips alongside our R2 images, keep the application on Cloudflare, and leave building an encoding service for a day when we actually need one.</p>
+      </article>
+    </main>
+    <footer class="site-footer shell">
+      <a class="brand footer-brand" href="/">yapern<span class="brand-dot">.</span></a>
+      <nav aria-label="Footer"><a href="/#features">Features</a><a href="/#communities">Sub-yaps &amp; moderators</a><a href="/#open-source">Open source</a><a href="/about/">About</a><a href="/blog/" aria-current="page">Blog</a><a href="https://github.com/yapern/web">GitHub</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a></nav>
+    </footer>
+  </body>
+</html>
