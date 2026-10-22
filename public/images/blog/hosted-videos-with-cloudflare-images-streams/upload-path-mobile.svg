@@ -19,8 +19,8 @@
 <path d="M216 336L305 413" fill="none" stroke="#263238" stroke-width="2" stroke-dasharray="5 5" marker-end="url(#arrow)" marker-start="url(#arrow)"/>
 <text x="43" y="354" font-size="15" fill="#526169" font-weight="400" text-anchor="start">reserve</text>
 <text x="262" y="354" font-size="15" fill="#526169" font-weight="400" text-anchor="start">provision</text>
-<path d="M82 432H296" fill="none" stroke="#b25320" stroke-width="5" marker-end="url(#arrow)"/>
-<text x="190" y="459" font-size="16" fill="#b25320" font-weight="600" text-anchor="middle">video bytes</text>
+<path d="M54 454C54 572 326 572 326 462" fill="none" stroke="#b25320" stroke-width="5" marker-end="url(#arrow)"/>
+<text x="190" y="576" font-size="16" fill="#b25320" font-weight="600" text-anchor="middle">video bytes</text>
 <path d="M190 355V497" fill="none" stroke="#263238" stroke-width="2" stroke-dasharray="5 5" marker-end="url(#arrow)"/>
 <path d="M173 303h34l13 23-13 23h-34l-13-23z" fill="#f7f4ec" stroke="#263238" stroke-width="2"/>
 <text x="190" y="332" font-size="19" fill="#263238" font-weight="600" text-anchor="middle">W</text>
@@ -29,7 +29,7 @@
 <path d="M166 509v30c0 13 48 13 48 0v-30" fill="#f7f4ec" stroke="#263238" stroke-width="2"/><ellipse cx="190" cy="509" rx="24" ry="9" fill="#f7f4ec" stroke="#263238" stroke-width="2"/>
 <text x="190" y="534" font-size="15" fill="#263238" font-weight="600" text-anchor="middle">D1</text>
 <text x="190" y="294" font-size="16" fill="#263238" font-weight="500" text-anchor="middle">Worker</text>
-<text x="54" y="483" font-size="16" fill="#263238" font-weight="500" text-anchor="middle">Browser</text>
-<text x="326" y="483" font-size="16" fill="#263238" font-weight="500" text-anchor="middle">Stream</text>
+<text x="54" y="402" font-size="16" fill="#263238" font-weight="500" text-anchor="middle">Browser</text>
+<text x="326" y="402" font-size="16" fill="#263238" font-weight="500" text-anchor="middle">Stream</text>
 <text x="228" y="526" font-size="14" fill="#526169" font-weight="400" text-anchor="start">ID + state</text>
 </g></svg>
