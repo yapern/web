@@ -43,6 +43,16 @@ export async function fetchBoardMetadata(slug, {
   };
 }
 
+export function boardMetadataContent(metadata) {
+  return {
+    description: metadata.description,
+    "og:title": metadata.title, "twitter:title": metadata.title,
+    "og:description": metadata.description, "twitter:description": metadata.description,
+    "og:image": metadata.image, "twitter:image": metadata.image,
+    "og:image:alt": metadata.imageAlt, "twitter:image:alt": metadata.imageAlt,
+  };
+}
+
 export default {
   async fetch(request, env, ctx) {
     const route = parseBoardRoute(new URL(request.url).pathname);
@@ -61,13 +71,7 @@ export default {
     const metadata = await fetchBoardMetadata(route.slug, {
       apiOrigin: env.API_ORIGIN, cache: caches.default, waitUntil: promise => ctx.waitUntil(promise),
     });
-    const content = {
-      description: metadata.description,
-      "og:title": metadata.title, "twitter:title": metadata.title,
-      "og:description": metadata.description, "twitter:description": metadata.description,
-      "og:image": metadata.image, "twitter:image": metadata.image,
-      "og:image:alt": metadata.imageAlt, "twitter:image:alt": metadata.imageAlt,
-    };
+    const content = boardMetadataContent(metadata);
     return new HTMLRewriter()
       .on("title", { element(element) { element.setInnerContent(metadata.title); } })
       .on("head", {

@@ -135,8 +135,10 @@ or the homepage's Yapern logo when none is set. Public board lookups have a
 with basic metadata and the Yapern logo. Message pages and other routes retain
 their static behavior. No per-sub-yap pages are generated at build time.
 
-Run `npm run build` before previewing or deploying. Vite development and preview
-serve the static fallback metadata. Use `npx wrangler dev --port 8788` to test
+Run `npm run build` before previewing or deploying. Vite development renders
+dynamic metadata using the local API at `http://localhost:8787`; Vite preview
+uses the production API, matching the built browser clients. Use
+`npx wrangler dev --port 8788` to test
 dynamic metadata locally against the production API, or add
 `--var API_ORIGIN:http://localhost:8787` to use the local backend. Use
 `npx wrangler deploy --dry-run` to validate deployment without publishing.

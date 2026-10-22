@@ -1,7 +1,10 @@
 import { defineConfig } from "vite";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
+import { resolve } from "node:path";
 import { blogPageCount, blogPosts, blogPagePath, renderBlogPage } from "./src/blog.js";
+import { parseBoardRoute } from "./src/board-routes.js";
+import { boardMetadataContent, fetchBoardMetadata } from "./worker.js";
 
 export function staticBlogPlugin(posts = blogPosts) {
   function pageRoutes(server, preview = false) {
@@ -55,9 +58,39 @@ export function staticBlogPlugin(posts = blogPosts) {
   };
 }
 
-function boardPageRoutes(server) {
-  server.middlewares.use((request, response, next) => {
+export function renderBoardMetadata(html, metadata) {
+  const escapeHTML = value => String(value).replace(/[&<>"']/g, character => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
+  })[character]);
+  const content = boardMetadataContent(metadata);
+  const url = escapeHTML(metadata.url);
+  return html
+    .replace(/<title>[^<]*<\/title>/, () => `<title>${escapeHTML(metadata.title)}</title>`)
+    .replace(/<meta (?:name|property)="([^"]+)" content="[^"]*"\s*\/>/g,
+      (tag, key) => Object.hasOwn(content, key)
+        ? tag.replace(/content="[^"]*"/, () => `content="${escapeHTML(content[key])}"`) : tag)
+    .replace("</head>", () => `<link rel="canonical" href="${url}" /><meta property="og:url" content="${url}" /><meta name="twitter:url" content="${url}" /></head>`);
+}
+
+export function boardPageRoutes(server, preview = false, fetcher = fetch) {
+  server.middlewares.use(async (request, response, next) => {
     const url = new URL(request.url, "http://localhost");
+    const route = parseBoardRoute(url.pathname);
+    if (route && route.messageId === undefined && ["GET", "HEAD"].includes(request.method)) {
+      try {
+        const template = readFileSync(resolve(server.config.root, preview ? server.config.build.outDir : ".", "board.html"), "utf8");
+        const metadata = await fetchBoardMetadata(route.slug, {
+          apiOrigin: preview ? "https://api.yapern.com" : "http://localhost:8787", fetcher,
+        });
+        let html = renderBoardMetadata(template, metadata);
+        if (!preview) html = await server.transformIndexHtml(url.pathname, html);
+        response.writeHead(200, { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store" });
+        response.end(request.method === "HEAD" ? undefined : html);
+      } catch (error) {
+        next(error);
+      }
+      return;
+    }
     if (/^\/all\/?$/.test(url.pathname) || url.pathname.startsWith("/y/")) {
       request.url = `/board.html${url.search}`;
     }
@@ -95,7 +128,7 @@ export default defineConfig({
     {
       name: "board-page-routes",
       configureServer: boardPageRoutes,
-      configurePreviewServer: boardPageRoutes,
+      configurePreviewServer(server) { boardPageRoutes(server, true); },
     },
     {
       name: "page-redirects",
