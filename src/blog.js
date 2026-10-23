@@ -2,6 +2,13 @@ export const BLOG_PAGE_SIZE = 6;
 
 export const blogPosts = [
   {
+    slug: "my-17-projects-looking-for-number-18",
+    title: "My 17 projects, looking for number 18",
+    published: "2026-10-23",
+    author: "Andrew Arrow",
+    summary: "Each commit used to bring me closer to the day people would discover what I built. After enough quiet launches, I’m trying to understand why starting over still feels better than going back.",
+  },
+  {
     slug: "hosted-videos-with-cloudflare-images-streams",
     title: "Hosted Videos with Cloudflare Images & Streams",
     published: "2026-10-22",

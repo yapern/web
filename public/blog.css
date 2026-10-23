@@ -36,6 +36,7 @@
 .blog-article h1 { margin-bottom: 8px; }
 .blog-article .blog-meta { margin-bottom: 24px; }
 .blog-article p + p { margin-top: 20px; }
+.blog-article blockquote { margin: 24px 0; padding-left: 20px; border-left: 3px solid var(--accent); color: #eef0f8; }
 .blog-article h2 { margin-top: 36px; margin-bottom: 12px; color: #eef0f8; font-size: 23px; line-height: 1.35; letter-spacing: -.015em; }
 .blog-article figure { margin: 28px 0; }
 .blog-article picture, .blog-article img { display: block; width: 100%; height: auto; }
