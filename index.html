@@ -38,7 +38,6 @@
     <meta name="twitter:image:alt" content="Yapern logo" />
     <link rel="icon" href="/images/favicon.png" type="image/png" />
     <link rel="stylesheet" href="/yapern.css" />
-    <script type="module" src="/homepage.js"></script>
     <script type="module" src="/src/messages.js"></script>
     <script type="module" src="/src/auth-nav.js"></script>
     <script type="module" src="/src/create.js"></script>
@@ -119,7 +118,7 @@
             there.
           </p>
           <div class="hero-actions">
-            <a class="button" href="#community-preview"
+            <a class="button" href="/all"
               >Take a look around
               <svg class="icon" aria-hidden="true">
                 <use href="#arrow" /></svg></a
@@ -138,120 +137,6 @@
               >GPL v3
             </li>
           </ul>
-        </div>
-        <div class="preview-area" id="community-preview">
-          <div class="board" aria-label="Interactive sub-yap preview">
-            <header class="board-header">
-              <span class="mini-brand"
-                ><img
-                  src="/images/logo.png"
-                  width="24"
-                  height="24"
-                  alt=""
-                />yapern</span
-              ><label class="board-search"
-                ><svg class="icon" aria-hidden="true">
-                  <use href="#search" /></svg
-                ><span class="sr-only">Search sample posts</span
-                ><input
-                  type="search"
-                  id="post-search"
-                  placeholder="Find your next rabbit hole" /></label
-              ><span class="avatar" aria-label="Sample profile">Y</span>
-            </header>
-            <div class="board-layout">
-              <aside class="board-sidebar" aria-label="Preview sub-yaps">
-                <p class="sidebar-label">YOUR FEED</p>
-                <button
-                  class="community-button active"
-                  type="button"
-                  data-community="all"
-                  aria-pressed="true"
-                >
-                  <svg class="icon" aria-hidden="true"><use href="#chat" /></svg
-                  >All sub-yaps
-                </button>
-                <p class="sidebar-label subyap-label">SUB-YAPS</p>
-                <button
-                  class="community-button"
-                  type="button"
-                  data-community="technology"
-                  aria-pressed="false"
-                >
-                  <span class="community-initial">t/</span>technology</button
-                ><button
-                  class="community-button"
-                  type="button"
-                  data-community="making"
-                  aria-pressed="false"
-                >
-                  <span class="community-initial">m/</span>making</button
-                ><button
-                  class="community-button"
-                  type="button"
-                  data-community="books"
-                  aria-pressed="false"
-                >
-                  <span class="community-initial">b/</span>books</button
-                ><button
-                  class="community-button"
-                  type="button"
-                  data-community="gardening"
-                  aria-pressed="false"
-                >
-                  <span class="community-initial">g/</span>gardening
-                </button>
-                <div class="sidebar-bottom">
-                  <svg class="icon" aria-hidden="true"><use href="#code" /></svg
-                  >Open by nature.
-                </div>
-              </aside>
-              <section class="board-feed" aria-labelledby="feed-title">
-                <div class="feed-title-row">
-                  <div>
-                    <p class="feed-overline">A PLACE FOR YOUR CURIOSITY</p>
-                    <h2 id="feed-title">The conversation starts here.</h2>
-                  </div>
-                  <span class="feed-spark" aria-hidden="true">✳</span>
-                </div>
-                <div class="feed-toolbar">
-                  <div class="feed-filters" aria-label="Sort sample posts">
-                    <button
-                      type="button"
-                      class="active"
-                      data-sort="top"
-                      aria-pressed="true"
-                    >
-                      Top</button
-                    ><button type="button" data-sort="new" aria-pressed="false">
-                      New</button
-                    ><button
-                      type="button"
-                      data-sort="saved"
-                      aria-pressed="false"
-                    >
-                      <svg class="icon" aria-hidden="true">
-                        <use href="#bookmark" /></svg
-                      >Saved
-                    </button>
-                  </div>
-                  <span class="sample-label">Sample posts</span>
-                </div>
-                <div id="posts"></div>
-                <noscript
-                  ><p class="empty-message">
-                    Enable JavaScript to explore the sample community feed.
-                  </p></noscript
-                >
-              </section>
-            </div>
-          </div>
-          <p class="preview-caption">
-            <span class="preview-dot"></span>Interactive preview
-            <span class="caption-separator">/</span> Pick a sub-yap. Vote.
-            Explore the replies.
-          </p>
-          <p class="sr-only" id="preview-status" role="status"></p>
         </div>
       </section>
       <section class="feature-strip" id="features" aria-label="Yapern features">

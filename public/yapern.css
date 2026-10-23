@@ -728,9 +728,10 @@ button.create-toolbar-icon:focus-visible { outline-offset: 1px; }
 }
 .hero {
   display: grid;
-  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.5fr);
-  gap: clamp(32px, 4vw, 72px);
+  grid-template-columns: minmax(0, 1fr);
+  justify-items: center;
   align-items: center;
+  text-align: center;
   padding-top: 42px;
   padding-bottom: 46px;
   min-height: 540px;
@@ -758,6 +759,7 @@ h1 span,
 }
 .hero-description {
   max-width: 44ch;
+  margin-inline: auto;
   margin-top: 24px;
   color: #c0c8db;
   font-size: 17px;
@@ -769,6 +771,7 @@ h1 span,
 .hero-actions {
   display: flex;
   align-items: center;
+  justify-content: center;
   flex-wrap: wrap;
   gap: 22px;
   margin-top: 28px;
@@ -792,6 +795,7 @@ h1 span,
 .trust-list {
   display: flex;
   flex-wrap: wrap;
+  justify-content: center;
   gap: 8px 18px;
   margin-top: 25px;
   font-size: 11px;
@@ -2139,8 +2143,6 @@ a.detail-recent-post:hover .detail-recent-title {
 }
 @media (max-width: 1200px) {
   .hero {
-    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.35fr);
-    gap: 28px;
     padding-block: 30px;
   }
   .hero-description {
