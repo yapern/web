@@ -354,7 +354,9 @@ a {
   color: #edf0fa;
 }
 .create-options button svg,
-.mobile-create-actions button svg {
+.create-options a svg,
+.mobile-create-actions button svg,
+.mobile-create-actions a svg {
   width: 18px;
   height: 18px;
   fill: none;
