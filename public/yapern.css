@@ -338,7 +338,8 @@ a {
   background: #141a29;
   box-shadow: 0 12px 28px #0008;
 }
-.create-options button {
+.create-options button,
+.create-options a {
   display: flex;
   align-items: center;
   width: 100%;
@@ -363,8 +364,11 @@ a {
   stroke-linejoin: round;
 }
 .create-options button:hover,
-.create-options button:focus-visible { background: #252039; }
-.create-options button:focus-visible { outline-offset: -2px; }
+.create-options a:hover,
+.create-options button:focus-visible,
+.create-options a:focus-visible { background: #252039; }
+.create-options button:focus-visible,
+.create-options a:focus-visible { outline-offset: -2px; }
 .mobile-create-actions { display: none; }
 .create-dialog,
 .create-board-dialog {
@@ -2679,7 +2683,8 @@ a.detail-recent-post:hover .detail-recent-title {
     display: flex;
     flex-direction: column;
   }
-  .mobile-create-actions button {
+  .mobile-create-actions button,
+  .mobile-create-actions a {
     display: flex;
     align-items: center;
     min-height: 44px;
@@ -2693,7 +2698,9 @@ a.detail-recent-post:hover .detail-recent-title {
     font-weight: 500;
   }
   .mobile-create-actions button:hover,
-  .mobile-create-actions button:focus-visible { background: #1c2434; }
+  .mobile-create-actions a:hover,
+  .mobile-create-actions button:focus-visible,
+  .mobile-create-actions a:focus-visible { background: #1c2434; }
   .site-header.navigation-ready .header-actions .header-icon-button,
   .site-header.navigation-ready .header-actions .header-account {
     justify-content: flex-start;
