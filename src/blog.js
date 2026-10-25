@@ -2,6 +2,13 @@ export const BLOG_PAGE_SIZE = 6;
 
 export const blogPosts = [
   {
+    slug: "my-wellbeing-does-not-depend-on-my-project",
+    title: "my wellbeing does not depend on my project",
+    published: "2026-10-25",
+    author: "Andrew Arrow",
+    summary: "I’d love for people to use what I build. After seventeen projects, I’m trying to stop making my wellbeing depend on whether they do.",
+  },
+  {
     slug: "my-17-projects-looking-for-number-18",
     title: "My 17 projects, looking for number 18",
     published: "2026-10-23",

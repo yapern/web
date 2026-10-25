@@ -47,6 +47,10 @@
 .blog-article .article-table { overflow-x: auto; margin: 24px 0; }
 .blog-article table { width: 100%; border-collapse: collapse; text-align: left; font-size: 16px; line-height: 1.5; overflow-wrap: normal; }
 .blog-article caption { text-align: left; margin-bottom: 8px; font-weight: 600; color: #eef0f8; }
+.blog-article--wellbeing ol { margin: 20px 0; padding-left: 28px; }
+.blog-article--wellbeing li + li { margin-top: 8px; }
+.blog-article--wellbeing .lightness-reminder { margin: 20px 0; }
+.blog-article--wellbeing .article-mockup-portrait { max-width: 640px; margin-inline: auto; }
 .blog-article th, .blog-article td { padding: 12px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
 .blog-article th { color: #eef0f8; font-weight: 600; }
 .blog-article th:first-child, .blog-article td:first-child { padding-left: 0; }
