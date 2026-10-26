@@ -4,13 +4,13 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#090d17" />
-    <meta name="description" content="AIVS turns a cast screenplay into Codex-directed shots, renders them locally with LTX-2.5, and experiments with fixed voices and reusable character references." />
+    <meta name="description" content="How AIVS turns a human screenplay into a timed shooting script with Codex, then renders connected shots locally with LTX-2.5. A desert-road example shows the difference." />
     <link rel="canonical" href="https://yapern.com/blog/aivs-the-ai-video-studio/" />
     <link rel="icon" href="/images/favicon.png" type="image/png" />
     <meta property="og:type" content="article" />
     <meta property="og:site_name" content="Yapern" />
     <meta property="og:title" content="aivs - the ai video studio" />
-    <meta property="og:description" content="From casting Sue and Joe to planning short shots, fixing impossible entrances, and testing the same performer across locations with a prepared voice." />
+    <meta property="og:description" content="A screenplay says Joe emerges from behind the engine. The shooting script has to give him somewhere to stand, a route into view, and time to deliver his line." />
     <meta property="og:url" content="https://yapern.com/blog/aivs-the-ai-video-studio/" />
     <meta property="og:image" content="https://yapern.com/images/blog/aivs-the-ai-video-studio/directed-shot-frame.webp" />
     <meta property="og:image:alt" content="A frame from AIVS’s early three-shot render: two generated performers on a tree-lined road." />
@@ -19,7 +19,7 @@
     <meta property="article:author" content="Andrew Arrow" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="aivs - the ai video studio" />
-    <meta name="twitter:description" content="Codex shooting plans, local video generation, and an unfinished experiment in keeping the same face and voice across scenes." />
+    <meta name="twitter:description" content="A screenplay says Joe emerges from behind the engine. The shooting script has to give him somewhere to stand, a route into view, and time to deliver his line." />
     <meta name="twitter:url" content="https://yapern.com/blog/aivs-the-ai-video-studio/" />
     <meta name="twitter:image" content="https://yapern.com/images/blog/aivs-the-ai-video-studio/directed-shot-frame.webp" />
     <meta name="twitter:image:alt" content="A frame from AIVS’s early three-shot render: two generated performers on a tree-lined road." />
@@ -38,12 +38,12 @@
         <h1 id="article-title">aivs - the ai video studio</h1>
         <p class="blog-meta"><time datetime="2026-10-25">October 25, 2026</time> · Updated <time datetime="2026-10-26">October 26, 2026</time> · Andrew Arrow</p>
 
-        <p>Sue and Joe are stranded beside a station wagon on a desert road. Joe has looked under the hood. “Good news. It’s definitely the car.” Sue has a postcard from her dad and a questionable promise that the ocean is somewhere nearby. It’s a tiny scene, five lines of dialogue, but it already creates a useful problem for an AI video tool: I want to choose who plays these people without rewriting who they are.</p>
-        <p><a href="https://github.com/andrewarrow/aivs">AIVS</a> is the AI video studio I’m building around that workflow. It’s a native Rust app with a screenplay, a character gallery, and video generation on Apple Silicon. It now asks Codex to turn the cast screenplay into a shooting plan, then renders and assembles the short takes locally. The GUI still starts with the built-in <em>Last Light</em> scene; the command line can accept other scripts. Changing the camera shouldn’t quietly give me a different actor.</p>
+        <p>Sue and Joe are stranded beside a station wagon on a desert road. Joe emerges from behind the engine. “Good news. It’s definitely the car.” That’s enough for me to understand the scene. To film it, somebody still has to decide where Joe is standing, how he gets into view, and whether the camera can see him do it. Leaving those decisions to the video model can produce a man walking through a car.</p>
+        <p><a href="https://github.com/andrewarrow/aivs">AIVS</a> is the AI video studio I’m building around that gap. You write the screenplay and cast its roles. Codex turns it into a shooting script with timed directions for the action, camera, dialogue, and sound. LTX-2.5 then generates picture and speech together in short takes on an Apple Silicon Mac. The desktop app is Rust; Python runs the planning and video pipeline. The story stays readable while the shooting script handles the details needed to film it.</p>
 
         <h2>Sue is a role. Ava can play her.</h2>
         <p>The script originally called its two people Ava and Eli, the same names as their saved character profiles. The <a href="https://github.com/andrewarrow/aivs/commit/b223052b4a32eff35fd62494630263270fc2aea4">rename to Sue and Joe</a> made the distinction explicit. Ava belongs in the library of performers; Sue belongs in the story. Recasting Sue shouldn’t require hunting through the script to replace every name.</p>
-        <p>Now you can drag Ava’s portrait or name onto any of Sue’s dialogue blocks. Every Sue cue gets the same assignment. Drop Eli onto Joe, and both parts are cast. Clicking a dialogue block also opens a picker, including an option to clear the assignment. Selecting a portrait in the gallery just browses it; casting requires choosing a role.</p>
+        <p>Now you can drag Ava’s portrait or name onto any of Sue’s dialogue blocks. Every Sue cue gets the same assignment. Drop Eli onto Joe, and both parts are cast. The <strong>Uncast / played by</strong> control beside a character cue also opens a picker, including an option to clear the assignment. Selecting a portrait in the gallery just browses it; casting requires choosing a role. This diagram shows the assignments in an earlier, five-line version of the scene:</p>
 
         <figure>
           <picture>
@@ -60,41 +60,49 @@
   { "role": "SUE", "character": "ava" }
 ]</code></pre>
 
-        <p>Python loads those saved profiles explicitly. A role called Ava can’t accidentally cast itself just by sharing a library name. The scene’s dialogue keeps its role names, and the renderer adds appearance and voice descriptions under those names. Assignments still last only for the session, and the GUI screenplay remains a preview rather than a script editor.</p>
+        <p>Python loads those saved profiles explicitly. A role called Ava can’t accidentally cast itself just by sharing a library name. The scene’s dialogue keeps its role names, and the renderer adds appearance and voice descriptions under those names. The GUI now edits the screenplay, including new scenes, and autosaves the text and cast assignments to <code>screenplay.json</code> in the workspace. Generate video uses that edited document.</p>
 
         <h2>The screenplay needs a shooting script</h2>
-        <p>The first version estimated 14 seconds for the five spoken lines. Adding time for the action brought that estimate to 32 seconds, but a longer clip still left the model to figure out the entire scene. Somebody has to decide where the camera starts, who holds the postcard, and when there’s room for the final walk.</p>
-        <p>The <a href="https://github.com/andrewarrow/aivs/commit/0561221">shooting-script work</a> puts a planning step between the screenplay and video generation. Python parses the script into ordered action and dialogue beats. Codex proposes takes lasting four to twelve seconds, with a prompt, opening state, ending state, and a decision about whether to continue the previous composition. One <a href="/data/blog/aivs-the-ai-video-studio/last-light-three-shot-plan.json">saved early plan</a> for <em>Last Light</em> totals 27 seconds:</p>
+        <p>The screenplay describes what happens: the setting, actions, characters, and dialogue. It can leave quite a lot to the people making the film. The <a href="https://github.com/andrewarrow/aivs/blob/d7d722d/README.md">updated README</a> pairs a short desert-road screenplay with the shooting script produced for it. The source has three spoken lines, ending with Joe’s “He was an optimistic man.” One action sentence reads:</p>
+
+        <blockquote><p>SUE, 30s, turns a battered postcard over in her hands. JOE, late 20s, emerges from behind the engine.</p></blockquote>
+
+        <p>Codex gets that screenplay, the cast descriptions, ordered story beats, and director instructions. A beat is one source action or dialogue line. Its job is to divide those beats into timed shots and work out how to show them. In the saved first shot, the short entrance becomes this:</p>
+
+        <blockquote><p>SUE stands on the gravel screen left beside the front passenger door, holding a battered postcard in both hands. JOE stands on the ground screen right alongside the engine bay, empty hands clear of the engine, upper body partly screened by the raised hood. His feet and route along the near fender remain visible.</p></blockquote>
+
+        <p>Now Joe has somewhere to stand and a visible route into the shot. The rest of the prompt directs his step, eyeline, and line delivery, then Sue’s almost-smile. It even specifies what fills the quiet ending: “dry wind, faint cooling-engine ticks, and gravel crunch synchronized with JOE’s step.” That’s the work the shooting script adds. The writer can keep “emerges from behind the engine” in the screenplay.</p>
+        <p>The saved <a href="https://github.com/andrewarrow/aivs/blob/d7d722d/docs/examples/desert-road/screenplay.txt">screenplay</a> and <a href="https://github.com/andrewarrow/aivs/blob/d7d722d/docs/examples/desert-road/shooting-script.txt">full shooting script</a> show two shots totaling 21 seconds:</p>
 
         <div class="article-table">
           <table>
-            <thead><tr><th scope="col">Take</th><th scope="col">Length</th><th scope="col">Action and dialogue</th></tr></thead>
+            <thead><tr><th scope="col">Shot</th><th scope="col">Length</th><th scope="col">Source beats</th><th scope="col">Action and dialogue</th></tr></thead>
             <tbody>
-              <tr><th scope="row">1</th><td>7 seconds</td><td>Establish the car, bring Joe into view, and deliver his first line.</td></tr>
-              <tr><th scope="row">2</th><td>11 seconds</td><td>The ocean exchange, the postcard handoff, and Sue’s reply.</td></tr>
-              <tr><th scope="row">3</th><td>9 seconds</td><td>Close the hood, return the postcard, deliver Joe’s last line, and walk away.</td></tr>
+              <tr><th scope="row">1</th><td>10 seconds</td><td>1–4</td><td>Establish the wagon and postcard; Joe steps into view and delivers his first line; Sue almost smiles and looks down the road.</td></tr>
+              <tr><th scope="row">2</th><td>11 seconds</td><td>5–6</td><td>Sue delivers her line about the ocean; Joe looks around and replies; finish on a quiet reaction.</td></tr>
             </tbody>
           </table>
         </div>
 
-        <p>Codex chooses staging, but <a href="https://github.com/andrewarrow/aivs/blob/c0e225625b3d7580d6e756149705ed045052c88a/python/shooting_script.py">Python checks the proposed plan</a> before filming it. Every source beat must appear exactly once, in order, and a take can’t cross scene boundaries. Dialogue enters the template through placeholders such as <code>{{line_3}}</code>; Python fills in the original speaker, delivery cue, and words. It rejects duplicated placeholders, raw quoted dialogue, insufficient duration, and prompts over 1,024 Gemma tokens. A validation failure gets one corrective Codex attempt before the job fails.</p>
-        <p>That protects the source words and the plan’s structure. It doesn’t prove that an action described in the prompt happens on screen. The renderer films the takes in sequence, optionally uses the preceding take’s last frame as the next starting image, and joins them with FFmpeg. Assembly supplies the final fade, so the video model doesn’t have to interpret that instruction.</p>
+        <p>This is a saved planning example, so 21 seconds isn’t a promise about every render or evidence that the performance worked. Its second shot also calls for tighter framing. The <a href="https://github.com/andrewarrow/aivs/blob/d7d722d/python/shooting-script-instructions.txt">current director instructions</a> require every later shot within a scene to inherit the preceding shot’s actual last frame. Reframing has to develop through a continuous camera move from that composition. A new scene resets the frame reference. Carrying the frame forward helps preserve faces, clothes, positions, and props; it doesn’t lock identity across locations.</p>
+        <p>Codex chooses staging, but <a href="https://github.com/andrewarrow/aivs/blob/d7d722d/python/shooting_script.py">Python checks the proposed plan</a> before filming it. Every source beat must appear exactly once, in order, and a take can’t cross scene boundaries. Dialogue enters the template through placeholders such as <code>{{line_3}}</code>; Python fills in the original speaker, delivery cue, and words. It rejects duplicated placeholders, raw quoted dialogue, insufficient duration, and prompts over 1,024 Gemma tokens. A validation failure gets one corrective Codex attempt before the job fails. The run saves both a readable <code>shooting-script.txt</code> and a machine-readable <code>shooting-script.json</code>.</p>
+        <p>The renderer generates those four-to-twelve-second takes in sequence and joins them with FFmpeg, which also supplies the final fade. Planning through Codex uses the configured service and login; video inference and speech verification run locally. Keeping the words intact in the plan still leaves the model’s performance to check.</p>
 
         <h2>Joe needs somewhere to stand</h2>
-        <p>The <a href="https://github.com/andrewarrow/aivs/commit/80824b2">next fixes came from a render report</a> describing Joe emerging from the car without opening a door, plus gibberish at the end of the first shot. A valid shot list hadn’t made the performance physically sensible. Here’s a frame six seconds into the first take of that 27-second run. Even the requested red-rock desert has become a tree-lined road.</p>
+        <p>An <a href="https://github.com/andrewarrow/aivs/commit/80824b2">earlier render report</a> described Joe emerging from the car without opening a door, plus gibberish at the end of the first shot. A valid shot list hadn’t made the performance physically sensible. Here’s a frame six seconds into the first take of an <a href="/data/blog/aivs-the-ai-video-studio/last-light-three-shot-plan.json">older, three-shot, 27-second plan</a> for the longer <em>Last Light</em> scene. Even the requested red-rock desert has become a tree-lined road.</p>
 
         <figure>
           <img src="/images/blog/aivs-the-ai-video-studio/directed-shot-frame.webp" width="1280" height="704" alt="Frame six seconds into the first take of an early three-shot AIVS render. The two performers face the camera on a tree-lined road, although the screenplay calls for a red-rock desert." loading="lazy" decoding="async" />
         </figure>
 
-        <p>The director instructions now make Codex account for the opening frame and each movement that follows. Joe is already on the ground beside the raised hood, with the cabin doors shut. He steps around the fender into view. If a scene really requires an exit through a closed door, the plan has to include opening it. The postcard needs the same care: Sue gives it to Joe, but she pockets it later, so somebody has to give it back.</p>
-        <p>The soundtrack also needs an ending. Each dialogue take now asks for the speaker’s lips to settle after the last word, with the remaining action accompanied by environmental sound. Silent takes get explicit direction too. These instructions live in <a href="https://github.com/andrewarrow/aivs/blob/c0e225625b3d7580d6e756149705ed045052c88a/python/shooting-script-instructions.txt">a director-instructions file</a>, where they can improve staging across scripts without adding Python rules about particular cars or postcards.</p>
+        <p>The director instructions now make Codex account for the opening frame and each movement that follows. Joe is already on the ground beside the raised hood, with the cabin doors shut. He steps around the fender into view. If a scene really requires an exit through a closed door, the plan has to include opening it. The longer scene’s postcard handoff needed the same care: Sue gives it to Joe, but she pockets it later, so somebody has to give it back.</p>
+        <p>The soundtrack also needs an ending. Each dialogue take now asks for the speaker’s lips to settle after the last word, with the remaining action accompanied by environmental sound. Silent takes get explicit direction too. These instructions live in <a href="https://github.com/andrewarrow/aivs/blob/d7d722d/python/shooting-script-instructions.txt">a director-instructions file</a>, where they can improve staging across scripts without adding Python rules about particular cars or postcards.</p>
         <p>One easy mistake is to put the important detail only in <code>start_state</code> or <code>end_state</code>. Those fields are continuity notes for review. The model receives the assembled prompt, so its opening positions, prop ownership, and quiet ending have to be written there. A carried last frame can help preserve a composition; it can’t supply a missing physical cause.</p>
         <p>Planning is visible now, too. The GUI shows elapsed time and streams Codex activity while the shooting script is being prepared. The run keeps the requests, responses, and streamed diagnostics, including partial output when planning stops or times out. A long planning turn no longer has to look like a frozen Generate button.</p>
 
         <h2>Keeping the performer when the location changes</h2>
-        <p>Better staging still leaves a casting problem. The normal screenplay path supplies appearance and voice descriptions, not each performer’s saved portrait and recorded voice. Continuation can carry a face into the next shot, but a new angle or location needs a way to establish it again. Text describing auburn hair and freckles doesn’t uniquely identify Ava.</p>
-        <p>The <a href="https://github.com/andrewarrow/aivs/commit/c0e225625b3d7580d6e756149705ed045052c88a">latest character-consistency work</a> adds a separate command-line experiment: Lena plays Sue and Owen plays Joe, first on a desert road, then in a café. Each shot has one visible speaker. The prepared starting images use the original character portraits as references. These two images are inputs for Lena’s takes, with their generation prompts and source references saved alongside them:</p>
+        <p>Better staging still leaves a casting problem. The normal screenplay path supplies appearance and voice descriptions, not each performer’s saved portrait and recorded voice. Continuation can carry a face into the next shot, but a new location needs a way to establish it again. Text describing auburn hair and freckles doesn’t uniquely identify Ava.</p>
+        <p>The <a href="https://github.com/andrewarrow/aivs/commit/c0e225625b3d7580d6e756149705ed045052c88a">character-consistency work</a> added a separate command-line experiment: Lena plays Sue and Owen plays Joe, first on a desert road, then in a café. Each shot has one visible speaker. The prepared starting images use the original character portraits as references. These two images are inputs for Lena’s takes, with their generation prompts and source references saved alongside them:</p>
 
         <figure class="reference-comparison" aria-label="Prepared starting images of Lena in two locations">
           <div>
@@ -114,8 +122,8 @@
 
         <h2>A playable file still needs a director</h2>
         <p>The normal GUI path uses LTX-2.5 to generate picture and speech together at 1280 × 704 and 24 fps. Video inference runs locally from cached models; shooting-script preparation uses the signed-in Codex client. Initial model setup still downloads about 43 GB and requires 50 GiB free. Rust owns process lifetime, including Stop, and completed films play inside the native window through macOS AVKit.</p>
-        <p>Runs now save the human screenplay, structured request, readable and JSON shooting plans, cast snapshots, and individual shot reports. A later failure leaves earlier takes available to inspect. Before publishing <code>video.mp4</code>, <a href="https://github.com/andrewarrow/aivs/blob/c0e225625b3d7580d6e756149705ed045052c88a/python/validation.py">media validation</a> checks decoded frames, dimensions, frame rate, and audio/video timing. Those checks can catch a broken export while missing an impossible entrance or a swapped speaker.</p>
-        <p>I can now fix how Joe enters the shot without changing his dialogue, and test a camera change while keeping the prepared voice track. Character consistency is still unfinished. The next test is whether Lena and Owen survive all four takes with their faces, voices, and lines intact. Casting only earns its keep if I can carry those performers into another scene.</p>
+        <p>Before continuing to the next take, <a href="https://github.com/andrewarrow/aivs/blob/d7d722d/python/speech_validation.py">Whisper transcribes the generated audio</a> locally, without seeing the expected script. The app compares the recognized words with the source dialogue. Missing, substituted, repeated, or extra recognized words stop the run, leaving completed takes and transcript reports available to inspect. The assembled film must pass speech, decoded-frame, and audio/video timing checks before it becomes <code>video.mp4</code>. Whisper can mishear a valid line or miss an unintelligible sound; matching words still don’t prove the right person spoke them or that the lips line up.</p>
+        <p>I can now fix how Joe enters the shot without changing his dialogue or filling the screenplay with camera instructions. The shooting script makes those decisions explicit enough to inspect before rendering, and the saved takes let me compare the plan with what happened on screen. Faces, voices, and physical actions still need a director’s eye. But when Joe walks through the car, I have a specific entrance to fix.</p>
       </article>
     </main>
     <footer class="site-footer shell">

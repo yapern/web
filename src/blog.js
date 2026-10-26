@@ -6,7 +6,7 @@ export const blogPosts = [
     title: "aivs - the ai video studio",
     published: "2026-10-25",
     author: "Andrew Arrow",
-    summary: "AIVS now turns a cast screenplay into short Codex-directed shots. The latest work tackles impossible entrances, stray speech, and keeping a performer’s face and voice across scenes.",
+    summary: "A screenplay says Joe emerges from behind the engine. AIVS uses Codex to turn that into a timed shooting script, then renders connected shots locally. A saved desert-road example shows what the plan adds.",
   },
   {
     slug: "my-wellbeing-does-not-depend-on-my-project",
