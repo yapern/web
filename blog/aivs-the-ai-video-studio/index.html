@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#090d17" />
-    <meta name="description" content="How AIVS turns a human screenplay into a timed shooting script with Codex, then renders connected shots locally with LTX-2.5. A desert-road example shows the difference." />
+    <meta name="description" content="Import a Fountain screenplay, choose a scene, and let Codex turn it into a timed shooting script. A desert-road example shows how AIVS prepares shots for local LTX-2.5 generation." />
     <link rel="canonical" href="https://yapern.com/blog/aivs-the-ai-video-studio/" />
     <link rel="icon" href="/images/favicon.png" type="image/png" />
     <meta property="og:type" content="article" />
@@ -39,7 +39,12 @@
         <p class="blog-meta"><time datetime="2026-10-25">October 25, 2026</time> · Updated <time datetime="2026-10-26">October 26, 2026</time> · Andrew Arrow</p>
 
         <p>Sue and Joe are stranded beside a station wagon on a desert road. Joe emerges from behind the engine. “Good news. It’s definitely the car.” That’s enough for me to understand the scene. To film it, somebody still has to decide where Joe is standing, how he gets into view, and whether the camera can see him do it. Leaving those decisions to the video model can produce a man walking through a car.</p>
-        <p><a href="https://github.com/andrewarrow/aivs">AIVS</a> is the AI video studio I’m building around that gap. You write the screenplay and cast its roles. Codex turns it into a shooting script with timed directions for the action, camera, dialogue, and sound. LTX-2.5 then generates picture and speech together in short takes on an Apple Silicon Mac. The desktop app is Rust; Python runs the planning and video pipeline. The story stays readable while the shooting script handles the details needed to film it.</p>
+        <p><a href="https://github.com/andrewarrow/aivs">AIVS</a> is the AI video studio I’m building around that gap. You write or import a screenplay, choose a scene, and cast its roles. Codex turns that scene into a shooting script with timed directions for the action, camera, dialogue, and sound. LTX-2.5 then generates picture and speech together in short takes on an Apple Silicon Mac. The desktop app is Rust; Python runs the planning and video pipeline. The story stays readable while the shooting script handles the details needed to film it.</p>
+
+        <h2>Import the script, film one scene</h2>
+        <p>The story can start in another editor. <a href="https://fountain.io/">Fountain</a> is an open screenplay format that keeps the script in readable plain text. The <a href="https://github.com/nyousefi/Fountain">nyousefi/Fountain repository</a> provides an open source implementation and a full-length <a href="https://github.com/nyousefi/Fountain/blob/master/FountainTests/Big%20Fish.fountain"><em>Big Fish</em> screenplay</a> as an example. Open that file and you can read the scenes and dialogue directly, without a screenwriting app.</p>
+        <p>The <a href="https://github.com/andrewarrow/aivs/commit/08633877c50af568499ef1ac4cc0401019fd9aaf">new import command</a> brings those files into AIVS through <strong>File → Import…</strong>. Scene headings, action, character cues, parentheticals, dialogue, and transitions become editable elements. Import replaces the current screenplay and clears its casting; Undo restores both. The original <code>.fountain</code> file stays untouched, and the imported document autosaves to <code>screenplay.json</code>. The importer leaves out title-page metadata, outline sections, notes, omitted passages, page breaks, and emphasis formatting. Simultaneous dialogue becomes dialogue in source order.</p>
+        <p>You can keep the full screenplay in the editor and work on one scene at a time. The <a href="https://github.com/andrewarrow/aivs/commit/1d71c5c585707bec259fe00adc1c9780c325d5ff">scene selector</a> above <strong>Generate video</strong> lists the scene headings. Choose one and cast its roles; AIVS sends only that scene and its cast to the shooting-script pipeline. Uncast roles elsewhere in the script don’t block it. The 100,000-character generation limit applies to the selected scene, so a long document no longer has to be cut into separate files just to render a scene from it.</p>
 
         <h2>Sue is a role. Ava can play her.</h2>
         <p>The script originally called its two people Ava and Eli, the same names as their saved character profiles. The <a href="https://github.com/andrewarrow/aivs/commit/b223052b4a32eff35fd62494630263270fc2aea4">rename to Sue and Joe</a> made the distinction explicit. Ava belongs in the library of performers; Sue belongs in the story. Recasting Sue shouldn’t require hunting through the script to replace every name.</p>
@@ -52,7 +57,7 @@
           </picture>
         </figure>
 
-        <p>The <a href="https://github.com/andrewarrow/aivs/blob/c0e225625b3d7580d6e756149705ed045052c88a/src/screenplay.rs">implementation</a> stores one assignment per role, rather than one per line. The screenplay preview and generation request come from the same scene data. Both roles must be cast before Generate video becomes available.</p>
+        <p>The <a href="https://github.com/andrewarrow/aivs/blob/1d71c5c585707bec259fe00adc1c9780c325d5ff/src/screenplay.rs">implementation</a> stores one assignment per role, rather than one per line. The screenplay editor and generation request come from the same document. Every role in the selected scene must be cast before Generate video becomes available.</p>
         <p>The old request embedded performer references in a long prompt. Rust now sends the screenplay text and structured cast bindings to Python. The cast portion looks like this:</p>
 
         <pre><code>"cast": [
@@ -60,7 +65,7 @@
   { "role": "SUE", "character": "ava" }
 ]</code></pre>
 
-        <p>Python loads those saved profiles explicitly. A role called Ava can’t accidentally cast itself just by sharing a library name. The scene’s dialogue keeps its role names, and the renderer adds appearance and voice descriptions under those names. The GUI now edits the screenplay, including new scenes, and autosaves the text and cast assignments to <code>screenplay.json</code> in the workspace. Generate video uses that edited document.</p>
+        <p>Python loads those saved profiles explicitly. A role called Ava can’t accidentally cast itself just by sharing a library name. The scene’s dialogue keeps its role names, and the renderer adds appearance and voice descriptions under those names. You can edit the screenplay and add scenes in the GUI; text and cast assignments autosave together in the workspace.</p>
 
         <h2>The screenplay needs a shooting script</h2>
         <p>The screenplay describes what happens: the setting, actions, characters, and dialogue. It can leave quite a lot to the people making the film. The <a href="https://github.com/andrewarrow/aivs/blob/d7d722d/README.md">updated README</a> pairs a short desert-road screenplay with the shooting script produced for it. The source has three spoken lines, ending with Joe’s “He was an optimistic man.” One action sentence reads:</p>

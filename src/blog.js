@@ -6,7 +6,7 @@ export const blogPosts = [
     title: "aivs - the ai video studio",
     published: "2026-10-25",
     author: "Andrew Arrow",
-    summary: "A screenplay says Joe emerges from behind the engine. AIVS uses Codex to turn that into a timed shooting script, then renders connected shots locally. A saved desert-road example shows what the plan adds.",
+    summary: "Import a Fountain screenplay, choose a scene, and cast its roles. AIVS uses Codex to prepare a shooting script, then renders it locally. A saved desert-road example shows what the plan adds.",
   },
   {
     slug: "my-wellbeing-does-not-depend-on-my-project",
