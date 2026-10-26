@@ -105,8 +105,9 @@ preserves the draft, and never retries a send automatically. Success confirms
 provider acceptance, not inbox delivery. Deploy backend migration `015` and
 configure its email binding and sender domain before live sends.
 
-The about page at `/about/` uses the blog article layout to explain Yapern’s
-aim to build a better Reddit in the open, its current state, and how to contribute.
+The about page at `/about/` uses the blog article layout to describe Yapern as an
+open source Reddit-style community and the student project for Andrew Arrow’s
+vibe-coding lessons.
 
 All messages use `/all`, board links use `/y/:slug`, and message links use
 `/y/:slug/:id`. These routes load `board.html` and fetch data in the browser.
