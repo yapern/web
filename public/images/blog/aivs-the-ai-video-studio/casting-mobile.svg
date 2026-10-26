@@ -12,7 +12,8 @@
 <rect x="80" y="330" width="540" height="650" fill="white"/>
 <path d="M520 298 H658 V376 H460" fill="none" stroke="#285c90" stroke-width="2.5" marker-end="url(#JOE)"/>
 <text x="350" y="385" font-family="monospace" font-size="29" font-weight="bold" text-anchor="middle" fill="#285c90">JOE</text>
-<text x="112" y="423" font-family="monospace" font-size="26" font-weight="normal" text-anchor="start" fill="#282b2f">Good news. It&#x27;s definitely the car.</text>
+<text x="112" y="423" font-family="monospace" font-size="26" font-weight="normal" text-anchor="start" fill="#282b2f">Good news. It&#x27;s definitely</text>
+<text x="112" y="455" font-family="monospace" font-size="26" font-weight="normal" text-anchor="start" fill="#282b2f">the car.</text>
 <path d="M180 298 H42 V492 H235" fill="none" stroke="#9b4525" stroke-width="2.5" marker-end="url(#SUE)"/>
 <text x="350" y="501" font-family="monospace" font-size="29" font-weight="bold" text-anchor="middle" fill="#9b4525">SUE</text>
 <text x="112" y="539" font-family="monospace" font-size="26" font-weight="normal" text-anchor="start" fill="#282b2f">My dad said you could see</text>
