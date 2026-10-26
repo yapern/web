@@ -2,6 +2,13 @@ export const BLOG_PAGE_SIZE = 6;
 
 export const blogPosts = [
   {
+    slug: "aivs-the-ai-video-studio",
+    title: "aivs - the ai video studio",
+    published: "2026-10-25",
+    author: "Andrew Arrow",
+    summary: "Sue and Joe belong to the screenplay. Ava and Eli are the cast. Building a local AI video studio around that distinction, and the gap between assigning a performer and getting the model to follow directions.",
+  },
+  {
     slug: "my-wellbeing-does-not-depend-on-my-project",
     title: "my wellbeing does not depend on my project",
     published: "2026-10-25",

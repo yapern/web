@@ -100,7 +100,7 @@ export function boardPageRoutes(server, preview = false, fetcher = fetch) {
 
 function pageRedirects(server) {
   server.middlewares.use((request, response, next) => {
-    const match = request.url?.match(/^\/(about|privacy|terms|download|login|account|backroom|notifications|search|blog|blog\/building-yapern|blog\/turso-vs-layerbase-free-plan-sqlite-systems|blog\/not-a-tavern-a-yapern|blog\/hosted-videos-with-cloudflare-images-streams|blog\/my-17-projects-looking-for-number-18|blog\/my-wellbeing-does-not-depend-on-my-project)(\?.*)?$/);
+    const match = request.url?.match(/^\/(about|privacy|terms|download|login|account|backroom|notifications|search|blog|blog\/building-yapern|blog\/turso-vs-layerbase-free-plan-sqlite-systems|blog\/not-a-tavern-a-yapern|blog\/hosted-videos-with-cloudflare-images-streams|blog\/my-17-projects-looking-for-number-18|blog\/my-wellbeing-does-not-depend-on-my-project|blog\/aivs-the-ai-video-studio)(\?.*)?$/);
     if (!match) {
       next();
       return;
@@ -154,6 +154,7 @@ export default defineConfig({
         privacy: fileURLToPath(new URL("./privacy/index.html", import.meta.url)),
         terms: fileURLToPath(new URL("./terms/index.html", import.meta.url)),
         blog: fileURLToPath(new URL("./blog/index.html", import.meta.url)),
+        blogAivs: fileURLToPath(new URL("./blog/aivs-the-ai-video-studio/index.html", import.meta.url)),
         blogMyWellbeing: fileURLToPath(new URL("./blog/my-wellbeing-does-not-depend-on-my-project/index.html", import.meta.url)),
         blogMy17Projects: fileURLToPath(new URL("./blog/my-17-projects-looking-for-number-18/index.html", import.meta.url)),
         blogHostedVideos: fileURLToPath(new URL("./blog/hosted-videos-with-cloudflare-images-streams/index.html", import.meta.url)),

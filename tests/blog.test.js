@@ -32,7 +32,7 @@ test("pagination links point only to available pages, with the first page at /bl
   assert.match(last, /href="\/blog\/page\/2\/" rel="prev"/);
   assert.doesNotMatch(last, /rel="next"/);
   assert.match(last, /Page 3 of 3/);
-  const single = renderBlogPage(template);
+  const single = renderBlogPage(template, 1, posts.slice(0, BLOG_PAGE_SIZE));
   assert.match(single, /Page 1 of 1/);
   assert.doesNotMatch(single, /rel="(?:prev|next)"/);
   assert.equal(renderBlogPage(template, 4, posts), null);
