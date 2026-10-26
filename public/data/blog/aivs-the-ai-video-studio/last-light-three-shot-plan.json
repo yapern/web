@@ -1,0 +1,187 @@
+{
+  "version": 1,
+  "source_sha256": "20f1bbbc1b2b01edb36d6cc6ff4ff83b94eada5ac563cc9b7b9a0856425ac550",
+  "seconds": 27,
+  "fade_out": true,
+  "source": {
+    "version": 1,
+    "script": "EXT. DESERT ROAD - DUSK\n\nA two-lane road cuts through red rock. An old station wagon sits on the shoulder, its hood raised.\n\nSUE, 30s, turns a battered postcard over in her hands. JOE, late 20s, emerges from behind the engine.\n\nJOE: \"Good news. It's definitely the car.\"\n\nSue almost smiles. She looks down the empty road.\n\nSUE: \"My dad said you could see the ocean from here.\"\n\nJOE (looking around): \"He was an optimistic man.\"\n\nShe hands him the postcard. The same road, forty years younger. On the back: KEEP GOING.\n\nSUE: \"He made it sound closer.\"\n\nJoe lowers the hood. Beyond the rocks, a thin line of gold catches the last of the sun.\n\nJOE: \"We've still got some light.\"\n\nSue pockets the postcard. They start walking.\n\nFADE OUT.",
+    "cast": [
+      {
+        "role": "JOE",
+        "character": "eli"
+      },
+      {
+        "role": "SUE",
+        "character": "ava"
+      }
+    ],
+    "characters": [
+      {
+        "id": "eli",
+        "name": "Eli",
+        "description": "An adult man in his late twenties with fair skin, a narrow oval face, blue-gray eyes, thick dark eyebrows, short curly dark brown hair, and a clean-shaven jaw. He wears a charcoal cotton T-shirt and has a curious, relaxed expression.",
+        "voice_description": "Low, resonant masculine voice with a neutral American accent and deliberate, grounded delivery.",
+        "voice_id": "am_adam"
+      },
+      {
+        "id": "ava",
+        "name": "Ava",
+        "description": "An adult woman in her early thirties with fair freckled skin, an oval face, green eyes, softly arched eyebrows, a straight nose, and shoulder-length wavy auburn hair parted slightly off center. She wears an oatmeal crewneck sweater and has a warm, open expression.",
+        "voice_description": "Warm, clear mid-register feminine voice with a neutral American accent and relaxed conversational delivery.",
+        "voice_id": "af_heart"
+      }
+    ],
+    "beats": [
+      {
+        "id": 1,
+        "kind": "action",
+        "text": "A two-lane road cuts through red rock. An old station wagon sits on the shoulder, its hood raised.",
+        "scene": "EXT. DESERT ROAD - DUSK",
+        "scene_id": 1,
+        "transition": null
+      },
+      {
+        "id": 2,
+        "kind": "action",
+        "text": "SUE, 30s, turns a battered postcard over in her hands. JOE, late 20s, emerges from behind the engine.",
+        "scene": "EXT. DESERT ROAD - DUSK",
+        "scene_id": 1,
+        "transition": null
+      },
+      {
+        "id": 3,
+        "kind": "dialogue",
+        "speaker": "JOE",
+        "cue": null,
+        "text": "Good news. It's definitely the car.",
+        "scene": "EXT. DESERT ROAD - DUSK",
+        "scene_id": 1,
+        "transition": null
+      },
+      {
+        "id": 4,
+        "kind": "action",
+        "text": "Sue almost smiles. She looks down the empty road.",
+        "scene": "EXT. DESERT ROAD - DUSK",
+        "scene_id": 1,
+        "transition": null
+      },
+      {
+        "id": 5,
+        "kind": "dialogue",
+        "speaker": "SUE",
+        "cue": null,
+        "text": "My dad said you could see the ocean from here.",
+        "scene": "EXT. DESERT ROAD - DUSK",
+        "scene_id": 1,
+        "transition": null
+      },
+      {
+        "id": 6,
+        "kind": "dialogue",
+        "speaker": "JOE",
+        "cue": "looking around",
+        "text": "He was an optimistic man.",
+        "scene": "EXT. DESERT ROAD - DUSK",
+        "scene_id": 1,
+        "transition": null
+      },
+      {
+        "id": 7,
+        "kind": "action",
+        "text": "She hands him the postcard. The same road, forty years younger. On the back: KEEP GOING.",
+        "scene": "EXT. DESERT ROAD - DUSK",
+        "scene_id": 1,
+        "transition": null
+      },
+      {
+        "id": 8,
+        "kind": "dialogue",
+        "speaker": "SUE",
+        "cue": null,
+        "text": "He made it sound closer.",
+        "scene": "EXT. DESERT ROAD - DUSK",
+        "scene_id": 1,
+        "transition": null
+      },
+      {
+        "id": 9,
+        "kind": "action",
+        "text": "Joe lowers the hood. Beyond the rocks, a thin line of gold catches the last of the sun.",
+        "scene": "EXT. DESERT ROAD - DUSK",
+        "scene_id": 1,
+        "transition": null
+      },
+      {
+        "id": 10,
+        "kind": "dialogue",
+        "speaker": "JOE",
+        "cue": null,
+        "text": "We've still got some light.",
+        "scene": "EXT. DESERT ROAD - DUSK",
+        "scene_id": 1,
+        "transition": null
+      },
+      {
+        "id": 11,
+        "kind": "action",
+        "text": "Sue pockets the postcard. They start walking.",
+        "scene": "EXT. DESERT ROAD - DUSK",
+        "scene_id": 1,
+        "transition": null
+      }
+    ],
+    "fade_out": true,
+    "source_sha256": "20f1bbbc1b2b01edb36d6cc6ff4ff83b94eada5ac563cc9b7b9a0856425ac550"
+  },
+  "shots": [
+    {
+      "seconds": 7,
+      "beat_ids": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "prompt_template": "At dusk, a two-lane road runs between red rocks. An old station wagon rests on the shoulder with its hood raised. The camera advances from a wide roadside view toward the front passenger corner. ava turns a battered postcard over between her hands beside the passenger fender. eli steps out from behind the engine bay toward her. eli: {{line_3}} ava almost smiles, then turns her head toward the empty road. The camera settles into a medium two-shot.",
+      "prompt": "At dusk, a two-lane road runs between red rocks. An old station wagon rests on the shoulder with its hood raised. The camera advances from a wide roadside view toward the front passenger corner. ava turns a battered postcard over between her hands beside the passenger fender. eli steps out from behind the engine bay toward her. eli: JOE says, \"Good news. It's definitely the car.\". ava almost smiles, then turns her head toward the empty road. The camera settles into a medium two-shot. JOE looks like an adult man in his late twenties with fair skin, a narrow oval face, blue-gray eyes, thick dark eyebrows, short curly dark brown hair, and a clean-shaven jaw. He wears a charcoal cotton T-shirt and has a curious, relaxed expression. JOE speaks with low, resonant masculine voice with a neutral American accent and deliberate, grounded delivery. SUE looks like an adult woman in her early thirties with fair freckled skin, an oval face, green eyes, softly arched eyebrows, a straight nose, and shoulder-length wavy auburn hair parted slightly off center. She wears an oatmeal crewneck sweater and has a warm, open expression. SUE speaks with warm, clear mid-register feminine voice with a neutral American accent and relaxed conversational delivery. Only the current speaker moves their mouth. No subtitles, captions, or text overlays.",
+      "start_state": "Wide roadside view of the wagon, facing along the desert road. Hood raised. ava stands beside the front passenger fender holding the postcard; eli is partly concealed behind the engine bay. eli wears his charcoal T-shirt; ava wears her oatmeal sweater.",
+      "end_state": "Medium two-shot at the front passenger corner: eli stands screen left beside the front bumper; ava stands screen right, looking down the road with the postcard in both hands. Hood remains raised. Wardrobe unchanged: eli's charcoal T-shirt and ava's oatmeal sweater.",
+      "continue_previous": false,
+      "scene": "EXT. DESERT ROAD - DUSK",
+      "scene_id": 1
+    },
+    {
+      "seconds": 11,
+      "beat_ids": [
+        5,
+        6,
+        7,
+        8
+      ],
+      "prompt_template": "Beside the station wagon on the dusk desert shoulder, ava turns from the road toward eli, holding the battered postcard. ava: {{line_5}} eli turns his head across the surrounding red rocks. eli: {{line_6}} ava extends the postcard into eli's left hand. He lifts it slightly and rotates it, revealing an aged photograph of this same road decades earlier, then its handwritten reverse. The camera moves gently closer while retaining both faces and the card. ava: {{line_8}}",
+      "prompt": "Beside the station wagon on the dusk desert shoulder, ava turns from the road toward eli, holding the battered postcard. ava: SUE says, \"My dad said you could see the ocean from here.\". eli turns his head across the surrounding red rocks. eli: JOE (looking around) says, \"He was an optimistic man.\". ava extends the postcard into eli's left hand. He lifts it slightly and rotates it, revealing an aged photograph of this same road decades earlier, then its handwritten reverse. The camera moves gently closer while retaining both faces and the card. ava: SUE says, \"He made it sound closer.\". JOE looks like an adult man in his late twenties with fair skin, a narrow oval face, blue-gray eyes, thick dark eyebrows, short curly dark brown hair, and a clean-shaven jaw. He wears a charcoal cotton T-shirt and has a curious, relaxed expression. JOE speaks with low, resonant masculine voice with a neutral American accent and deliberate, grounded delivery. SUE looks like an adult woman in her early thirties with fair freckled skin, an oval face, green eyes, softly arched eyebrows, a straight nose, and shoulder-length wavy auburn hair parted slightly off center. She wears an oatmeal crewneck sweater and has a warm, open expression. SUE speaks with warm, clear mid-register feminine voice with a neutral American accent and relaxed conversational delivery. Only the current speaker moves their mouth. No subtitles, captions, or text overlays.",
+      "start_state": "Medium two-shot at the front passenger corner, eli screen left and ava screen right. ava holds the postcard in both hands; eli's hands are free. The hood is raised. eli wears his charcoal T-shirt; ava wears her oatmeal sweater.",
+      "end_state": "Closer medium two-shot from the same roadside angle. eli holds the postcard in his left hand at chest height, its handwritten reverse toward the camera; his right hand is free. ava's hands are empty. Both remain beside the front passenger corner. Hood raised; wardrobe unchanged.",
+      "continue_previous": true,
+      "scene": "EXT. DESERT ROAD - DUSK",
+      "scene_id": 1
+    },
+    {
+      "seconds": 9,
+      "beat_ids": [
+        9,
+        10,
+        11
+      ],
+      "prompt_template": "At the station wagon's front corner, eli keeps the postcard in his left hand and reaches up with his right to lower the hood until it closes. A thin gold line beyond the rocks catches the remaining sunlight. eli turns toward ava. eli: {{line_10}} He returns the postcard to her waiting hand. ava slips it into her pocket. They turn toward the distant light. For the final three seconds, they walk side by side along the shoulder, leaving the wagon behind as the camera eases back into a wide view.",
+      "prompt": "At the station wagon's front corner, eli keeps the postcard in his left hand and reaches up with his right to lower the hood until it closes. A thin gold line beyond the rocks catches the remaining sunlight. eli turns toward ava. eli: JOE says, \"We've still got some light.\". He returns the postcard to her waiting hand. ava slips it into her pocket. They turn toward the distant light. For the final three seconds, they walk side by side along the shoulder, leaving the wagon behind as the camera eases back into a wide view. JOE looks like an adult man in his late twenties with fair skin, a narrow oval face, blue-gray eyes, thick dark eyebrows, short curly dark brown hair, and a clean-shaven jaw. He wears a charcoal cotton T-shirt and has a curious, relaxed expression. JOE speaks with low, resonant masculine voice with a neutral American accent and deliberate, grounded delivery. SUE looks like an adult woman in her early thirties with fair freckled skin, an oval face, green eyes, softly arched eyebrows, a straight nose, and shoulder-length wavy auburn hair parted slightly off center. She wears an oatmeal crewneck sweater and has a warm, open expression. SUE speaks with warm, clear mid-register feminine voice with a neutral American accent and relaxed conversational delivery. Only the current speaker moves their mouth. No subtitles, captions, or text overlays.",
+      "start_state": "Closer medium two-shot from the roadside, eli screen left and ava screen right beside the raised hood. eli holds the postcard in his left hand; ava's hands are empty. eli wears his charcoal T-shirt; ava wears her oatmeal sweater.",
+      "end_state": "Wide rear three-quarter view of eli and ava continuing down the shoulder toward the gold horizon, eli left and ava right. The postcard is in ava's pocket. The station wagon remains behind them with its hood closed. Wardrobe unchanged: eli's charcoal T-shirt and ava's oatmeal sweater.",
+      "continue_previous": true,
+      "scene": "EXT. DESERT ROAD - DUSK",
+      "scene_id": 1
+    }
+  ]
+}

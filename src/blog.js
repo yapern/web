@@ -6,7 +6,7 @@ export const blogPosts = [
     title: "aivs - the ai video studio",
     published: "2026-10-25",
     author: "Andrew Arrow",
-    summary: "Sue and Joe belong to the screenplay. Ava and Eli are the cast. Building a local AI video studio around that distinction, and the gap between assigning a performer and getting the model to follow directions.",
+    summary: "AIVS now turns a cast screenplay into short Codex-directed shots. The latest work tackles impossible entrances, stray speech, and keeping a performer’s face and voice across scenes.",
   },
   {
     slug: "my-wellbeing-does-not-depend-on-my-project",

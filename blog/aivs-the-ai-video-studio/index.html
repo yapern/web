@@ -4,24 +4,25 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#090d17" />
-    <meta name="description" content="Building AIVS, a local Rust and Python video studio where you cast saved characters in a screenplay, then ask LTX-2.5 to perform the scene." />
+    <meta name="description" content="AIVS turns a cast screenplay into Codex-directed shots, renders them locally with LTX-2.5, and experiments with fixed voices and reusable character references." />
     <link rel="canonical" href="https://yapern.com/blog/aivs-the-ai-video-studio/" />
     <link rel="icon" href="/images/favicon.png" type="image/png" />
     <meta property="og:type" content="article" />
     <meta property="og:site_name" content="Yapern" />
     <meta property="og:title" content="aivs - the ai video studio" />
-    <meta property="og:description" content="Sue and Joe are roles. Ava and Eli are the cast. How AIVS turns that assignment into a local video render, and what the model still gets wrong." />
+    <meta property="og:description" content="From casting Sue and Joe to planning short shots, fixing impossible entrances, and testing the same performer across locations with a prepared voice." />
     <meta property="og:url" content="https://yapern.com/blog/aivs-the-ai-video-studio/" />
-    <meta property="og:image" content="https://yapern.com/images/blog/aivs-the-ai-video-studio/last-light-frame.webp" />
-    <meta property="og:image:alt" content="An actual frame from an early AIVS render: two generated performers in a tight close-up beside a desert road." />
+    <meta property="og:image" content="https://yapern.com/images/blog/aivs-the-ai-video-studio/directed-shot-frame.webp" />
+    <meta property="og:image:alt" content="A frame from AIVS’s early three-shot render: two generated performers on a tree-lined road." />
     <meta property="article:published_time" content="2026-10-25" />
+    <meta property="article:modified_time" content="2026-10-26" />
     <meta property="article:author" content="Andrew Arrow" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="aivs - the ai video studio" />
-    <meta name="twitter:description" content="Casting a screenplay in a local AI video studio, with real character references and a frame from an early render." />
+    <meta name="twitter:description" content="Codex shooting plans, local video generation, and an unfinished experiment in keeping the same face and voice across scenes." />
     <meta name="twitter:url" content="https://yapern.com/blog/aivs-the-ai-video-studio/" />
-    <meta name="twitter:image" content="https://yapern.com/images/blog/aivs-the-ai-video-studio/last-light-frame.webp" />
-    <meta name="twitter:image:alt" content="An actual frame from an early AIVS render: two generated performers in a tight close-up beside a desert road." />
+    <meta name="twitter:image" content="https://yapern.com/images/blog/aivs-the-ai-video-studio/directed-shot-frame.webp" />
+    <meta name="twitter:image:alt" content="A frame from AIVS’s early three-shot render: two generated performers on a tree-lined road." />
     <link rel="stylesheet" href="/yapern.css" />
     <link rel="stylesheet" href="/blog.css" />
     <script type="module" src="/src/auth-nav.js"></script>
@@ -35,10 +36,10 @@
       <p class="blog-back"><a href="/blog/">← Blog</a></p>
       <article class="blog-article blog-article--aivs" aria-labelledby="article-title">
         <h1 id="article-title">aivs - the ai video studio</h1>
-        <p class="blog-meta"><time datetime="2026-10-25">October 25, 2026</time> · Andrew Arrow</p>
+        <p class="blog-meta"><time datetime="2026-10-25">October 25, 2026</time> · Updated <time datetime="2026-10-26">October 26, 2026</time> · Andrew Arrow</p>
 
         <p>Sue and Joe are stranded beside a station wagon on a desert road. Joe has looked under the hood. “Good news. It’s definitely the car.” Sue has a postcard from her dad and a questionable promise that the ocean is somewhere nearby. It’s a tiny scene, five lines of dialogue, but it already creates a useful problem for an AI video tool: I want to choose who plays these people without rewriting who they are.</p>
-        <p><a href="https://github.com/andrewarrow/aivs">AIVS</a> is the AI video studio I’m building around that workflow. It’s a native Rust app with a screenplay, a character gallery, and local video generation on Apple Silicon. The current version handles one built-in scene, <em>Last Light</em>, as a continuous shot. There’s plenty missing before “studio” means everything you’d expect, but casting gives this first scene something more useful than another giant prompt box.</p>
+        <p><a href="https://github.com/andrewarrow/aivs">AIVS</a> is the AI video studio I’m building around that workflow. It’s a native Rust app with a screenplay, a character gallery, and video generation on Apple Silicon. It now asks Codex to turn the cast screenplay into a shooting plan, then renders and assembles the short takes locally. The GUI still starts with the built-in <em>Last Light</em> scene; the command line can accept other scripts. Changing the camera shouldn’t quietly give me a different actor.</p>
 
         <h2>Sue is a role. Ava can play her.</h2>
         <p>The script originally called its two people Ava and Eli, the same names as their saved character profiles. The <a href="https://github.com/andrewarrow/aivs/commit/b223052b4a32eff35fd62494630263270fc2aea4">rename to Sue and Joe</a> made the distinction explicit. Ava belongs in the library of performers; Sue belongs in the story. Recasting Sue shouldn’t require hunting through the script to replace every name.</p>
@@ -51,53 +52,70 @@
           </picture>
         </figure>
 
-        <p>The <a href="https://github.com/andrewarrow/aivs/blob/c56624ee105f3cc9368a50bb6e9a3081cef9b06a/src/screenplay.rs">implementation</a> stores one assignment per role, rather than one per line. The screenplay preview and render prompt also come from the same scene data, so the displayed dialogue isn’t a separate sample that can quietly drift away from what gets generated. Both roles must be cast before Generate video becomes available.</p>
-        <p>Here’s an excerpt of the resulting prompt. The performer references appear in the cast declaration, while the dialogue still belongs to Joe and Sue:</p>
+        <p>The <a href="https://github.com/andrewarrow/aivs/blob/c0e225625b3d7580d6e756149705ed045052c88a/src/screenplay.rs">implementation</a> stores one assignment per role, rather than one per line. The screenplay preview and generation request come from the same scene data. Both roles must be cast before Generate video becomes available.</p>
+        <p>The old request embedded performer references in a long prompt. Rust now sends the screenplay text and structured cast bindings to Python. The cast portion looks like this:</p>
 
-        <pre><code>Cast: @eli plays JOE; @ava plays SUE.
+        <pre><code>"cast": [
+  { "role": "JOE", "character": "eli" },
+  { "role": "SUE", "character": "ava" }
+]</code></pre>
 
-JOE: "Good news. It's definitely the car."
+        <p>Python loads those saved profiles explicitly. A role called Ava can’t accidentally cast itself just by sharing a library name. The scene’s dialogue keeps its role names, and the renderer adds appearance and voice descriptions under those names. Assignments still last only for the session, and the GUI screenplay remains a preview rather than a script editor.</p>
 
-SUE: "My dad said you could see the ocean from here."</code></pre>
+        <h2>The screenplay needs a shooting script</h2>
+        <p>The first version estimated 14 seconds for the five spoken lines. Adding time for the action brought that estimate to 32 seconds, but a longer clip still left the model to figure out the entire scene. Somebody has to decide where the camera starts, who holds the postcard, and when there’s room for the final walk.</p>
+        <p>The <a href="https://github.com/andrewarrow/aivs/commit/0561221">shooting-script work</a> puts a planning step between the screenplay and video generation. Python parses the script into ordered action and dialogue beats. Codex proposes takes lasting four to twelve seconds, with a prompt, opening state, ending state, and a decision about whether to continue the previous composition. One <a href="/data/blog/aivs-the-ai-video-studio/last-light-three-shot-plan.json">saved early plan</a> for <em>Last Light</em> totals 27 seconds:</p>
 
-        <p>Python resolves those references and adds each performer’s saved appearance and voice description. It doesn’t guess the cast from bare names in GUI scripts. Otherwise a role named Ava could accidentally cast itself, undoing the separation we just made. Assignments currently last only for the session, and the screenplay is a preview of the built-in scene, not a script editor yet.</p>
+        <div class="article-table">
+          <table>
+            <thead><tr><th scope="col">Take</th><th scope="col">Length</th><th scope="col">Action and dialogue</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">1</th><td>7 seconds</td><td>Establish the car, bring Joe into view, and deliver his first line.</td></tr>
+              <tr><th scope="row">2</th><td>11 seconds</td><td>The ocean exchange, the postcard handoff, and Sue’s reply.</td></tr>
+              <tr><th scope="row">3</th><td>9 seconds</td><td>Close the hood, return the postcard, deliver Joe’s last line, and walk away.</td></tr>
+            </tbody>
+          </table>
+        </div>
 
-        <h2>A portrait also tells the model where to put the camera</h2>
-        <p>A character profile contains more than a name. Ava has auburn hair, freckles, an oatmeal sweater, and a description of her voice. The library also holds portraits, voice samples, and wide scene references. It’s tempting to assume that giving the renderer all those assets must make the character more consistent.</p>
-        <p>The image input has a catch. In the <a href="https://github.com/andrewarrow/aivs/blob/c56624ee105f3cc9368a50bb6e9a3081cef9b06a/python/quality_backend.py">current backend</a>, it conditions a complete frame. Feed it Eli’s gallery portrait, and you’re also asking it to start with a frame full of Eli’s face. You haven’t supplied a little identity card that the model can place wherever the screenplay needs him.</p>
-        <p>These are the actual library assets for Eli. The wide reference leaves room for a landscape and his torso; the gallery portrait is a perfectly good way to recognize him in a sidebar, but a lousy starting composition for two people beside a car.</p>
+        <p>Codex chooses staging, but <a href="https://github.com/andrewarrow/aivs/blob/c0e225625b3d7580d6e756149705ed045052c88a/python/shooting_script.py">Python checks the proposed plan</a> before filming it. Every source beat must appear exactly once, in order, and a take can’t cross scene boundaries. Dialogue enters the template through placeholders such as <code>{{line_3}}</code>; Python fills in the original speaker, delivery cue, and words. It rejects duplicated placeholders, raw quoted dialogue, insufficient duration, and prompts over 1,024 Gemma tokens. A validation failure gets one corrective Codex attempt before the job fails.</p>
+        <p>That protects the source words and the plan’s structure. It doesn’t prove that an action described in the prompt happens on screen. The renderer films the takes in sequence, optionally uses the preceding take’s last frame as the next starting image, and joins them with FFmpeg. Assembly supplies the final fade, so the video model doesn’t have to interpret that instruction.</p>
 
-        <figure class="reference-comparison" aria-label="Eli’s gallery portrait compared with his wide scene reference">
-          <div class="reference-portrait">
-            <p class="reference-label">Gallery portrait</p>
-            <img src="/images/blog/aivs-the-ai-video-studio/eli-portrait.webp" width="600" height="600" alt="Eli’s saved gallery portrait, a square image tightly framing his head and shoulders against a plain background." loading="lazy" decoding="async" />
-          </div>
-          <div>
-            <p class="reference-label">Whole-frame scene reference</p>
-            <img src="/images/blog/aivs-the-ai-video-studio/eli-scene-reference.webp" width="1000" height="550" alt="Eli’s saved wide reference shows him down to his hips, with open desert and red rock formations on either side." loading="lazy" decoding="async" />
-          </div>
-        </figure>
-
-        <p>The CLI can use a scene reference at both the first and last frames to help hold the composition. For the GUI’s ensemble scene, though, <a href="https://github.com/andrewarrow/aivs/blob/c56624ee105f3cc9368a50bb6e9a3081cef9b06a/src/video.rs">Rust explicitly requests text-only character guidance</a>. Neither performer’s solo image gets imposed on the entire scene. That lets the prompt describe both people together, at the cost of weaker control over their exact likenesses. The saved voice samples don’t lock voice identity in this path either.</p>
-
-        <h2>Getting a scene through the local renderer</h2>
-        <p>The first video workflow came over from Hunter, an earlier project, with Rust taking over setup and process lifetime while Python kept the MLX pipeline. AIVS uses the <a href="https://huggingface.co/dgrauet/ltx-2.5-mlx-q8">q8 MLX conversion of LTX-2.5</a> to generate video and speech together, then encodes the result at 1280 × 704 and 24 frames per second.</p>
-        <p>Local generation still comes with a substantial first download. Setup expects a Hugging Face token, installs the pinned Python environment, and downloads about 43 GB of model files. The code requires 50 GiB free for setup and checks the cached weights and an Apple GPU calculation before unlocking the workspace. Once those files are present, generation uses the local cache.</p>
-        <p>The earlier render below used a <a href="https://github.com/andrewarrow/aivs/blob/c56624ee105f3cc9368a50bb6e9a3081cef9b06a/python/dialogue_helpers.py">dialogue-only duration estimate</a>. Its five spoken lines contain 31 words. Budgeting them at 160 words per minute, adding four 0.2-second gaps and a second of padding, then rounding up gives 14 seconds. That leaves no separate allowance for handling the postcard or walking away. Fitting the speech into a clip doesn’t mean there’s time to perform the scene.</p>
-        <p>Here’s a frame seven seconds into an existing 14-second render of <em>Last Light</em>. This run predates the Sue/Joe rename and explicit casting, so it still uses Ava and Eli as script names. Even with a prompt requesting a wide shot, it puts both faces right up against the camera. Neither the station wagon nor the postcard is visible in this frame. “Keep everyone visible together” leaves the model quite a bit of room to disappoint you.</p>
+        <h2>Joe needs somewhere to stand</h2>
+        <p>The <a href="https://github.com/andrewarrow/aivs/commit/80824b2">next fixes came from a render report</a> describing Joe emerging from the car without opening a door, plus gibberish at the end of the first shot. A valid shot list hadn’t made the performance physically sensible. Here’s a frame six seconds into the first take of that 27-second run. Even the requested red-rock desert has become a tree-lined road.</p>
 
         <figure>
-          <img src="/images/blog/aivs-the-ai-video-studio/last-light-frame.webp" width="1280" height="704" alt="Actual frame at seven seconds from the earlier Last Light render. Two performers fill the image in a close-up by a desert road; the requested waist-up framing, station wagon, and postcard are absent from this frame." loading="lazy" decoding="async" />
+          <img src="/images/blog/aivs-the-ai-video-studio/directed-shot-frame.webp" width="1280" height="704" alt="Frame six seconds into the first take of an early three-shot AIVS render. The two performers face the camera on a tree-lined road, although the screenplay calls for a red-rock desert." loading="lazy" decoding="async" />
         </figure>
 
-        <p>The current working code reserves another three seconds per action paragraph, taking this scene’s budget to 32 seconds. Its revised camera instructions ask for both actors head to toe beside the whole car, with room to move and finish the walk. Those changes give the model a more specific composition and time for the action. The earlier frame above doesn’t establish whether the revised request will work.</p>
+        <p>The director instructions now make Codex account for the opening frame and each movement that follows. Joe is already on the ground beside the raised hood, with the cabin doors shut. He steps around the fender into view. If a scene really requires an exit through a closed door, the plan has to include opening it. The postcard needs the same care: Sue gives it to Joe, but she pockets it later, so somebody has to give it back.</p>
+        <p>The soundtrack also needs an ending. Each dialogue take now asks for the speaker’s lips to settle after the last word, with the remaining action accompanied by environmental sound. Silent takes get explicit direction too. These instructions live in <a href="https://github.com/andrewarrow/aivs/blob/c0e225625b3d7580d6e756149705ed045052c88a/python/shooting-script-instructions.txt">a director-instructions file</a>, where they can improve staging across scripts without adding Python rules about particular cars or postcards.</p>
+        <p>One easy mistake is to put the important detail only in <code>start_state</code> or <code>end_state</code>. Those fields are continuity notes for review. The model receives the assembled prompt, so its opening positions, prop ownership, and quiet ending have to be written there. A carried last frame can help preserve a composition; it can’t supply a missing physical cause.</p>
+        <p>Planning is visible now, too. The GUI shows elapsed time and streams Codex activity while the shooting script is being prepared. The run keeps the requests, responses, and streamed diagnostics, including partial output when planning stops or times out. A long planning turn no longer has to look like a frozen Generate button.</p>
 
-        <p>A render also needs a way to finish or stop cleanly. Rust runs Python on a worker thread, reads its progress events, and interrupts the process group when you press Stop, including any active FFmpeg work. Progress estimates use measured render work and timings from earlier successful runs on the same machine. They stop short of 100% until the output passes validation. Completed clips play inside the native window through macOS AVKit.</p>
+        <h2>Keeping the performer when the location changes</h2>
+        <p>Better staging still leaves a casting problem. The normal screenplay path supplies appearance and voice descriptions, not each performer’s saved portrait and recorded voice. Continuation can carry a face into the next shot, but a new angle or location needs a way to establish it again. Text describing auburn hair and freckles doesn’t uniquely identify Ava.</p>
+        <p>The <a href="https://github.com/andrewarrow/aivs/commit/c0e225625b3d7580d6e756149705ed045052c88a">latest character-consistency work</a> adds a separate command-line experiment: Lena plays Sue and Owen plays Joe, first on a desert road, then in a café. Each shot has one visible speaker. The prepared starting images use the original character portraits as references. These two images are inputs for Lena’s takes, with their generation prompts and source references saved alongside them:</p>
+
+        <figure class="reference-comparison" aria-label="Prepared starting images of Lena in two locations">
+          <div>
+            <p class="reference-label">Lena · desert starting image</p>
+            <img src="/images/blog/aivs-the-ai-video-studio/lena-desert-reference.webp" width="1280" height="720" alt="Prepared starting image of Lena as Sue on a desert road at sunset, with her black bob and navy top, looking toward an off-camera partner." loading="lazy" decoding="async" />
+          </div>
+          <div>
+            <p class="reference-label">Lena · café starting image</p>
+            <img src="/images/blog/aivs-the-ai-video-studio/lena-cafe-reference.webp" width="1280" height="720" alt="Prepared starting image of Lena as Sue at a café table in daylight, using the same saved portrait, black bob, and navy top in a different setting." loading="lazy" decoding="async" />
+          </div>
+        </figure>
+
+        <p>These images condition complete starting frames. That’s why a solo gallery portrait is awkward for an ensemble scene: it also tells the model to fill the frame with one face. The experiment prepares a composition for each take and changes the camera separately from the performer’s original identity reference.</p>
+        <p>It also makes the dialogue before the video. A CPU speech worker uses Lena’s saved Kokoro voice ID, <code>af_sarah</code>, and Owen’s <code>am_michael</code>. Each source line is synthesized once, measured, and reused in both locations. The shot soundtrack adds a short opening pause and silence after the line. This gives the video a fixed vocal performance to follow instead of asking it to invent a new voice for every take.</p>
+        <p>The <a href="https://github.com/andrewarrow/aivs/blob/c0e225625b3d7580d6e756149705ed045052c88a/python/quality_backend.py">audio-driven backend</a> accepts that soundtrack and the starting image together. Final encoding selects the supplied soundtrack rather than the model’s generated audio. The preparation records image and audio hashes, voice and model versions, measured durations, and speaker intervals. Saved-plan freshness checks now include the character reference-asset hashes as well, so replacing an asset can invalidate a cached plan even if its description hasn’t changed.</p>
+        <p>This is still an opt-in experiment, separate from GUI screenplay generation. The four-shot test uses 768 × 448 at 24 fps. The inspected run has one completed four-second take, marked <code>rendered-needs-review</code>; the comparison across both locations remains incomplete. Faces, voice identity, spoken words, and lip synchronization still need review. A supplied voice track doesn’t by itself tell a model which of two visible faces should be speaking.</p>
 
         <h2>A playable file still needs a director</h2>
-        <p>Each run gets a directory containing the original and expanded prompts in <code>render.json</code>, its seed, timing and runtime details, and snapshots of the character profiles and assets. If a result looks wrong, those saved inputs give you something to inspect after the character library changes.</p>
-        <p>Before publishing <code>video.mp4</code>, the <a href="https://github.com/andrewarrow/aivs/blob/c56624ee105f3cc9368a50bb6e9a3081cef9b06a/python/validation.py">validator</a> checks decoded frame count, dimensions, frame rate, audio presence, and audio/video timing, then decodes the file with FFmpeg to catch errors. Those checks can reject a broken export. They can’t tell whether Sue said Joe’s line, whether a mouth followed the right voice, or whether the camera ignored the script.</p>
-        <p>I can now recast Sue without changing her dialogue, and the render keeps a record of whom I assigned. Getting the generated performance to honor that assignment is still unfinished work. That’s what I want AIVS to make easier to work on: keep the scene and cast stable enough that I can judge the next take, rather than reconstructing them in a prompt every time.</p>
+        <p>The normal GUI path uses LTX-2.5 to generate picture and speech together at 1280 × 704 and 24 fps. Video inference runs locally from cached models; shooting-script preparation uses the signed-in Codex client. Initial model setup still downloads about 43 GB and requires 50 GiB free. Rust owns process lifetime, including Stop, and completed films play inside the native window through macOS AVKit.</p>
+        <p>Runs now save the human screenplay, structured request, readable and JSON shooting plans, cast snapshots, and individual shot reports. A later failure leaves earlier takes available to inspect. Before publishing <code>video.mp4</code>, <a href="https://github.com/andrewarrow/aivs/blob/c0e225625b3d7580d6e756149705ed045052c88a/python/validation.py">media validation</a> checks decoded frames, dimensions, frame rate, and audio/video timing. Those checks can catch a broken export while missing an impossible entrance or a swapped speaker.</p>
+        <p>I can now fix how Joe enters the shot without changing his dialogue, and test a camera change while keeping the prepared voice track. Character consistency is still unfinished. The next test is whether Lena and Owen survive all four takes with their faces, voices, and lines intact. Casting only earns its keep if I can carry those performers into another scene.</p>
       </article>
     </main>
     <footer class="site-footer shell">
