@@ -6,7 +6,7 @@ export const blogPosts = [
     title: "aivs - the ai video studio",
     published: "2026-10-25",
     author: "Andrew Arrow",
-    summary: "Import a Fountain screenplay, choose a scene, and cast its roles. AIVS uses Codex to prepare a shooting script, then renders it locally. A saved desert-road example shows what the plan adds.",
+    summary: "AIVS now composes storyboard first frames between two Codex directing passes, then renders with local LTX-2.5 HQ. How that moves it toward an automatic film crew, and what the critic and editor still need to do.",
   },
   {
     slug: "my-wellbeing-does-not-depend-on-my-project",
