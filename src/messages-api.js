@@ -303,11 +303,19 @@ export async function fetchMessages(fetcher = fetch, { boardId, messageId, limit
   return messages;
 }
 
-export async function fetchMessagesPage(page = 1, fetcher = fetch) {
+export const messageSortOrders = {
+  "votes-desc": "votes.desc,created_at.desc",
+  "votes-asc": "votes.asc,created_at.desc",
+  "date-desc": "created_at.desc",
+  "date-asc": "created_at.asc",
+};
+
+export async function fetchMessagesPage(page = 1, fetcher = fetch, { sort = "votes-desc" } = {}) {
   if (!Number.isSafeInteger(page) || page < 1) throw new Error("Invalid message page");
+  if (!Object.hasOwn(messageSortOrders, sort)) throw new Error("Invalid message sort");
   const limit = 20;
   const offset = (page - 1) * limit;
-  const order = "votes.desc,created_at.desc";
+  const order = messageSortOrders[sort];
   const messages = await fetchMessages(fetcher, { limit, offset, order });
   // Check for another row so a full final page doesn't lead to an empty page.
   const next = messages.length === limit

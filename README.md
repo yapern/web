@@ -113,10 +113,12 @@ All messages use `/all`, board links use `/y/:slug`, and message links use
 `/y/:slug/:id`. These routes load `board.html` and fetch data in the browser.
 `public/_redirects` rewrites `/all`, `/all/`, and `/y/*` to `/board` with a 200
 response. Vite development and preview apply the same rewrite. Other static
-hosts need equivalent rules. The all-messages feed shows 20
-messages per page ordered by votes descending, with newest messages first for
-vote ties; pages at `/all?page=2` and onward continue through lower-ranked
-messages. The homepage shows the top three messages using the same ordering.
+hosts need equivalent rules. The all-messages feed shows 20 messages per page,
+defaulting to votes descending with newest messages first for vote ties. Its
+Sort by dropdown also offers votes ascending, date descending, and date
+ascending. The `sort` query parameter preserves that choice across pagination
+(for example, `/all?page=2&sort=date-asc`); changing the sort returns to page 1.
+The homepage shows the top three messages ordered by votes descending.
 Deploy the API's message vote ordering support before this frontend; no new
 database migration is required.
 

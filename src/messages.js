@@ -1,4 +1,4 @@
-import { fetchMessages, fetchMessagesPage, fetchBoards, fetchBoardPage, fetchMessageAuthors, deleteMessage } from "./messages-api.js";
+import { fetchMessages, fetchMessagesPage, messageSortOrders, fetchBoards, fetchBoardPage, fetchMessageAuthors, deleteMessage } from "./messages-api.js";
 import { readStoredSession } from "./auth.js";
 import { boardHref, messageHref, parseBoardRoute } from "./board-routes.js";
 import { mountBoardSidebars } from "./board-sidebars.js";
@@ -19,16 +19,26 @@ const isAllPage = /^\/all\/?$/.test(window.location.pathname);
 let route = isBoardPage ? parseBoardRoute(window.location.pathname) : null;
 let messageLoad = 0;
 let disposeReplies;
-const requestedPage = Number(new URLSearchParams(window.location.search).get("page"));
+const searchParams = new URLSearchParams(window.location.search);
+const requestedPage = Number(searchParams.get("page"));
 const page = Number.isSafeInteger(requestedPage) && requestedPage > 0 ? requestedPage : 1;
+const requestedSort = searchParams.get("sort");
+const sort = Object.hasOwn(messageSortOrders, requestedSort) ? requestedSort : "votes-desc";
 const pagination = document.querySelector("#messages-pagination");
+
+function allMessagesHref(nextPage, nextSort = sort) {
+  const params = new URLSearchParams();
+  if (nextPage > 1) params.set("page", String(nextPage));
+  if (nextSort !== "votes-desc") params.set("sort", nextSort);
+  return `/all${params.size ? `?${params}` : ""}`;
+}
 
 function renderPagination(hasNext) {
   if (!isAllPage) return;
   const previous = document.createElement(page > 1 ? "a" : "span");
   previous.textContent = "Previous";
   if (page > 1) {
-    previous.href = page === 2 ? "/all" : `/all?page=${page - 1}`;
+    previous.href = allMessagesHref(page - 1);
     previous.rel = "prev";
   } else {
     previous.setAttribute("aria-disabled", "true");
@@ -38,7 +48,7 @@ function renderPagination(hasNext) {
   const next = document.createElement(hasNext ? "a" : "span");
   next.textContent = "Next";
   if (hasNext) {
-    next.href = `/all?page=${page + 1}`;
+    next.href = allMessagesHref(page + 1);
     next.rel = "next";
   } else {
     next.setAttribute("aria-disabled", "true");
@@ -281,7 +291,7 @@ async function loadMessages() {
     let boards;
     let hasNext = false;
     if (isAllPage) {
-      const [result, allBoards] = await Promise.all([fetchMessagesPage(page), fetchBoards()]);
+      const [result, allBoards] = await Promise.all([fetchMessagesPage(page, undefined, { sort }), fetchBoards()]);
       data = result.messages;
       hasNext = result.hasNext;
       boards = allBoards;
@@ -356,6 +366,15 @@ if (isAllPage) {
   heading.textContent = "All messages";
   document.title = `All messages${page > 1 ? ` · Page ${page}` : ""} · Yapern`;
   document.querySelector('.detail-nav-link[href="/all"]').setAttribute("aria-current", "page");
+  const sortControl = document.querySelector("#messages-sort");
+  document.querySelector("#messages-sort-control").hidden = false;
+  sortControl.value = sort;
+  window.addEventListener("pageshow", () => { sortControl.value = sort; });
+  sortControl.addEventListener("change", () => {
+    const nextSort = sortControl.value;
+    sortControl.value = sort;
+    window.location.assign(allMessagesHref(1, nextSort));
+  });
 }
 mountBoardSidebars(route?.slug, isBoardPage ? 20 : 3);
 loadMessages();

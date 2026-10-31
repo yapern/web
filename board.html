@@ -45,6 +45,15 @@
       </aside>
       <section id="board-messages-view" class="live-messages-feed" aria-labelledby="messages-title">
         <h1 id="messages-title">Sub-yap</h1>
+        <div id="messages-sort-control" class="messages-sort" hidden>
+          <label for="messages-sort">Sort by</label>
+          <select id="messages-sort">
+            <option value="votes-desc">Votes descending</option>
+            <option value="votes-asc">Votes ascending</option>
+            <option value="date-desc">Date descending</option>
+            <option value="date-asc">Date ascending</option>
+          </select>
+        </div>
         <p id="messages-status" class="messages-status" role="status"></p>
         <button id="messages-retry" class="messages-retry" type="button" hidden>Try again</button>
         <ul id="live-messages" aria-labelledby="messages-title" aria-busy="false"></ul>
