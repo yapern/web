@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#090d17" />
+    <meta name="description" content="Building a literary-fiction reading list with crawl URLs, RSS and HTML discovery, robots checks, and posts that don't reappear on the next crawl." />
+    <link rel="canonical" href="https://yapern.com/blog/adding-crawl-urls-to-sub-yaps/" />
+    <link rel="icon" href="/images/favicon.png" type="image/png" />
+    <meta property="og:type" content="article" />
+    <meta property="og:site_name" content="Yapern" />
+    <meta property="og:title" content="Adding crawl URLs to sub-yaps" />
+    <meta property="og:description" content="Nine literary magazines, an old XML format that still earns its keep, and a crawler that failed before fetching robots.txt." />
+    <meta property="og:url" content="https://yapern.com/blog/adding-crawl-urls-to-sub-yaps/" />
+    <meta property="og:image" content="https://yapern.com/images/blog/adding-crawl-urls-to-sub-yaps/crawler-settings.png" />
+    <meta property="og:image:alt" content="Yapern's Crawler settings showing completed imports from CRAFT and X-R-A-Y." />
+    <meta property="article:published_time" content="2026-11-04" />
+    <meta property="article:author" content="Andrew Arrow" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Adding crawl URLs to sub-yaps" />
+    <meta name="twitter:description" content="How literary-magazine links become ordinary Yapern posts, and why RSS remains a useful part of the crawler." />
+    <meta name="twitter:url" content="https://yapern.com/blog/adding-crawl-urls-to-sub-yaps/" />
+    <meta name="twitter:image" content="https://yapern.com/images/blog/adding-crawl-urls-to-sub-yaps/crawler-settings.png" />
+    <meta name="twitter:image:alt" content="The Crawler menu, one URL field, and saved sites with Crawl and remove controls." />
+    <link rel="stylesheet" href="/yapern.css" />
+    <link rel="stylesheet" href="/blog.css" />
+    <script type="module" src="/src/auth-nav.js"></script>
+    <script type="module" src="/src/create.js"></script>
+    <title>Adding crawl URLs to sub-yaps · Yapern</title>
+  </head>
+  <body class="blog-page">
+    <a class="skip-link" href="#main">Skip to content</a>
+    <!-- site-header -->
+    <main id="main" class="blog-main shell">
+      <p class="blog-back"><a href="/blog/">← Blog</a></p>
+      <article class="blog-article blog-article--crawler" aria-labelledby="article-title">
+        <h1 id="article-title">Adding crawl URLs to sub-yaps</h1>
+        <p class="blog-meta"><time datetime="2026-11-04">November 4, 2026</time> · Andrew Arrow</p>
+
+        <p>I wanted a sub-yap (a topic board on Yapern) for finding new short fiction without having to copy links from literary magazines by hand. The magazines already have editors choosing what to publish. Yapern can collect references to that work and give people somewhere to discuss it, with a link back to the original.</p>
+        <p>So I added a <strong>Crawler</strong> section beside Basics in a sub-yap’s settings. Paste one URL, add it to the list, and press Crawl beside the site. Each new article becomes an ordinary post with a title, source URL, and short description. The first version is deliberately small: it looks at a recent page of results and leaves the archive alone.</p>
+        <p>The screenshot is a local preview using live publisher requests. CRAFT and X-R-A-Y each produced ten posts. Getting those rows to say “Added 10 articles” took more than downloading the two homepages.</p>
+
+        <figure>
+          <a href="/images/blog/adding-crawl-urls-to-sub-yaps/crawler-settings.png" aria-label="View the full Crawler settings screenshot">
+            <picture>
+              <source media="(max-width: 650px)" srcset="/images/blog/adding-crawl-urls-to-sub-yaps/crawler-settings-mobile.png" width="362" height="462" />
+              <img class="article-screenshot" src="/images/blog/adding-crawl-urls-to-sub-yaps/crawler-settings.png" width="888" height="350" alt="Actual local Crawler settings with one URL field. CRAFT and X-R-A-Y each show ten imported articles. Each saved source has Crawl and × controls." decoding="async" />
+            </picture>
+          </a>
+        </figure>
+
+        <h2>Starting with nine magazines</h2>
+        <p>The reading list started with Electric Literature, The Offing, and SmokeLong, then expanded to smaller magazines: CRAFT, X-R-A-Y, Fractured Lit, Pithead Chapel, Fictive Dream, and The Citron Review. I’d asked for rough audience tiers, but I don’t have comparable traffic measurements for these sites. I’m treating the nine as a list of places to find fiction, without pretending the tiers establish a ranking.</p>
+        <p>The earlier research couldn’t reliably retrieve their robots files. Direct HTTPS requests worked when I checked on November 4, 2026, using <code>yapern.com crawler v1.0.0</code>. This is what those files said about the root path for this crawler. Other paths can have different rules.</p>
+
+        <div class="article-table" role="region" tabindex="0" aria-label="Robots observations for nine magazines">
+          <table>
+            <thead><tr><th scope="col">Magazine</th><th scope="col">Root path</th><th scope="col">Relevant detail</th></tr></thead>
+            <tbody>
+              <tr><th scope="row"><a href="https://electricliterature.com/robots.txt">Electric Literature</a></th><td>Not disallowed</td><td>Advertises sitemaps.</td></tr>
+              <tr><th scope="row"><a href="https://theoffingmag.com/robots.txt">The Offing</a></th><td>Not disallowed</td><td>Restricts several WordPress directories.</td></tr>
+              <tr><th scope="row"><a href="https://www.smokelong.com/robots.txt">SmokeLong Quarterly</a></th><td>Not disallowed</td><td>20-second crawl delay for the wildcard group.</td></tr>
+              <tr><th scope="row"><a href="https://www.craftliterary.com/robots.txt">CRAFT</a></th><td>Not disallowed</td><td>A 10-second delay appears before any user-agent group.</td></tr>
+              <tr><th scope="row"><a href="https://xraylitmag.com/robots.txt">X-R-A-Y</a></th><td>Not disallowed</td><td>Advertises a sitemap index.</td></tr>
+              <tr><th scope="row"><a href="https://fracturedlit.com/robots.txt">Fractured Lit</a></th><td>Not disallowed</td><td>10-second crawl delay for the wildcard group.</td></tr>
+              <tr><th scope="row"><a href="https://pitheadchapel.com/robots.txt">Pithead Chapel</a></th><td>Not disallowed</td><td>Advertises sitemaps.</td></tr>
+              <tr><th scope="row"><a href="https://fictivedream.com/robots.txt">Fictive Dream</a></th><td>Disallowed</td><td><code>User-agent: *</code> followed by <code>Disallow: /</code>.</td></tr>
+              <tr><th scope="row"><a href="https://citronreview.com/robots.txt">The Citron Review</a></th><td>Not disallowed</td><td>Also points frequent WordPress.com crawlers toward its firehose.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p>These are crawl directives, not a license to republish stories. <a href="https://www.craftliterary.com/terms-conditions-2/">CRAFT</a> and <a href="https://fracturedlit.com/terms-and-conditions/">Fractured Lit</a> also have terms restricting competitive uses of their sites. A successful robots check doesn’t settle those separate terms. The feature stores references and brief descriptions; it doesn’t create a full-text fiction archive.</p>
+        <p>The table is a direct read of robots files, separate from the application’s network checks. Our shared DNS guard currently rejects WordPress.com’s <code>192.0.78.*</code> hosting addresses before fetching robots.txt. That needs a narrower address check; these robots results don’t establish that all eight sites can complete a crawl in the current app.</p>
+        <p>The Worker upgrades source URLs to HTTPS and checks <code>/robots.txt</code> at the origin, even if the saved URL points to a feed or a category. It applies the matching agent rules before fetching pages and checks redirects too. A 404 or 410 robots response permits the attempt; a robots access error stops it. That’s a conservative policy within the <a href="https://www.rfc-editor.org/rfc/rfc9309.html#section-2.3.1">Robots Exclusion Protocol’s handling of access results</a>. We also reject private network destinations and skip article pages marked <code>noindex</code>.</p>
+
+        <h2>RSS is still doing useful work</h2>
+        <p>I did wonder whether it was worth supporting RSS. It’s XML, it’s old, and every magazine already has a website. But a homepage makes me infer which link is a story, which date belongs to it, and whether a block of text is a description or a subscription pitch. A feed often hands me those fields together.</p>
+        <p>That saves work even when the story still needs an HTML request. The feed finds candidates; the article page supplies its title, description, publication date when available, and canonical URL. If the publisher redesigns its homepage, the feed can keep delivering the same structure. <a href="https://developer.wordpress.org/advanced-administration/wordpress/feeds/">WordPress includes RSS and Atom feeds</a>, which makes them worth looking for on this particular list of sites.</p>
+        <p>The <a href="https://github.com/yapern/backend/blob/main/worker/app/crawl-discovery.ts">discovery code</a> tries a supplied feed directly, then feed links advertised in the page’s HTML and a few conventional locations. If that produces no candidates, it tries robots-declared sitemaps, a root sitemap, and a bounded number of child sitemaps. Article links on the source’s first page are the final fallback.</p>
+
+        <div class="article-table" role="region" tabindex="0" aria-label="Comparing article discovery sources">
+          <table>
+            <thead><tr><th scope="col">Source</th><th scope="col">What helps</th><th scope="col">What it still can’t tell us</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">RSS, Atom, JSON Feed</th><td>Recent entries with links and often dates and summaries.</td><td>A general magazine feed can include interviews, announcements, and reviews.</td></tr>
+              <tr><th scope="row">Sitemap</th><td>URL inventory, sometimes ordered usefully by dates.</td><td><a href="https://www.sitemaps.org/protocol.html#xmlTagDefinitions">Last modification</a> is different from first publication. Most URLs aren’t labeled by genre.</td></tr>
+              <tr><th scope="row">HTML listing</th><td>The links a reader can see on the first page.</td><td>Generic link heuristics can miss stories or pick unrelated pages.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p>I’m keeping all three. Replacing a usable feed with layout-dependent selectors would give me more code to maintain for the same links. When a magazine has a fiction-specific feed, that’s a better starting URL than its homepage. The current extractor doesn’t retain author or genre fields, and it doesn’t classify a piece as fiction just because a literary magazine published it.</p>
+
+        <h2>The button starts a job</h2>
+        <p>A crawl can outlast the page that started it. The <a href="https://github.com/yapern/backend/blob/main/worker/app/board-crawler.ts">API endpoint</a> checks that you own the sub-yap, saves a job in D1, and sends its ID to the existing Cloudflare queue. It returns HTTP 202. The browser polls for status, and reopening Crawler picks up the latest job for each site.</p>
+
+        <pre tabindex="0" aria-label="Crawl job API routes"><code>POST /boards/:boardId/crawler-urls/:urlId/crawl
+GET  /boards/:boardId/crawler-urls/:urlId/crawl</code></pre>
+
+        <p>The first version considers at most 20 recent candidates. It prefers available dates, follows no pagination, and bounds discovery to 45 HTTP requests and 90 seconds. Those bounds keep a click from turning into an archive crawl. They also expose a limit: SmokeLong’s 20-second delay won’t let us fetch twenty article pages in one run. Slow sites need work split across smaller, resumable jobs. CRAFT’s ungrouped delay is another rough edge: the current parser doesn’t attach that line to a user-agent group.</p>
+        <p>Starting an already active source returns its existing job. The queue worker claims it with a lease, and a maintenance task can recover expired claims. That maintenance task repairs interrupted jobs; it doesn’t periodically crawl every saved site. For now, you press Crawl.</p>
+
+        <h2>The next crawl must remember the last one</h2>
+        <p>The same story can turn up in a homepage feed, a fiction feed, and a sitemap. It can also arrive again because the queue delivered the job twice. Checking only the list of sources would do nothing to stop duplicate posts.</p>
+        <p>We keep a record of imported URLs for each sub-yap. Tracking parameters and fragments are removed, and the extractor uses an acceptable same-site canonical URL when the page supplies one. A <a href="https://github.com/yapern/backend/blob/main/worker/app/crawl-jobs.ts">D1 batch</a> saves the message, its import record, and the job count together. Another source in the same sub-yap then finds that URL already recorded.</p>
+        <p>The import record survives deletion of the message. Otherwise deleting a post would only hide it until the next crawl recreated it. In this sequence, a repeated discovery returns to the saved URL record, even after the post is gone.</p>
+
+        <figure>
+          <a href="/images/blog/adding-crawl-urls-to-sub-yaps/remembering-a-url.svg" aria-label="View the full sequence showing how imported URLs survive post deletion">
+            <picture>
+              <source media="(max-width: 650px)" srcset="/images/blog/adding-crawl-urls-to-sub-yaps/remembering-a-url-mobile.svg" width="360" height="530" />
+              <img src="/images/blog/adding-crawl-urls-to-sub-yaps/remembering-a-url.svg" width="760" height="460" alt="Sequence diagram with crawl worker, saved URL record, and post lanes. First discovery saves the URL and creates a post. A second discovery is skipped. The owner deletes the post, but the URL record remains, so a later crawl still skips it." loading="lazy" decoding="async" />
+            </picture>
+          </a>
+        </figure>
+
+        <h2>Then every crawl failed</h2>
+        <p>The first production attempts against CRAFT and X-R-A-Y all ended with <code>crawl_failed</code>. The queue logs said the deliveries were OK. The job had caught an exception, stored a failure state, and acknowledged delivery, so “OK” described the queue handler finishing. It said nothing about whether we’d fetched an article.</p>
+        <p>That exception wasn’t even a publisher blocking us. Running the crawler inside Cloudflare’s local runtime exposed <code>TypeError: Illegal invocation</code> before the first robots request. I’d kept a reference to the global fetch function on the crawler instance:</p>
+
+        <pre tabindex="0" aria-label="The fetch receiver bug and its correction"><code>// The native function becomes a method of this instance.
+this.fetcher = options.fetcher ?? fetch;
+await this.fetcher(url, options);
+
+// Keep the global receiver when using native fetch.
+this.fetcher = options.fetcher ?? globalThis.fetch.bind(globalThis);</code></pre>
+
+        <p>Calling it as <code>this.fetcher(...)</code> supplied the crawler as its receiver. Cloudflare requires the global receiver for that native function; its <a href="https://developers.cloudflare.com/workers/observability/errors/#illegal-invocation-errors">illegal-invocation documentation</a> describes this class of error. The Node tests and injected fetch functions hadn’t reproduced it. There’s now a <a href="https://github.com/yapern/backend/blob/main/worker/app/crawl-runtime.test.ts">regression test that runs discovery inside the Worker runtime</a>.</p>
+        <p>After that fix, local Worker runs against the live CRAFT and X-R-A-Y sites each found ten recent articles. Failure logs now include the source URL, request stage, HTTP status when one exists, and the exception with its stack and cause. “Crawl failed” is a useful status for a reader; it was a lousy debugging log.</p>
+
+        <h2>A reading list still needs editorial choices</h2>
+        <p>The imported posts use the existing message renderer, votes, replies, and search. They’re posted under the sub-yap owner’s account, with the publisher’s URL in the body. This local preview shows the result of the live crawl, including an interview. That’s evidence of the remaining fiction-filtering problem, right in the reading list.</p>
+
+        <figure class="article-crawl-posts">
+          <a href="/images/blog/adding-crawl-urls-to-sub-yaps/imported-messages.png" aria-label="View the imported article references in the local sub-yap preview">
+            <picture>
+              <source media="(max-width: 650px)" srcset="/images/blog/adding-crawl-urls-to-sub-yaps/imported-messages-mobile.png" width="362" height="600" />
+              <img class="article-screenshot" src="/images/blog/adding-crawl-urls-to-sub-yaps/imported-messages.png" width="656" height="670" alt="Actual local sub-yap showing imported article titles, publisher links, short descriptions, votes, and reply controls. An interview appears among the results because the source feed includes more than fiction." loading="lazy" decoding="async" />
+            </picture>
+          </a>
+        </figure>
+
+        <p>I also haven’t added conditional feed requests with ETags or Last-Modified dates, a fiction classifier, or a scheduled subscription for each source. Those are separate pieces of work. A feed describes what was recently published, and an HTML extractor can recover a title, but neither gives the crawler an editor’s judgment.</p>
+        <p>The useful next step is to choose fiction-specific sources and see whether the resulting list is worth reading. I can already collect references without copying whole stories or reposting the same URL on each run. Now I need to make the selection good enough that opening the sub-yap helps someone find a story they want to read at its original magazine.</p>
+      </article>
+    </main>
+    <footer class="site-footer shell">
+      <a class="brand footer-brand" href="/">yapern<span class="brand-dot">.</span></a>
+      <p>A sub-yap for everything you’re into.</p>
+      <nav aria-label="Footer">
+        <a href="/about/">About</a><a href="/blog/" aria-current="page">Blog</a><a href="https://github.com/yapern/web">GitHub</a><a href="https://andrewarrow.dev">Learn to vibe</a><a href="https://api.yapern.com/docs">API docs <span aria-hidden="true">↗</span></a><a href="/terms">Terms</a><a href="/privacy">Privacy</a>
+      </nav>
+    </footer>
+  </body>
+</html>

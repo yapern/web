@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="360" height="530" viewBox="0 0 360 530" role="img" aria-labelledby="title desc">
+  <title id="title">Imported URLs outlive deleted posts</title>
+  <desc id="desc">Three vertical lanes show a worker saving a URL and creating a post. Repeated discoveries are skipped. The URL record remains after the owner deletes the post.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="m0 0 7 3.5-7 3.5z" fill="#6750a4"/></marker>
+    <marker id="green" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="m0 0 7 3.5-7 3.5z" fill="#287465"/></marker>
+  </defs>
+  <rect width="360" height="530" rx="6" fill="#f4f1e9"/>
+  <g font-family="system-ui, sans-serif" fill="#25313c">
+    <text x="16" y="28" font-size="12" fill="#59616b">SCHEMATIC · TIME RUNS DOWNWARD</text>
+    <g font-size="15" font-weight="650" text-anchor="middle"><text x="49" y="65">Worker</text><text x="188" y="65">Saved URLs</text><text x="309" y="65">Post</text></g>
+    <path d="M49 83v418M188 83v418M309 83v418" fill="none" stroke="#c9c6c0" stroke-width="2" stroke-dasharray="4 6"/>
+    <rect x="182" y="133" width="12" height="368" rx="3" fill="#d9ebe2" stroke="#287465" stroke-width="1.5"/>
+    <g stroke="#6750a4" stroke-width="2" fill="none" marker-end="url(#arrow)"><path d="M49 132h129"/><path d="M49 259h129"/><path d="M49 442h129"/></g>
+    <g font-size="14" fill="#46386c"><text x="52" y="107">First discovery</text><text x="52" y="123">of /story</text><text x="52" y="231">Another source,</text><text x="52" y="249">same URL</text><text x="52" y="414">Later crawl,</text><text x="52" y="432">same URL</text></g>
+    <path d="M195 163h91" fill="none" stroke="#287465" stroke-width="2" marker-end="url(#green)"/>
+    <text x="207" y="145" font-size="13" fill="#276b5d">Create once</text>
+    <g transform="translate(289 162)"><path d="M0 0h27l13 13v43H0z" fill="#fffdf8" stroke="#287465" stroke-width="2"/><path d="M27 0v13h13M7 27h25M7 36h25M7 45h17" fill="none" stroke="#287465" stroke-width="1.5"/></g>
+    <path d="M181 279H55M181 461H55" fill="none" stroke="#7b7f85" stroke-width="1.5" stroke-dasharray="4 4"/>
+    <g font-size="14" fill="#4e5b63"><text x="53" y="301">Already imported</text><text x="53" y="484">Still recorded</text></g>
+    <g font-size="14" fill="#8c3a33" text-anchor="middle"><text x="289" y="319">Owner deletes</text><text x="309" y="400">Post gone</text></g>
+    <path d="M291 340l36 36m0-36-36 36" stroke="#ad453b" stroke-width="3"/>
+    <path d="M198 358h75" stroke="#287465" stroke-width="1.5"/>
+    <text x="203" y="346" font-size="13" fill="#276b5d">URL stays</text>
+    <g fill="#6750a4"><circle cx="49" cy="132" r="3.5"/><circle cx="49" cy="259" r="3.5"/><circle cx="49" cy="442" r="3.5"/></g>
+  </g>
+</svg>

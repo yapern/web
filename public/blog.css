@@ -51,6 +51,7 @@
 .blog-article--wellbeing li + li { margin-top: 8px; }
 .blog-article--wellbeing .lightness-reminder { margin: 20px 0; }
 .blog-article--wellbeing .article-mockup-portrait { max-width: 640px; margin-inline: auto; }
+.blog-article--crawler .article-crawl-posts { max-width: 656px; margin-inline: auto; }
 .blog-article--aivs .reference-comparison { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; align-items: start; }
 .blog-article--aivs .reference-label { margin-bottom: 8px; font-size: 15px; font-weight: 600; color: #eef0f8; }
 .blog-article th, .blog-article td { padding: 12px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }

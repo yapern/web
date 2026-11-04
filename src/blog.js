@@ -2,6 +2,13 @@ export const BLOG_PAGE_SIZE = 6;
 
 export const blogPosts = [
   {
+    slug: "adding-crawl-urls-to-sub-yaps",
+    title: "Adding crawl URLs to sub-yaps",
+    published: "2026-11-04",
+    author: "Andrew Arrow",
+    summary: "I wanted a sub-yap that could collect links from literary magazines. How feeds, robots checks, and saved URLs became ordinary posts, and why the first crawler failed before fetching a single story.",
+  },
+  {
     slug: "aivs-the-ai-video-studio",
     title: "aivs - the ai video studio",
     published: "2026-10-25",
