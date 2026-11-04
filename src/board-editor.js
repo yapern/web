@@ -1,6 +1,7 @@
 import { readStoredSession } from "./auth.js";
 import { boardLogoUrl, updateBoard } from "./messages-api.js";
 import { boardHref, parseBoardRoute } from "./board-routes.js";
+import { mountBoardCrawler } from "./board-crawler.js";
 
 export function mountBoardEditor(getBoard, onSave) {
   const edit = document.querySelector("#board-edit");
@@ -8,6 +9,8 @@ export function mountBoardEditor(getBoard, onSave) {
   const browseNavigation = document.querySelector("#board-browse-navigation");
   const editNavigation = document.querySelector("#edit-board-navigation");
   const basics = document.querySelector("#edit-board-basics");
+  const crawler = document.querySelector("#edit-board-crawler");
+  const crawlerView = document.querySelector("#edit-board-crawler-view");
   const messages = document.querySelector("#board-messages-view");
   const view = document.querySelector("#edit-board-view");
   const heading = document.querySelector("#edit-board-heading");
@@ -30,6 +33,8 @@ export function mountBoardEditor(getBoard, onSave) {
   let pickedLogo = null;
   let removeLogo = false;
   let previewUrl = null;
+  let section = "basics";
+  const syncCrawler = mountBoardCrawler(getBoard);
 
   function clearPreviewUrl() {
     if (previewUrl) URL.revokeObjectURL(previewUrl);
@@ -80,6 +85,7 @@ export function mountBoardEditor(getBoard, onSave) {
       const editUrl = new URL(url);
       editUrl.pathname = boardHref(board.slug);
       editUrl.searchParams.set("edit", "true");
+      editUrl.searchParams.delete("section");
       edit.href = editUrl.pathname + editUrl.search + editUrl.hash;
     }
     const showEditor = !edit.hidden && route?.slug === board.slug &&
@@ -90,27 +96,41 @@ export function mountBoardEditor(getBoard, onSave) {
       error.textContent = "";
       feedback.textContent = "";
     }
-    const changed = editing !== showEditor;
+    const nextSection = url.searchParams.get("section") === "crawler" ? "crawler" : "basics";
+    const changed = editing !== showEditor || (showEditor && section !== nextSection);
+    section = nextSection;
     editing = showEditor;
     editingUserId = editing ? userId : undefined;
     browseNavigation.hidden = editing;
     editNavigation.hidden = !editing;
     messages.hidden = editing;
     view.hidden = !editing;
+    form.hidden = section !== "basics";
+    crawlerView.hidden = section !== "crawler";
+    heading.textContent = section === "crawler" ? "Crawler" : "Basics";
     actions.hidden = !editing;
     if (board) boardInfo.hidden = editing;
-    basics.href = url.pathname + url.search + url.hash;
+    for (const [link, name] of [[basics, "basics"], [crawler, "crawler"]]) {
+      const destination = new URL(url);
+      if (name === "crawler") destination.searchParams.set("section", "crawler");
+      else destination.searchParams.delete("section");
+      link.href = destination.pathname + destination.search + destination.hash;
+      if (section === name) link.setAttribute("aria-current", "page");
+      else link.removeAttribute("aria-current");
+    }
     url.searchParams.delete("edit");
+    url.searchParams.delete("section");
     exit.href = url.pathname + url.search + url.hash;
     document.body.classList.toggle("is-editing-board", editing);
     updateSubmit();
+    syncCrawler(editing && section === "crawler");
     if (changed) {
       const focusTarget = editing ? heading : edit.hidden ? document.querySelector("[data-login-link]") : edit;
       focusTarget?.focus({ preventScroll: true });
     }
   }
 
-  for (const link of [edit, exit, basics]) {
+  for (const link of [edit, exit, basics, crawler]) {
     link.addEventListener("click", event => {
       if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
       event.preventDefault();

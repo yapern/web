@@ -41,6 +41,7 @@
         </div>
         <nav id="edit-board-navigation" aria-label="Sub-yap settings" hidden>
           <a id="edit-board-basics" class="detail-nav-link" aria-current="page">Basics</a>
+          <a id="edit-board-crawler" class="detail-nav-link">Crawler</a>
         </nav>
       </aside>
       <section id="board-messages-view" class="live-messages-feed" aria-labelledby="messages-title">
@@ -109,6 +110,19 @@
             <button class="button button-small" type="submit" disabled>Save changes</button>
           </div>
         </form>
+        <div id="edit-board-crawler-view" hidden>
+          <form id="crawler-url-form" class="crawler-url-form">
+            <label class="create-field" for="crawler-url">
+              <span>URL</span>
+              <input id="crawler-url" name="url" type="url" required maxlength="2048" placeholder="https://example.com" autocomplete="off" autocapitalize="none" spellcheck="false" aria-describedby="crawler-error">
+            </label>
+            <button class="button button-small" type="submit" disabled>Add URL</button>
+          </form>
+          <p id="crawler-error" class="create-error" role="alert"></p>
+          <p id="crawler-status" class="detail-sidebar-status" role="status"></p>
+          <button id="crawler-retry" class="messages-retry" type="button" hidden>Retry URLs</button>
+          <ul id="crawler-urls" class="crawler-urls" aria-label="Crawler URLs" aria-busy="false"></ul>
+        </div>
       </section>
       <aside class="detail-board-info" aria-labelledby="board-info-title" hidden>
         <img id="board-info-logo" class="board-info-logo" alt="" hidden>
