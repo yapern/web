@@ -1719,7 +1719,12 @@ h1 span,
 #crawler-error:not(:empty) { margin-top: 12px; }
 .crawler-urls { margin-top: 16px; }
 .crawler-urls li { display: flex; align-items: center; gap: 8px; border-bottom: 1px solid var(--line); }
-.crawler-urls a { flex: 1; min-width: 0; padding-block: 12px; overflow-wrap: anywhere; color: var(--accent); font-size: 14px; }
+.crawler-url-content { flex: 1; min-width: 0; padding-block: 12px; }
+.crawler-urls a { display: block; overflow-wrap: anywhere; color: var(--accent); font-size: 14px; }
+.crawler-row-status { margin-top: 4px; color: var(--muted); font-size: 12px; line-height: 1.5; overflow-wrap: anywhere; }
+.crawler-row-status:empty { display: none; }
+.crawler-url-crawl { flex: none; min-height: 44px; padding: 8px; border: 1px solid var(--line); border-radius: 5px; cursor: pointer; }
+.crawler-url-crawl:disabled { opacity: .65; cursor: default; }
 .crawler-urls a:hover { text-decoration: underline; }
 .crawler-url-remove { flex: none; width: 44px; min-height: 44px; border: 0; border-radius: 5px; background: transparent; color: var(--muted); font-size: 22px; cursor: pointer; }
 .crawler-url-remove:hover { background: #202033; color: #ffb4ab; }

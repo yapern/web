@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { readStoredSession, storeSession } from "../src/auth.js";
-import { addCrawlerUrl, deleteCrawlerUrl, fetchCrawlerUrls, normalizeCrawlerUrl } from "../src/board-crawler-api.js";
+import { addCrawlerUrl, deleteCrawlerUrl, fetchCrawlerUrls, normalizeCrawlerUrl, startSiteCrawl, fetchSiteCrawl } from "../src/board-crawler-api.js";
 import { messageBoardConfig } from "../src/config.js";
 
 const session = {
@@ -76,4 +76,39 @@ test("crawler failures show safe errors, never retry, and clear rejected session
     assert.deepEqual(readStoredSession(), status === 401 ? null : session);
   }
   await assert.rejects(fetchCrawlerUrls(board, async () => { throw new TypeError("network"); }), /Check your connection/);
+});
+
+const job = { id: "job-one", source_id: row.id, board_id: board.id, state: "queued", added_count: 0, skipped_count: 0,
+  error: null, created_at: "2026-11-04T00:00:00.000Z", finished_at: null };
+
+test("crawl starts and polls target the exact saved site with authenticated requests and confirmed job identity", async t => {
+  t.after(() => storeSession(null));
+  storeSession(session);
+  const methods = [];
+  const fetcher = async (url, options) => {
+    methods.push(options.method);
+    assert.equal(url.pathname, `/boards/${encodeURIComponent(board.id)}/crawler-urls/${encodeURIComponent(row.id)}/crawl`);
+    assert.equal(url.origin, messageBoardConfig.apiOrigin);
+    assert.equal(options.headers.authorization, `Bearer ${session.token}`);
+    assert.equal(options.body, undefined);
+    assert.equal(options.cache, "no-store");
+    return Response.json({ data: job }, { status: options.method === "POST" ? 202 : 200 });
+  };
+  assert.deepEqual(await startSiteCrawl(board, row.id, fetcher), job);
+  assert.deepEqual(await fetchSiteCrawl(board, row.id, fetcher), job);
+  assert.deepEqual(methods, ["POST", "GET"]);
+  assert.equal(await fetchSiteCrawl(board, row.id, async () => Response.json({ data: null })), null);
+  assert.deepEqual(await fetchCrawlerUrls(board, async () => Response.json({ data: [{ ...row, crawl: job }] })), [{ ...row, crawl: job }]);
+});
+
+test("crawl status rejects other boards, sources and invalid counters; errors preserve safe feedback", async t => {
+  t.after(() => storeSession(null));
+  storeSession(session);
+  for (const override of [{ board_id: "other" }, { source_id: "other" }, { state: "invalid" }, { added_count: -1 }, { skipped_count: "2" }, { finished_at: "bad" }]) {
+    await assert.rejects(startSiteCrawl(board, row.id, async () => Response.json({ data: { ...job, ...override } })), /Could not confirm the crawl/);
+  }
+  await assert.rejects(startSiteCrawl(board, row.id, async () => Response.json({ data: null })), /Could not confirm/);
+  await assert.rejects(startSiteCrawl(board, row.id, async () => Response.json({ error: "sql" }, { status: 429 })), /daily crawl limit/);
+  await assert.rejects(startSiteCrawl(board, row.id, async () => { throw new TypeError("network"); }), /reload to check its status/);
+  await assert.rejects(startSiteCrawl(board, "", () => assert.fail()), /Choose a site/);
 });
