@@ -1,7 +1,7 @@
 import { readStoredSession } from "./auth.js";
 import { addCrawlerUrl, deleteCrawlerUrl, fetchCrawlerUrls, normalizeCrawlerUrl } from "./board-crawler-api.js";
 
-export function mountBoardCrawler(getBoard) {
+export function mountBoardCrawler(getBoard, syncSession) {
   const form = document.querySelector("#crawler-url-form");
   const input = document.querySelector("#crawler-url");
   const add = form.querySelector("[type=submit]");
@@ -80,6 +80,7 @@ export function mountBoardCrawler(getBoard) {
       if (version === generation) {
         loading = false;
         updateControls();
+        if (key !== currentKey()) syncSession();
       }
     }
   }
@@ -109,6 +110,7 @@ export function mountBoardCrawler(getBoard) {
         saving = false;
         button.textContent = "×";
         updateControls();
+        if (key !== currentKey()) syncSession();
       }
     }
   }
@@ -137,6 +139,7 @@ export function mountBoardCrawler(getBoard) {
         saving = false;
         updateControls();
         if (current(version)) input.focus();
+        else if (key !== currentKey()) syncSession();
       }
     }
   });

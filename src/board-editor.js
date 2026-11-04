@@ -34,7 +34,7 @@ export function mountBoardEditor(getBoard, onSave) {
   let removeLogo = false;
   let previewUrl = null;
   let section = "basics";
-  const syncCrawler = mountBoardCrawler(getBoard);
+  const syncCrawler = mountBoardCrawler(getBoard, syncSession);
 
   function clearPreviewUrl() {
     if (previewUrl) URL.revokeObjectURL(previewUrl);

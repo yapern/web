@@ -5,7 +5,7 @@ export function normalizeCrawlerUrl(value) {
   try {
     const clean = typeof value === "string" ? value.trim() : "";
     const url = new URL(clean);
-    if (!/^https?:\/\//i.test(clean) || !["http:", "https:"].includes(url.protocol) ||
+    if (!/^https?:\/\//i.test(clean) || /[\s\u0000-\u001f\u007f]/.test(clean) || !["http:", "https:"].includes(url.protocol) ||
       url.username || url.password || clean.length > 2048 || url.href.length > 2048) throw new Error();
     return url.href;
   } catch {
