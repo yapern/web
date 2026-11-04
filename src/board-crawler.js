@@ -25,6 +25,8 @@ export function mountBoardCrawler(getBoard, syncSession) {
     no_articles: "No article feed, sitemap entries, or article links found.", unsafe_url: "This URL cannot be crawled.",
     unsafe_redirect: "The site redirected to an unsupported URL.", site_unavailable: "The site is unavailable. Try again later.",
     crawl_timeout: "The crawl timed out. Try again.", crawl_limit: "The crawl reached its request limit. Try a more specific feed URL.",
+    crawl_dns_failed: "The site's hostname could not be resolved.", crawl_tls_failed: "Could not establish a secure HTTPS connection to the site.",
+    crawl_connection_failed: "Could not connect to the site. Try again later.",
     document_too_large: "The site's response is too large. Try a feed URL.", invalid_feed: "The site returned an unsupported feed.",
   };
 
@@ -118,6 +120,9 @@ export function mountBoardCrawler(getBoard, syncSession) {
         if (!current(version)) return;
         row.crawl = job;
         crawlErrors.delete(row.id);
+        if (job?.state === "succeeded" && job.added_count > 0) {
+          window.dispatchEvent(new CustomEvent("boardmessageschange", { detail: { slug: getBoard().slug } }));
+        }
       } catch {
         if (!current(version)) { syncSession(); return; }
         crawlErrors.set(row.id, "Crawl status unavailable. Retrying…");

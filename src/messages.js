@@ -359,6 +359,9 @@ function syncBoardRoute() {
 }
 
 for (const event of ["boardroutechange", "popstate"]) window.addEventListener(event, syncBoardRoute);
+window.addEventListener("boardmessageschange", event => {
+  if (route?.slug === event.detail?.slug && route.messageId === undefined) loadMessages();
+});
 retry.addEventListener("click", loadMessages);
 for (const event of ["pageshow", "focus", "storage"]) window.addEventListener(event, syncDeleteAction);
 if (route) heading.textContent = `y/${route.slug}`;

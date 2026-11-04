@@ -82,12 +82,12 @@ export async function deleteCrawlerUrl(board, id, fetcher = fetch) {
   await request(board, "DELETE", { id }, fetcher);
 }
 
-export function startSiteCrawl(board, id, fetcher = fetch) {
+export async function startSiteCrawl(board, id, fetcher = fetch) {
   if (typeof id !== "string" || !id.trim()) throw new Error("Choose a site to crawl.");
   return request(board, "POST", { id, crawl: true }, fetcher);
 }
 
-export function fetchSiteCrawl(board, id, fetcher = fetch) {
+export async function fetchSiteCrawl(board, id, fetcher = fetch) {
   if (typeof id !== "string" || !id.trim()) throw new Error("Choose a site to crawl.");
   return request(board, "GET", { id, crawl: true }, fetcher);
 }
