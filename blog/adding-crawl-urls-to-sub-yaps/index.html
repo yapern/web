@@ -94,7 +94,7 @@
         <p>I’m keeping all three. Replacing a usable feed with layout-dependent selectors would give me more code to maintain for the same links. When a magazine has a fiction-specific feed, that’s a better starting URL than its homepage. The current extractor doesn’t retain author or genre fields, and it doesn’t classify a piece as fiction just because a literary magazine published it.</p>
 
         <h2>The button starts a job</h2>
-        <p>A crawl can outlast the page that started it. The <a href="https://github.com/yapern/backend/blob/main/worker/app/board-crawler.ts">API endpoint</a> checks that you own the sub-yap, saves a job in D1, and sends its ID to the existing Cloudflare queue. It returns HTTP 202. The browser polls for status, and reopening Crawler picks up the latest job for each site.</p>
+        <p>A crawl can outlast the page that started it. The <a href="https://api.yapern.com/docs#/Boards/crawlBoardSite">API endpoint</a> checks that you own the sub-yap, saves a job in D1, and sends its ID to the existing Cloudflare queue. It returns HTTP 202. The browser <a href="https://api.yapern.com/docs#/Boards/getBoardSiteCrawl">polls for status</a>, and reopening Crawler picks up the latest job for each site.</p>
 
         <pre tabindex="0" aria-label="Crawl job API routes"><code>POST /boards/:boardId/crawler-urls/:urlId/crawl
 GET  /boards/:boardId/crawler-urls/:urlId/crawl</code></pre>
