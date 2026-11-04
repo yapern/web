@@ -25,20 +25,32 @@ const page = Number.isSafeInteger(requestedPage) && requestedPage > 0 ? requeste
 const requestedSort = searchParams.get("sort");
 const sort = Object.hasOwn(messageSortOrders, requestedSort) ? requestedSort : "votes-desc";
 const pagination = document.querySelector("#messages-pagination");
+const sortControl = document.querySelector("#messages-sort");
 
-function allMessagesHref(nextPage, nextSort = sort) {
+function isMessageFeed() {
+  return isAllPage || Boolean(route && route.messageId === undefined);
+}
+
+function messagesHref(nextPage, nextSort = sort) {
   const params = new URLSearchParams();
   if (nextPage > 1) params.set("page", String(nextPage));
   if (nextSort !== "votes-desc") params.set("sort", nextSort);
-  return `/all${params.size ? `?${params}` : ""}`;
+  const pathname = isAllPage ? "/all" : boardHref(route.slug);
+  return `${pathname}${params.size ? `?${params}` : ""}`;
+}
+
+function syncSortControl() {
+  if (!sortControl) return;
+  document.querySelector("#messages-sort-control").hidden = !isMessageFeed();
+  sortControl.value = sort;
 }
 
 function renderPagination(hasNext) {
-  if (!isAllPage) return;
+  if (!isMessageFeed()) return;
   const previous = document.createElement(page > 1 ? "a" : "span");
   previous.textContent = "Previous";
   if (page > 1) {
-    previous.href = allMessagesHref(page - 1);
+    previous.href = messagesHref(page - 1);
     previous.rel = "prev";
   } else {
     previous.setAttribute("aria-disabled", "true");
@@ -48,7 +60,7 @@ function renderPagination(hasNext) {
   const next = document.createElement(hasNext ? "a" : "span");
   next.textContent = "Next";
   if (hasNext) {
-    next.href = allMessagesHref(page + 1);
+    next.href = messagesHref(page + 1);
     next.rel = "next";
   } else {
     next.setAttribute("aria-disabled", "true");
@@ -296,7 +308,7 @@ async function loadMessages() {
       hasNext = result.hasNext;
       boards = allBoards;
     } else if (isBoardPage) {
-      const result = requestedRoute && await fetchBoardPage(requestedRoute.slug, requestedRoute.messageId);
+      const result = requestedRoute && await fetchBoardPage(requestedRoute.slug, requestedRoute.messageId, undefined, { page, sort });
       if (load !== messageLoad) return;
       if (!result) {
         const resource = route?.messageId === undefined ? "Sub-yap" : "Message";
@@ -307,9 +319,13 @@ async function loadMessages() {
         return;
       }
       data = result.messages;
+      hasNext = result.hasNext ?? false;
       boards = [result.board];
       heading.textContent = `y/${result.board.slug}`;
-      document.title = `${route.messageId === undefined ? `y/${result.board.slug}` : data[0].title} · Yapern`;
+      const title = route.messageId === undefined
+        ? `y/${result.board.slug}${page > 1 ? ` · Page ${page}` : ""}`
+        : data[0].title;
+      document.title = `${title} · Yapern`;
     } else {
       [data, boards] = await Promise.all([
         fetchMessages(undefined, { limit: 3, order: "votes.desc,created_at.desc" }),
@@ -324,7 +340,7 @@ async function loadMessages() {
     disposeReplies = null;
     list.replaceChildren(...data.map(message => messageRow(message, byId.get(message.board_id), authors)));
     syncDeleteAction();
-    status.textContent = data.length ? "" : isAllPage && page > 1 ? "No messages on this page." : "No messages yet.";
+    status.textContent = data.length ? "" : isMessageFeed() && page > 1 ? "No messages on this page." : "No messages yet.";
     renderPagination(hasNext);
     const showingMessage = route?.messageId !== undefined && data.length > 0;
     const replies = document.querySelector("#message-replies-section");
@@ -351,6 +367,7 @@ function syncBoardRoute() {
   const nextRoute = parseBoardRoute(window.location.pathname);
   if (nextRoute?.slug === route?.slug && nextRoute?.messageId === route?.messageId) return;
   route = nextRoute;
+  syncSortControl();
   disposeReplies?.();
   disposeReplies = null;
   list.replaceChildren();
@@ -369,14 +386,14 @@ if (isAllPage) {
   heading.textContent = "All messages";
   document.title = `All messages${page > 1 ? ` · Page ${page}` : ""} · Yapern`;
   document.querySelector('.detail-nav-link[href="/all"]').setAttribute("aria-current", "page");
-  const sortControl = document.querySelector("#messages-sort");
-  document.querySelector("#messages-sort-control").hidden = false;
-  sortControl.value = sort;
+}
+if (sortControl) {
+  syncSortControl();
   window.addEventListener("pageshow", () => { sortControl.value = sort; });
   sortControl.addEventListener("change", () => {
     const nextSort = sortControl.value;
     sortControl.value = sort;
-    window.location.assign(allMessagesHref(1, nextSort));
+    window.location.assign(messagesHref(1, nextSort));
   });
 }
 mountBoardSidebars(route?.slug, isBoardPage ? 20 : 3);

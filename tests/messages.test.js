@@ -153,7 +153,7 @@ test("board lookups paginate so messages can link to boards beyond the first 100
   assert.deepEqual(boards[100], board);
 });
 
-test("board pages filter messages by the looked-up board before applying the limit", async () => {
+test("board pages filter messages by the looked-up board and default to the all-message ranking", async () => {
   const result = await fetchBoardPage("general", undefined, async url => {
     if (url.pathname.endsWith("/tables/boards")) {
       assert.equal(url.searchParams.get("slug"), "eq.general");
@@ -162,10 +162,72 @@ test("board pages filter messages by the looked-up board before applying the lim
     }
     assert.equal(url.searchParams.get("board_id"), "eq.general");
     assert.equal(url.searchParams.get("limit"), "20");
-    assert.equal(url.searchParams.get("order"), "created_at.desc");
+    assert.equal(url.searchParams.get("order"), "votes.desc,created_at.desc");
     return Response.json({ data: [message] });
   });
-  assert.deepEqual(result, { board, messages: [message] });
+  assert.deepEqual(result, { board, messages: [message], hasNext: false });
+});
+
+test("sub-yap feeds paginate every sort within the selected board, including the next-page check", async () => {
+  const messages = Array.from({ length: 45 }, (_, index) => ({ ...message, id: `message-${index}` }));
+  const source = messages.flatMap(row => [row, { ...row, id: `other-${row.id}`, board_id: "other" }]);
+  for (const [sort, order] of [
+    ["votes-desc", "votes.desc,created_at.desc"],
+    ["votes-asc", "votes.asc,created_at.desc"],
+    ["date-desc", "created_at.desc"],
+    ["date-asc", "created_at.asc"],
+  ]) {
+    const requests = [];
+    const fetcher = async url => {
+      if (url.pathname.endsWith("/tables/boards")) return Response.json({ data: [board] });
+      assert.equal(url.searchParams.get("board_id"), `eq.${board.id}`);
+      assert.equal(url.searchParams.get("id"), null);
+      assert.equal(url.searchParams.get("order"), order);
+      const limit = Number(url.searchParams.get("limit"));
+      const offset = Number(url.searchParams.get("offset"));
+      requests.push({ limit, offset });
+      const scoped = source.filter(row => `eq.${row.board_id}` === url.searchParams.get("board_id"));
+      return Response.json({ data: scoped.slice(offset, offset + limit) });
+    };
+    const pages = [];
+    for (const page of [1, 2, 3]) pages.push(await fetchBoardPage(board.slug, undefined, fetcher, { page, sort }));
+    assert.deepEqual(pages.map(page => page.board), [board, board, board]);
+    assert.deepEqual(pages.map(page => page.messages.length), [20, 20, 5]);
+    assert.deepEqual(pages.map(page => page.hasNext), [true, true, false]);
+    assert.deepEqual(pages.flatMap(page => page.messages), messages);
+    assert.deepEqual(requests, [
+      { limit: 20, offset: 0 }, { limit: 1, offset: 20 },
+      { limit: 20, offset: 20 }, { limit: 1, offset: 40 },
+      { limit: 20, offset: 40 },
+    ]);
+  }
+});
+
+test("sub-yap pagination handles a full final page, empty boards, and out-of-range pages", async () => {
+  const messages = Array.from({ length: 40 }, (_, index) => ({ ...message, id: String(index) }));
+  const fetcher = async url => {
+    if (url.pathname.endsWith("/tables/boards")) return Response.json({ data: [board] });
+    const offset = Number(url.searchParams.get("offset"));
+    const limit = Number(url.searchParams.get("limit"));
+    return Response.json({ data: messages.slice(offset, offset + limit) });
+  };
+  assert.deepEqual(await fetchBoardPage(board.slug, undefined, fetcher, { page: 2 }), {
+    board, messages: messages.slice(20), hasNext: false,
+  });
+  assert.deepEqual(await fetchBoardPage(board.slug, undefined, fetcher, { page: 3 }), {
+    board, messages: [], hasNext: false,
+  });
+  messages.length = 0;
+  assert.deepEqual(await fetchBoardPage(board.slug, undefined, fetcher), { board, messages: [], hasNext: false });
+});
+
+test("sub-yap next-page checks reject failures and messages from another board", async () => {
+  for (const next of [new Response(null, { status: 503 }), Response.json({ data: [{ ...message, board_id: "other" }] })]) {
+    await assert.rejects(fetchBoardPage(board.slug, undefined, async url => {
+      if (url.pathname.endsWith("/tables/boards")) return Response.json({ data: [board] });
+      return Number(url.searchParams.get("limit")) === 20 ? Response.json({ data: Array(20).fill(message) }) : next;
+    }));
+  }
 });
 
 test("message pages filter by both board and message ID, including older messages", async () => {
@@ -175,8 +237,9 @@ test("message pages filter by both board and message ID, including older message
     assert.equal(url.searchParams.get("board_id"), "eq.general");
     assert.equal(url.searchParams.get("id"), `eq.${id}`);
     assert.equal(url.searchParams.get("limit"), "1");
+    assert.equal(url.searchParams.get("offset"), null);
     return Response.json({ data: [{ ...message, id }] });
-  });
+  }, { page: 3, sort: "date-asc" });
   assert.equal(result.messages[0].id, id);
 });
 
@@ -184,7 +247,7 @@ test("missing boards and missing messages return null, while empty boards remain
   assert.equal(await fetchBoardPage("missing", undefined, async () => Response.json({ data: [] })), null);
   const fetcher = async url => Response.json({ data: url.pathname.endsWith("/tables/boards") ? [board] : [] });
   assert.equal(await fetchBoardPage("general", "missing", fetcher), null);
-  assert.deepEqual(await fetchBoardPage("general", undefined, fetcher), { board, messages: [] });
+  assert.deepEqual(await fetchBoardPage("general", undefined, fetcher), { board, messages: [], hasNext: false });
 });
 
 test("rejects a mismatched board, message ID, or messages belonging to another board", async () => {

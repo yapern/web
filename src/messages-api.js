@@ -310,16 +310,16 @@ export const messageSortOrders = {
   "date-asc": "created_at.asc",
 };
 
-export async function fetchMessagesPage(page = 1, fetcher = fetch, { sort = "votes-desc" } = {}) {
+export async function fetchMessagesPage(page = 1, fetcher = fetch, { sort = "votes-desc", boardId } = {}) {
   if (!Number.isSafeInteger(page) || page < 1) throw new Error("Invalid message page");
   if (!Object.hasOwn(messageSortOrders, sort)) throw new Error("Invalid message sort");
   const limit = 20;
   const offset = (page - 1) * limit;
   const order = messageSortOrders[sort];
-  const messages = await fetchMessages(fetcher, { limit, offset, order });
+  const messages = await fetchMessages(fetcher, { boardId, limit, offset, order });
   // Check for another row so a full final page doesn't lead to an empty page.
   const next = messages.length === limit
-    ? await fetchMessages(fetcher, { limit: 1, offset: offset + limit, order })
+    ? await fetchMessages(fetcher, { boardId, limit: 1, offset: offset + limit, order })
     : [];
   return { messages, hasNext: next.length > 0 };
 }
@@ -455,11 +455,15 @@ export async function fetchBoards(fetcher = fetch) {
   }
 }
 
-export async function fetchBoardPage(slug, messageId, fetcher = fetch) {
+export async function fetchBoardPage(slug, messageId, fetcher = fetch, { page = 1, sort = "votes-desc" } = {}) {
   const boards = await readBoards({ slug: `eq.${slug}`, limit: "1" }, fetcher);
   const board = boards[0];
   if (!board) return null;
   if (board.slug !== slug) throw new Error("Unexpected sub-yap");
+  if (messageId === undefined) {
+    const result = await fetchMessagesPage(page, fetcher, { boardId: board.id, sort });
+    return { board, ...result };
+  }
   const messages = await fetchMessages(fetcher, { boardId: board.id, messageId });
   if (messageId !== undefined && !messages.length) return null;
   return { board, messages };
