@@ -33,7 +33,7 @@
     <!-- site-header -->
     <main id="main" class="blog-main shell">
       <p class="blog-back"><a href="/blog/">← Blog</a></p>
-      <article class="blog-article" aria-labelledby="article-title">
+      <article class="blog-article blog-article--ground-stop" aria-labelledby="article-title">
         <h1 id="article-title">How to safely get 4k planes down</h1>
         <p class="blog-meta"><time datetime="2026-11-14">November 14, 2026</time> · Andrew Arrow</p>
 
@@ -42,13 +42,13 @@
         <p>Airborne flights could continue toward their destinations. <a href="https://news.delta.com/delta-statement-faa-nationwide-ground-stop">Delta explicitly told customers that its en route flights would continue</a>. Controllers could concentrate on getting those aircraft through the system safely while technicians worked on the failure underneath them.</p>
 
         <h2>What a router has to do with an airplane</h2>
-        <p>A controller’s headset may connect to a radio transmitter many miles away. Surveillance information also travels from sensors to the facilities where controllers use it. The <a href="https://www.l3harris.com/sites/default/files/2025-03/fti-program-profile-sell-sheet-l3harris-sas-mn.pdf">FAA Telecommunications Infrastructure, operated by L3Harris</a>, carries voice and operational data between FAA sites. A problem in that shared network can therefore interfere with several services at once.</p>
+        <p>A controller’s headset may connect to a <a href="https://www.faa.gov/media/80091">radio transmitter many miles away</a>. Surveillance information also travels from sensors to the facilities where controllers use it. The <a href="https://www.l3harris.com/sites/default/files/2025-03/fti-program-profile-sell-sheet-l3harris-sas-mn.pdf">FAA Telecommunications Infrastructure, operated by L3Harris</a>, carries voice and operational data between FAA sites. A problem in that shared network can therefore interfere with several services at once.</p>
         <p>Routers are computers that forward small chunks of information, called packets, toward their destinations. Network switches connect devices and move traffic within networks; voice switches connect controllers with radios and telephone lines. Those are different jobs, although public accounts of an outage often bundle the equipment together. <a href="https://www.cisco.com/site/us/en/learn/topics/small-business/what-is-a-router.html">Cisco explains the packet-forwarding part</a>, and <a href="https://files.gao.gov/reports/GAO-26-107992/index.html">GAO describes the FAA’s voice switches</a>.</p>
         <p>Follow the controller’s voice across the drawing. The radio link to the aircraft is only one part of the trip. A working radio at each end won’t fix a broken connection between the controller and the ground transmitter. This is a simplified explanation of the dependencies, rather than a map of Friday’s failed equipment.</p>
 
         <figure>
           <picture>
-            <source media="(max-width: 650px)" srcset="/images/blog/how-to-safely-get-4k-planes-down/communications-path-mobile.svg" />
+            <source media="(max-width: 650px)" srcset="/images/blog/how-to-safely-get-4k-planes-down/communications-path-mobile.svg" width="400" height="650" />
             <img src="/images/blog/how-to-safely-get-4k-planes-down/communications-path.svg" width="960" height="500" alt="A controller’s voice passes through a ground network to a remote radio, then crosses the air to the aircraft. Surveillance data uses the ground network to reach the controller’s display. A fault in the shared ground network can interrupt both services while the aircraft remains powered and flying." decoding="async" />
           </picture>
         </figure>
@@ -73,36 +73,36 @@
 
         <figure>
           <picture>
-            <source media="(max-width: 650px)" srcset="/images/blog/how-to-safely-get-4k-planes-down/airborne-flights-mobile.svg" />
+            <source media="(max-width: 650px)" srcset="/images/blog/how-to-safely-get-4k-planes-down/airborne-flights-mobile.svg" width="400" height="660" />
             <img src="/images/blog/how-to-safely-get-4k-planes-down/airborne-flights.svg" width="960" height="580" alt="Flightradar24’s November 13 snapshots show 4,042 airborne U.S.-bound flights at 3:54 p.m. Eastern, 1,000 at 5:55 p.m., and fewer than 400 at 8 p.m. The ground stop lifted at 8:15 p.m.; the lowest reported count, 336, came at 8:29 p.m., after reopening. All bars share the same scale." loading="lazy" decoding="async" />
           </picture>
         </figure>
 
         <p>The stop was lifted at <strong>8:15 p.m. Eastern</strong>, with flights still airborne. Some international departures had already received case-by-case permission during the stop. The recovery decision depended on restoring usable capacity; it didn’t require the last airplane to touch down. The FAA said it tested its systems for stability before allowing departures to resume, in <a href="https://x.com/FAANews/status/2121439275539481030">its reopening update</a>.</p>
 
-        <h2>Where they landed, and what “safe” establishes</h2>
+        <h2>Where the flights ended up</h2>
         <p>Many flights continued to their planned airports. Others returned or diverted. <a href="https://apnews.com/article/f81b0904331dafad6133f291e5f531a8">AP reported Cirium’s count</a> of 827 diversions or returns by 7:05 p.m. Eastern: 670 back to the departure airport and 157 elsewhere. That tally doesn’t tell us why each crew changed course, or how each flight relates to Flightradar24’s starting count.</p>
         <p>A diversion airport has to suit the airplane, weather, fuel remaining, and available capacity. A small nearby runway may be useless to an airliner; a farther airport may offer a suitable runway and room to accept it. Pilots, controllers, and airline dispatchers coordinate those choices as circumstances allow. There’s no universal rule that each aircraft gets the geographically closest airport.</p>
-        <p>Officials reported that more than 3,000 flights landed safely. That is a substantial operational success. It doesn’t establish that nobody declared an emergency: a crew can declare one and still land safely. The public accounts don’t provide a complete flight-by-flight record from which to claim that every arrival was routine.</p>
+        <p><a href="https://apnews.com/article/f81b0904331dafad6133f291e5f531a8">Officials reported that more than 3,000 flights landed safely</a>. That is a substantial operational success. It doesn’t establish that nobody declared an emergency: a crew can declare one and still land safely. The public accounts don’t provide a complete flight-by-flight record from which to claim that every arrival was routine.</p>
 
         <h2>Are the old routers gone now?</h2>
         <p><strong>We have evidence of restored service, but no verified nationwide replacement of the implicated routers.</strong> Identifying and isolating faulty equipment can make a network usable again while replacement work remains. The immediate repair and the long-term modernization are separate jobs.</p>
         <p>Duffy said the newly deployed equipment had stayed operational during the outage. That is encouraging evidence about those installations, as <a href="https://www.transportation.gov/briefing-room/icymi-us-transportation-secretary-sean-p-duffy-announces-lifting-nationwide-ground">the Department’s briefing highlights record</a>. It doesn’t establish that all remaining old equipment has been removed or that the network as a whole can contain a repeat failure.</p>
-        <p>The modernization was underway before Friday. <a href="https://files.gao.gov/reports/GAO-26-107992/index.html">GAO’s September 2026 review</a> recorded 2,560 of 5,170 targeted copper connections replaced as of May. The plan also calls for moving nearly 30,000 services to Internet Protocol and replacing 450 legacy voice switches. Those are distinct measures: replacing a cable isn’t the same as replacing a router or voice switch. May’s progress count is also not a current inventory.</p>
+        <p>The modernization was underway before Friday. The <a href="https://modernskies.faa.gov/">FAA’s Modern Skies dashboard</a>, with data dated October 15, 2026, reports the following progress. These are different pieces of the upgrade, each with its own denominator. Replacing a connection doesn’t establish that every router using it has also been replaced.</p>
 
-        <div class="article-table" role="region" aria-label="What the recovery and modernization evidence establishes" tabindex="0">
+        <div class="article-table" role="region" aria-label="FAA modernization progress as of October 15, 2026" tabindex="0">
           <table>
-            <thead><tr><th scope="col">Evidence</th><th scope="col">What it establishes</th></tr></thead>
+            <thead><tr><th scope="col">Upgrade</th><th scope="col">Completed / planned</th><th scope="col">Progress</th></tr></thead>
             <tbody>
-              <tr><th scope="row">Service restored Friday evening</th><td>The system was judged ready to accept departures again.</td></tr>
-              <tr><th scope="row">New equipment stayed up</th><td>Some upgraded installations withstood this event.</td></tr>
-              <tr><th scope="row">Replacement program underway</th><td>Parts of the infrastructure have improved; nationwide work remains.</td></tr>
+              <tr><th scope="row">Telecom connections</th><td>3,508 / 5,170</td><td>68%</td></tr>
+              <tr><th scope="row">IP voice switches</th><td>220 / 450</td><td>49%</td></tr>
+              <tr><th scope="row">Radio sites</th><td>457 / 1,581</td><td>29%</td></tr>
             </tbody>
           </table>
         </div>
 
-        <p>IP is the family of networking protocols used by the internet. An IP-based aviation network can still be private. And the older TDM technology, which reserves time slots on a communications link, is itself digital; calling this whole transition “analog to digital” blurs several different upgrades. New hardware helps, but reliability also depends on whether alternate paths are independent, whether a bad change can be contained, and whether it can be rolled back under load.</p>
-        <p>GAO put the first modernization phase’s target at December 2028 and warned about the lack of an integrated schedule and reliable lifecycle cost estimate. Friday’s outage adds an urgent engineering question: what allowed a problem in part of the communications network to disrupt so much of the country? A final technical investigation needs to answer that before anyone can credibly say the same failure is fixed for good.</p>
+        <p>IP, or Internet Protocol, is used to address and deliver packets. An IP-based aviation network can still be private. And the older <a href="https://www.cisco.com/c/en/us/products/collateral/routers/4000-series-integrated-services-routers-isr/data_sheet_c78-728308.html">TDM technology</a>, which reserves time slots on a communications link, is itself digital; calling this whole transition “analog to digital” blurs several different upgrades. New hardware helps, but reliability also depends on whether alternate paths are independent, whether a bad change can be contained, and whether it can be rolled back under load.</p>
+        <p><a href="https://files.gao.gov/reports/GAO-26-107992/index.html">GAO’s September review</a> put the first modernization phase’s target at December 2028 and warned about the lack of an integrated schedule and reliable lifecycle cost estimate. Friday’s outage adds an urgent engineering question: what allowed a problem in part of the communications network to disrupt so much of the country? A final technical investigation needs to answer that before anyone can credibly say the same failure is fixed for good.</p>
         <p>The controllers and crews deserve credit for getting thousands of flights safely through a system that was letting them down. Holding departures gave them a manageable path through the failure, and reopening followed the restoration of capacity. That response worked. The standard for the network should be higher: the next equipment failure or software change should leave far fewer people needing to execute the national contingency plan.</p>
       </article>
     </main>

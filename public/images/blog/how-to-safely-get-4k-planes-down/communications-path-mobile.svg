@@ -21,13 +21,13 @@
 <rect x="34" y="283" width="332" height="126" rx="4" fill="#f0e0d6"/>
 <text x="200" y="313" font-size="21" fill="#26343f" font-weight="700" text-anchor="middle">Shared ground network</text>
 <text x="200" y="339" font-size="17" fill="#52606a" font-weight="400" text-anchor="middle">Routers, switches, links</text>
-<path d="M93 231V483" fill="none" stroke="#256581" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)"/>
-<path d="M294 440V231" fill="none" stroke="#256581" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)"/>
-<circle cx="93" cy="374" r="13" fill="#f7f4ec"/><path d="M86 367L100 381M100 367L86 381" fill="none" stroke="#a83f35" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-<circle cx="294" cy="374" r="13" fill="#f7f4ec"/><path d="M287 367L301 381M301 367L287 381" fill="none" stroke="#a83f35" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M112 374H275" fill="none" stroke="#a83f35" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="3 6"/>
-<text x="112" y="264" font-size="17" fill="#256581" font-weight="400" text-anchor="start">Voice</text>
-<text x="313" y="264" font-size="17" fill="#256581" font-weight="400" text-anchor="start">Data</text>
+<path d="M93 231V260H58V450H93V483" fill="none" stroke="#256581" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<path d="M294 440H342V260H294V231" fill="none" stroke="#256581" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<circle cx="58" cy="374" r="13" fill="#f7f4ec"/><path d="M51 367L65 381M65 367L51 381" fill="none" stroke="#a83f35" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="342" cy="374" r="13" fill="#f7f4ec"/><path d="M335 367L349 381M349 367L335 381" fill="none" stroke="#a83f35" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M77 374H323" fill="none" stroke="#a83f35" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="3 6"/>
+<text x="113" y="251" font-size="17" fill="#256581" font-weight="400" text-anchor="start">Voice</text>
+<text x="230" y="251" font-size="17" fill="#256581" font-weight="400" text-anchor="start">Data</text>
 <g transform="translate(93 533) scale(0.8)" fill="none" stroke="#26343f" stroke-width="3" stroke-linejoin="round">
     <path d="M0 -30L-22 31H22ZM-12 5H12M-17 18H17M-9 -5L17 18M9 -5L-17 18"/>
     <circle cx="0" cy="-30" r="4" fill="#256581" stroke="none"/><path d="M-14 -43Q-26 -30 -14 -17M14 -43Q26 -30 14 -17M-25 -51Q-43 -30 -25 -9M25 -51Q43 -30 25 -9" stroke="#256581"/>
