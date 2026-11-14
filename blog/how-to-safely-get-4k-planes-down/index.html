@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#090d17" />
+    <meta name="description" content="How the FAA managed roughly 4,000 airborne flights during the November 13, 2026 ground stop, what failing routers disrupted, and what remains unfinished." />
+    <link rel="canonical" href="https://yapern.com/blog/how-to-safely-get-4k-planes-down/" />
+    <link rel="icon" href="/images/favicon.png" type="image/png" />
+    <meta property="og:type" content="article" />
+    <meta property="og:site_name" content="Yapern" />
+    <meta property="og:title" content="How to safely get 4k planes down" />
+    <meta property="og:description" content="Old routers made voice and radar information unreliable. Holding departures gave controllers room to work. What went right, and what still needs fixing." />
+    <meta property="og:url" content="https://yapern.com/blog/how-to-safely-get-4k-planes-down/" />
+    <meta property="og:image" content="https://yapern.com/images/blog/how-to-safely-get-4k-planes-down/airborne-flights.png" />
+    <meta property="og:image:alt" content="Flightradar24 snapshots: 4,042 U.S.-bound flights airborne at 3:54 p.m. Eastern, 1,000 at 5:55 p.m., and fewer than 400 at 8 p.m." />
+    <meta property="article:published_time" content="2026-11-14" />
+    <meta property="article:author" content="Andrew Arrow" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="How to safely get 4k planes down" />
+    <meta name="twitter:description" content="What the FAA’s failing routers interrupted, why holding departures helped, and why restoring service doesn’t finish the upgrade." />
+    <meta name="twitter:url" content="https://yapern.com/blog/how-to-safely-get-4k-planes-down/" />
+    <meta name="twitter:image" content="https://yapern.com/images/blog/how-to-safely-get-4k-planes-down/airborne-flights.png" />
+    <meta name="twitter:image:alt" content="Measured snapshots of airborne flights headed for U.S. airports during the November 13, 2026 ground stop." />
+    <link rel="stylesheet" href="/yapern.css" />
+    <link rel="stylesheet" href="/blog.css" />
+    <script type="module" src="/src/auth-nav.js"></script>
+    <script type="module" src="/src/create.js"></script>
+    <title>How to safely get 4k planes down · Yapern</title>
+  </head>
+  <body class="blog-page">
+    <a class="skip-link" href="#main">Skip to content</a>
+    <!-- site-header -->
+    <main id="main" class="blog-main shell">
+      <p class="blog-back"><a href="/blog/">← Blog</a></p>
+      <article class="blog-article" aria-labelledby="article-title">
+        <h1 id="article-title">How to safely get 4k planes down</h1>
+        <p class="blog-meta"><time datetime="2026-11-14">November 14, 2026</time> · Andrew Arrow</p>
+
+        <p>When the FAA stopped departures on Friday, November 13, there were <a href="https://www.flightradar24.com/blog/live/nationwide-ground-stop-issued-for-united-states/">4,042 flights already airborne and headed for U.S. airports</a>. They still needed controllers, working communications, and somewhere to land. Keeping the next few thousand airplanes at their gates bought the people handling those flights room to work.</p>
+        <p>That sounds almost too simple for a national emergency. But an airplane waiting on the ground can wait without consuming its fuel reserves in a holding pattern. Every new departure would have added another aircraft to a control system whose voice and radar information had become unreliable.</p>
+        <p>Airborne flights could continue toward their destinations. <a href="https://news.delta.com/delta-statement-faa-nationwide-ground-stop">Delta explicitly told customers that its en route flights would continue</a>. Controllers could concentrate on getting those aircraft through the system safely while technicians worked on the failure underneath them.</p>
+
+        <h2>What a router has to do with an airplane</h2>
+        <p>A controller’s headset may connect to a radio transmitter many miles away. Surveillance information also travels from sensors to the facilities where controllers use it. The <a href="https://www.l3harris.com/sites/default/files/2025-03/fti-program-profile-sell-sheet-l3harris-sas-mn.pdf">FAA Telecommunications Infrastructure, operated by L3Harris</a>, carries voice and operational data between FAA sites. A problem in that shared network can therefore interfere with several services at once.</p>
+        <p>Routers are computers that forward small chunks of information, called packets, toward their destinations. Network switches connect devices and move traffic within networks; voice switches connect controllers with radios and telephone lines. Those are different jobs, although public accounts of an outage often bundle the equipment together. <a href="https://www.cisco.com/site/us/en/learn/topics/small-business/what-is-a-router.html">Cisco explains the packet-forwarding part</a>, and <a href="https://files.gao.gov/reports/GAO-26-107992/index.html">GAO describes the FAA’s voice switches</a>.</p>
+        <p>Follow the controller’s voice across the drawing. The radio link to the aircraft is only one part of the trip. A working radio at each end won’t fix a broken connection between the controller and the ground transmitter. This is a simplified explanation of the dependencies, rather than a map of Friday’s failed equipment.</p>
+
+        <figure>
+          <picture>
+            <source media="(max-width: 650px)" srcset="/images/blog/how-to-safely-get-4k-planes-down/communications-path-mobile.svg" />
+            <img src="/images/blog/how-to-safely-get-4k-planes-down/communications-path.svg" width="960" height="500" alt="A controller’s voice passes through a ground network to a remote radio, then crosses the air to the aircraft. Surveillance data uses the ground network to reach the controller’s display. A fault in the shared ground network can interrupt both services while the aircraft remains powered and flying." decoding="async" />
+          </picture>
+        </figure>
+
+        <p>Transportation Secretary Sean Duffy said old routers and switches had become overloaded and produced inconsistent information. Technicians deployed changes to reduce the overload and restore the network, according to <a href="https://rollcall.com/factbase/trump/transcript/donald-trump-press-briefing-markwayne-mullin-sean-duffy-faa-ground-stop-november-13-2026/">his Friday briefing</a>.</p>
+        <p><a href="https://www.cbsnews.com/news/faa-issues-nationwide-ground-stop/">CBS’s preliminary reporting</a> identifies Cisco 600-series routers built in 2001–2006, since isolated, and describes voice static plus flashing or black screens.</p>
+        <p>It’s tempting to hear “overloaded” and picture somebody downloading too much data. A router can run out of processing capacity or buffer space, and packets can arrive late or be dropped. That’s a general explanation of network congestion, not an established diagnosis of these particular boxes. A voice conversation needs information to arrive on time; eventually delivering it is little consolation if a clearance was unintelligible when the pilot needed it.</p>
+        <p><a href="https://www.cbsnews.com/philadelphia/news/ground-stop-nationwide-philadelphia-international-airport/">CBS separately reported</a> that a network update caused a reboot and crash, citing unnamed sources. The public material available as of November 14 doesn’t establish the exact change, the internal failure mechanism, or how the disruption spread so widely. It would be premature to name a routing protocol bug, a particular security patch, or a failed backup as the proven culprit.</p>
+
+        <h2>“Degraded” leaves controllers with more work per airplane</h2>
+        <p>The FAA’s <a href="https://www.faa.gov/newsroom/faa-statement-nationwide-ground-stop">initial statement</a> described communications problems at multiple regional control centers. The <a href="https://www.transportation.gov/briefing-room/icymi-us-transportation-secretary-sean-p-duffy-announces-lifting-nationwide-ground">Transportation Department described intermittent outages</a> affecting communications and radar stability. Intermittent matters here: a connection can work, fail, recover, and fail again. Controllers have to plan around what they can reliably use.</p>
+        <p>Normally, a flight passes between controllers responsible for different pieces of airspace. Regional centers manage the cruise portion, approach facilities guide traffic nearer an airport, and tower controllers handle the runway environment. Each transfer requires the next controller to know what is coming and be able to communicate with it. Losing reliable information makes that coordination harder even when the airplane’s own systems are working perfectly.</p>
+        <p>Consider a controller who can still talk to a pilot but has lost dependable surveillance. The pilot can report the aircraft’s position, and the controller can keep aircraft separated using procedures that don’t depend on a radar display. The <a href="https://www.faa.gov/air_traffic/publications/atpubs/atc_html/chap6_section_1.html">FAA publishes nonradar procedures</a>, including requirements for position reports and communications. Those procedures have conditions; they aren’t a way to run normal traffic volume through any outage.</p>
+        <p>Other contingencies can involve alternate frequencies, radios, or coordination paths, where those are available. An airline may also reach its crew through operational messaging, although a message from dispatch doesn’t replace an ATC clearance. These are examples of fallback capabilities, not a claim that every facility used the same backup on Friday. A facility that cannot provide a necessary service has to restrict the traffic it accepts.</p>
+        <p>Meanwhile, the pilots still fly the aircraft. An outage in the FAA’s ground network doesn’t itself shut down engines, flight controls, or onboard navigation. The urgent problem is maintaining a trustworthy shared picture of where airplanes are and what each one has been cleared to do.</p>
+
+        <h2>Hold departures, then let the workload fall</h2>
+        <p>The FAA already has a procedure for this situation. Its <a href="https://www.faa.gov/air_traffic/publications/atpubs/foa_html/chap18_section_13.html">ground-stop policy</a> calls for holding departures when facilities cannot fully provide services, to prevent overloaded sectors and excessive airborne holding. Friday’s decision applied that principle on a national scale.</p>
+        <p>Once affected departures stay on the ground, arrivals can progressively reduce the workload. A controller handling fewer airplanes has more time to repeat a garbled transmission, arrange a handoff, or coordinate a diversion. That extra margin is valuable precisely because the equipment is unreliable.</p>
+        <p>Ordering thousands of aircraft to find a runway immediately would have created a different mess. The nearest airports have finite approach, runway, and parking capacity. Sending more aircraft toward them can produce queues in the air, where waiting burns fuel. Continuing an orderly flight toward a suitable destination can be safer than making an unnecessary diversion.</p>
+        <p>The reduction was substantial. <a href="https://www.flightradar24.com/blog/live/nationwide-ground-stop-issued-for-united-states/">Flightradar24’s published snapshots</a> show the worldwide count of airborne flights headed for U.S. airports falling from 4,042 to 1,000, then below 400. These counts describe a changing population, not an aircraft-by-aircraft accounting of the original group.</p>
+
+        <figure>
+          <picture>
+            <source media="(max-width: 650px)" srcset="/images/blog/how-to-safely-get-4k-planes-down/airborne-flights-mobile.svg" />
+            <img src="/images/blog/how-to-safely-get-4k-planes-down/airborne-flights.svg" width="960" height="580" alt="Flightradar24’s November 13 snapshots show 4,042 airborne U.S.-bound flights at 3:54 p.m. Eastern, 1,000 at 5:55 p.m., and fewer than 400 at 8 p.m. The ground stop lifted at 8:15 p.m.; the lowest reported count, 336, came at 8:29 p.m., after reopening. All bars share the same scale." loading="lazy" decoding="async" />
+          </picture>
+        </figure>
+
+        <p>The stop was lifted at <strong>8:15 p.m. Eastern</strong>, with flights still airborne. Some international departures had already received case-by-case permission during the stop. The recovery decision depended on restoring usable capacity; it didn’t require the last airplane to touch down. The FAA said it tested its systems for stability before allowing departures to resume, in <a href="https://x.com/FAANews/status/2121439275539481030">its reopening update</a>.</p>
+
+        <h2>Where they landed, and what “safe” establishes</h2>
+        <p>Many flights continued to their planned airports. Others returned or diverted. <a href="https://apnews.com/article/f81b0904331dafad6133f291e5f531a8">AP reported Cirium’s count</a> of 827 diversions or returns by 7:05 p.m. Eastern: 670 back to the departure airport and 157 elsewhere. That tally doesn’t tell us why each crew changed course, or how each flight relates to Flightradar24’s starting count.</p>
+        <p>A diversion airport has to suit the airplane, weather, fuel remaining, and available capacity. A small nearby runway may be useless to an airliner; a farther airport may offer a suitable runway and room to accept it. Pilots, controllers, and airline dispatchers coordinate those choices as circumstances allow. There’s no universal rule that each aircraft gets the geographically closest airport.</p>
+        <p>Officials reported that more than 3,000 flights landed safely. That is a substantial operational success. It doesn’t establish that nobody declared an emergency: a crew can declare one and still land safely. The public accounts don’t provide a complete flight-by-flight record from which to claim that every arrival was routine.</p>
+
+        <h2>Are the old routers gone now?</h2>
+        <p><strong>We have evidence of restored service, but no verified nationwide replacement of the implicated routers.</strong> Identifying and isolating faulty equipment can make a network usable again while replacement work remains. The immediate repair and the long-term modernization are separate jobs.</p>
+        <p>Duffy said the newly deployed equipment had stayed operational during the outage. That is encouraging evidence about those installations, as <a href="https://www.transportation.gov/briefing-room/icymi-us-transportation-secretary-sean-p-duffy-announces-lifting-nationwide-ground">the Department’s briefing highlights record</a>. It doesn’t establish that all remaining old equipment has been removed or that the network as a whole can contain a repeat failure.</p>
+        <p>The modernization was underway before Friday. <a href="https://files.gao.gov/reports/GAO-26-107992/index.html">GAO’s September 2026 review</a> recorded 2,560 of 5,170 targeted copper connections replaced as of May. The plan also calls for moving nearly 30,000 services to Internet Protocol and replacing 450 legacy voice switches. Those are distinct measures: replacing a cable isn’t the same as replacing a router or voice switch. May’s progress count is also not a current inventory.</p>
+
+        <div class="article-table" role="region" aria-label="What the recovery and modernization evidence establishes" tabindex="0">
+          <table>
+            <thead><tr><th scope="col">Evidence</th><th scope="col">What it establishes</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">Service restored Friday evening</th><td>The system was judged ready to accept departures again.</td></tr>
+              <tr><th scope="row">New equipment stayed up</th><td>Some upgraded installations withstood this event.</td></tr>
+              <tr><th scope="row">Replacement program underway</th><td>Parts of the infrastructure have improved; nationwide work remains.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p>IP is the family of networking protocols used by the internet. An IP-based aviation network can still be private. And the older TDM technology, which reserves time slots on a communications link, is itself digital; calling this whole transition “analog to digital” blurs several different upgrades. New hardware helps, but reliability also depends on whether alternate paths are independent, whether a bad change can be contained, and whether it can be rolled back under load.</p>
+        <p>GAO put the first modernization phase’s target at December 2028 and warned about the lack of an integrated schedule and reliable lifecycle cost estimate. Friday’s outage adds an urgent engineering question: what allowed a problem in part of the communications network to disrupt so much of the country? A final technical investigation needs to answer that before anyone can credibly say the same failure is fixed for good.</p>
+        <p>The controllers and crews deserve credit for getting thousands of flights safely through a system that was letting them down. Holding departures gave them a manageable path through the failure, and reopening followed the restoration of capacity. That response worked. The standard for the network should be higher: the next equipment failure or software change should leave far fewer people needing to execute the national contingency plan.</p>
+      </article>
+    </main>
+    <footer class="site-footer shell">
+      <a class="brand footer-brand" href="/">yapern<span class="brand-dot">.</span></a>
+      <p>A sub-yap for everything you’re into.</p>
+      <nav aria-label="Footer">
+        <a href="/about/">About</a>
+        <a href="/blog/">Blog</a>
+        <a href="https://github.com/yapern/web">GitHub</a>
+        <a href="https://andrewarrow.dev">Learn to vibe</a>
+        <a href="https://api.yapern.com/docs">API docs <span aria-hidden="true">↗</span></a><a href="/terms">Terms</a><a href="/privacy">Privacy</a>
+      </nav>
+    </footer>
+  </body>
+</html>

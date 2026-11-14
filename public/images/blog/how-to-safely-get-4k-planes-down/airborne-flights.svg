@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="580" viewBox="0 0 960 580" role="img" aria-labelledby="title desc">
+<title id="title">The airborne workload fell</title><desc id="desc">Snapshots of airborne flights worldwide headed for U.S. airports, on a common scale: 4,042 at 3:54 p.m. Eastern; 1,000 at 5:55 p.m.; fewer than 400 at 8 p.m.; 336 at 8:29 p.m. The nationwide ground stop lifted at 8:15 p.m. The less-than-400 bar shows an upper bound, not an exact measurement.</desc>
+<defs>
+  <marker id="arrow" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto-start-reverse"><path d="M0 0L6 3L0 6" fill="none" stroke="#256581" stroke-width="1.5"/></marker>
+  <pattern id="bound" width="8" height="8" patternUnits="userSpaceOnUse"><path d="M-2 2L2 -2M0 8L8 0M6 10L10 6" stroke="#256581" stroke-width="2"/></pattern>
+</defs>
+<rect width="960" height="580" rx="4" fill="#f7f4ec"/>
+<g font-family="Arial, Helvetica, sans-serif" fill="#26343f">
+<metadata>Source: Flightradar24 live coverage, November 13–14, 2026. https://www.flightradar24.com/blog/live/nationwide-ground-stop-issued-for-united-states/</metadata>
+<text x="36" y="49" font-size="30" fill="#26343f" font-weight="700" text-anchor="start">The airborne workload fell</text>
+<text x="36" y="81" font-size="20" fill="#52606a" font-weight="400" text-anchor="start">Flights airborne worldwide, headed for U.S. airports</text>
+<text x="36" y="108" font-size="17" fill="#52606a" font-weight="400" text-anchor="start">November 13, 2026 · All times Eastern · Bars share the same scale</text>
+<text x="36" y="170" font-size="21" fill="#26343f" font-weight="700" text-anchor="start">3:54 p.m.</text>
+<rect x="195" y="141" width="650" height="34" fill="#e3e6e2" rx="2"/>
+<rect x="195" y="141" width="650.00" height="34" fill="#256581" rx="2"/>
+<text x="920" y="170" font-size="25" fill="#26343f" font-weight="700" text-anchor="end">4,042</text>
+<text x="36" y="196" font-size="16" fill="#52606a" font-weight="400" text-anchor="start">Stop begins</text>
+<text x="36" y="267" font-size="21" fill="#26343f" font-weight="700" text-anchor="start">5:55 p.m.</text>
+<rect x="195" y="238" width="650" height="34" fill="#e3e6e2" rx="2"/>
+<rect x="195" y="238" width="160.81" height="34" fill="#256581" rx="2"/>
+<text x="920" y="267" font-size="25" fill="#26343f" font-weight="700" text-anchor="end">1,000</text>
+<text x="36" y="364" font-size="21" fill="#26343f" font-weight="700" text-anchor="start">8:00 p.m.</text>
+<rect x="195" y="335" width="650" height="34" fill="#e3e6e2" rx="2"/>
+<rect x="195" y="335" width="64.32" height="34" fill="url(#bound)" rx="2"/>
+<text x="920" y="364" font-size="25" fill="#26343f" font-weight="700" text-anchor="end">&lt;400</text>
+<text x="195" y="397" font-size="17" fill="#52606a" font-weight="400" text-anchor="start">Hatched bar = upper bound</text>
+<text x="36" y="482" font-size="21" fill="#26343f" font-weight="700" text-anchor="start">8:29 p.m.</text>
+<rect x="195" y="453" width="650" height="34" fill="#e3e6e2" rx="2"/>
+<rect x="195" y="453" width="54.03" height="34" fill="#256581" rx="2"/>
+<text x="920" y="482" font-size="25" fill="#26343f" font-weight="700" text-anchor="end">336</text>
+<path d="M36 418H924" fill="none" stroke="#52606a" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="3 6"/>
+<rect x="302" y="402" width="355" height="30" fill="#f7f4ec"/>
+<text x="480" y="423" font-size="20" fill="#26343f" font-weight="700" text-anchor="middle">8:15 p.m. · Ground stop lifted</text>
+<text x="36" y="541" font-size="18" fill="#52606a" font-weight="400" text-anchor="start">Lowest count came after reopening. These are snapshots, not one tracked group.</text>
+<text x="36" y="565" font-size="16" fill="#52606a" font-weight="400" text-anchor="start">Source: Flightradar24 live coverage, November 13–14, 2026.</text>
+</g></svg>

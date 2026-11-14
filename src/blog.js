@@ -2,6 +2,13 @@ export const BLOG_PAGE_SIZE = 6;
 
 export const blogPosts = [
   {
+    slug: "how-to-safely-get-4k-planes-down",
+    title: "How to safely get 4k planes down",
+    published: "2026-11-14",
+    author: "Andrew Arrow",
+    summary: "Old routers made the FAA’s voice and radar information unreliable. Holding departures gave controllers room to bring airborne flights in safely. What worked, and what still needs fixing.",
+  },
+  {
     slug: "does-the-crichton-estate-have-a-case",
     title: "Does the Crichton Estate Have a Case?",
     published: "2026-11-14",

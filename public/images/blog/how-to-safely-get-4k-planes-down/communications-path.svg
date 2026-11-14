@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="500" viewBox="0 0 960 500" role="img" aria-labelledby="title desc">
+<title id="title">The ground network is part of the radio call</title><desc id="desc">Simplified dependencies, not a reconstruction of the incident. The ground network carries voice to a remote radio and surveillance data to a display. An interruption in that network can affect both services, without disabling the aircraft.</desc>
+<defs>
+  <marker id="arrow" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto-start-reverse"><path d="M0 0L6 3L0 6" fill="none" stroke="#256581" stroke-width="1.5"/></marker>
+  <pattern id="bound" width="8" height="8" patternUnits="userSpaceOnUse"><path d="M-2 2L2 -2M0 8L8 0M6 10L10 6" stroke="#256581" stroke-width="2"/></pattern>
+</defs>
+<rect width="960" height="500" rx="4" fill="#f7f4ec"/>
+<g font-family="Arial, Helvetica, sans-serif" fill="#26343f">
+<text x="36" y="48" font-size="28" fill="#26343f" font-weight="700" text-anchor="start">The ground network is part of the radio call</text>
+<text x="36" y="78" font-size="18" fill="#52606a" font-weight="400" text-anchor="start">Simplified dependencies; alternate paths and local equipment omitted.</text>
+<rect x="290" y="133" width="310" height="265" rx="4" fill="#f0e0d6"/>
+<text x="445" y="169" font-size="21" fill="#26343f" font-weight="700" text-anchor="middle">Shared ground network</text>
+<text x="445" y="193" font-size="18" fill="#52606a" font-weight="400" text-anchor="middle">Routers, switches, links</text>
+<g transform="translate(100 215) scale(1)" fill="none" stroke="#26343f" stroke-width="3" stroke-linejoin="round">
+    <circle cx="0" cy="-16" r="17"/><path d="M-30 34Q-28 6 0 6Q28 6 30 34M-23 -15Q-22 -43 0 -43Q22 -43 23 -15M-24 -17V-4H-18V-20ZM18 -20V-4H24V-17M22 -4Q22 7 7 4"/>
+    </g>
+<text x="100" y="282" font-size="20" fill="#26343f" font-weight="400" text-anchor="middle">Controller</text>
+<g transform="translate(100 348) scale(1)" fill="none" stroke="#26343f" stroke-width="3" stroke-linejoin="round">
+    <rect x="-34" y="-24" width="68" height="45" rx="3"/><path d="M0 21V32M-20 32H20"/>
+    <path d="M-24 10L-11 -5L3 1L22 -13" stroke="#256581"/><circle cx="3" cy="1" r="3" fill="#256581"/>
+    </g>
+<text x="100" y="410" font-size="20" fill="#26343f" font-weight="400" text-anchor="middle">Display</text>
+<g transform="translate(711 236) scale(1)" fill="none" stroke="#26343f" stroke-width="3" stroke-linejoin="round">
+    <path d="M0 -30L-22 31H22ZM-12 5H12M-17 18H17M-9 -5L17 18M9 -5L-17 18"/>
+    <circle cx="0" cy="-30" r="4" fill="#256581" stroke="none"/><path d="M-14 -43Q-26 -30 -14 -17M14 -43Q26 -30 14 -17M-25 -51Q-43 -30 -25 -9M25 -51Q43 -30 25 -9" stroke="#256581"/>
+    </g>
+<text x="711" y="298" font-size="20" fill="#26343f" font-weight="400" text-anchor="middle">Remote radio</text>
+<g transform="translate(863 161) scale(0.7)"><path d="M0 -42Q5 -42 6 -31L8 -10L38 9V17L8 7L6 29L19 39V45L0 39L-19 45V39L-6 29L-8 7L-38 17V9L-8 -10L-6 -31Q-5 -42 0 -42Z" fill="#256581"/></g>
+<text x="863" y="230" font-size="20" fill="#26343f" font-weight="400" text-anchor="middle">Aircraft</text>
+<g transform="translate(760 351) scale(1)" fill="none" stroke="#26343f" stroke-width="3" stroke-linejoin="round">
+    <path d="M-26 -15Q0 19 24 -15ZM-2 0V28M-18 28H14M-12 -15L4 -34M-3 -32Q11 -30 15 -18M4 -43Q26 -38 31 -19"/>
+    </g>
+<text x="760" y="410" font-size="20" fill="#26343f" font-weight="400" text-anchor="middle">Surveillance sensor</text>
+<path d="M144 235H665" fill="none" stroke="#256581" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<text x="201" y="220" font-size="18" fill="#256581" font-weight="400" text-anchor="start">Voice</text>
+<path d="M711 200Q764 137 830 153" fill="none" stroke="#256581" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)" stroke-dasharray="7 6"/>
+<text x="781" y="126" font-size="18" fill="#256581" font-weight="400" text-anchor="middle">Radio link</text>
+<path d="M720 350H150" fill="none" stroke="#256581" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<text x="208" y="334" font-size="18" fill="#256581" font-weight="400" text-anchor="start">Data</text>
+<circle cx="445" cy="235" r="13" fill="#f7f4ec"/><path d="M438 228L452 242M452 228L438 242" fill="none" stroke="#a83f35" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="445" cy="350" r="13" fill="#f7f4ec"/><path d="M438 343L452 357M452 343L438 357" fill="none" stroke="#a83f35" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M445 253V330" fill="none" stroke="#a83f35" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="3 6"/>
+<text x="36" y="464" font-size="21" fill="#a83f35" font-weight="700" text-anchor="start">A shared network fault can interrupt several services at once.</text>
+</g></svg>

@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="650" viewBox="0 0 400 650" role="img" aria-labelledby="title desc">
+<title id="title">The radio call also crosses a ground network</title><desc id="desc">A controller and display connect through a shared ground network to a remote radio and surveillance sensor. The remote radio communicates with the aircraft over the air. A fault in the shared network can affect both voice and surveillance data.</desc>
+<defs>
+  <marker id="arrow" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto-start-reverse"><path d="M0 0L6 3L0 6" fill="none" stroke="#256581" stroke-width="1.5"/></marker>
+  <pattern id="bound" width="8" height="8" patternUnits="userSpaceOnUse"><path d="M-2 2L2 -2M0 8L8 0M6 10L10 6" stroke="#256581" stroke-width="2"/></pattern>
+</defs>
+<rect width="400" height="650" rx="4" fill="#f7f4ec"/>
+<g font-family="Arial, Helvetica, sans-serif" fill="#26343f">
+<text x="24" y="36" font-size="24" fill="#26343f" font-weight="700" text-anchor="start">The radio link is only</text>
+<text x="24" y="65" font-size="24" fill="#26343f" font-weight="700" text-anchor="start">part of the connection.</text>
+<text x="24" y="94" font-size="17" fill="#52606a" font-weight="400" text-anchor="start">Simplified; alternate paths omitted.</text>
+<g transform="translate(93 166) scale(0.8)" fill="none" stroke="#26343f" stroke-width="3" stroke-linejoin="round">
+    <circle cx="0" cy="-16" r="17"/><path d="M-30 34Q-28 6 0 6Q28 6 30 34M-23 -15Q-22 -43 0 -43Q22 -43 23 -15M-24 -17V-4H-18V-20ZM18 -20V-4H24V-17M22 -4Q22 7 7 4"/>
+    </g>
+<text x="93" y="220" font-size="18" fill="#26343f" font-weight="400" text-anchor="middle">Controller</text>
+<g transform="translate(294 166) scale(0.8)" fill="none" stroke="#26343f" stroke-width="3" stroke-linejoin="round">
+    <rect x="-34" y="-24" width="68" height="45" rx="3"/><path d="M0 21V32M-20 32H20"/>
+    <path d="M-24 10L-11 -5L3 1L22 -13" stroke="#256581"/><circle cx="3" cy="1" r="3" fill="#256581"/>
+    </g>
+<text x="294" y="220" font-size="18" fill="#26343f" font-weight="400" text-anchor="middle">Display</text>
+<rect x="34" y="283" width="332" height="126" rx="4" fill="#f0e0d6"/>
+<text x="200" y="313" font-size="21" fill="#26343f" font-weight="700" text-anchor="middle">Shared ground network</text>
+<text x="200" y="339" font-size="17" fill="#52606a" font-weight="400" text-anchor="middle">Routers, switches, links</text>
+<path d="M93 231V483" fill="none" stroke="#256581" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<path d="M294 440V231" fill="none" stroke="#256581" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<circle cx="93" cy="374" r="13" fill="#f7f4ec"/><path d="M86 367L100 381M100 367L86 381" fill="none" stroke="#a83f35" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="294" cy="374" r="13" fill="#f7f4ec"/><path d="M287 367L301 381M301 367L287 381" fill="none" stroke="#a83f35" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M112 374H275" fill="none" stroke="#a83f35" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="3 6"/>
+<text x="112" y="264" font-size="17" fill="#256581" font-weight="400" text-anchor="start">Voice</text>
+<text x="313" y="264" font-size="17" fill="#256581" font-weight="400" text-anchor="start">Data</text>
+<g transform="translate(93 533) scale(0.8)" fill="none" stroke="#26343f" stroke-width="3" stroke-linejoin="round">
+    <path d="M0 -30L-22 31H22ZM-12 5H12M-17 18H17M-9 -5L17 18M9 -5L-17 18"/>
+    <circle cx="0" cy="-30" r="4" fill="#256581" stroke="none"/><path d="M-14 -43Q-26 -30 -14 -17M14 -43Q26 -30 14 -17M-25 -51Q-43 -30 -25 -9M25 -51Q43 -30 25 -9" stroke="#256581"/>
+    </g>
+<g transform="translate(294 483) scale(0.8)" fill="none" stroke="#26343f" stroke-width="3" stroke-linejoin="round">
+    <path d="M-26 -15Q0 19 24 -15ZM-2 0V28M-18 28H14M-12 -15L4 -34M-3 -32Q11 -30 15 -18M4 -43Q26 -38 31 -19"/>
+    </g>
+<text x="93" y="586" font-size="18" fill="#26343f" font-weight="400" text-anchor="middle">Remote radio</text>
+<text x="294" y="529" font-size="18" fill="#26343f" font-weight="400" text-anchor="middle">Sensor</text>
+<g transform="translate(294 581) scale(0.44)"><path d="M0 -42Q5 -42 6 -31L8 -10L38 9V17L8 7L6 29L19 39V45L0 39L-19 45V39L-6 29L-8 7L-38 17V9L-8 -10L-6 -31Q-5 -42 0 -42Z" fill="#256581"/></g>
+<path d="M130 539Q194 517 262 562" fill="none" stroke="#256581" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)" stroke-dasharray="7 6"/>
+<text x="200" y="559" font-size="17" fill="#256581" font-weight="400" text-anchor="middle">Radio link</text>
+<text x="294" y="632" font-size="18" fill="#26343f" font-weight="400" text-anchor="middle">Aircraft</text>
+</g></svg>
