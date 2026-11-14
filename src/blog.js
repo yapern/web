@@ -2,6 +2,13 @@ export const BLOG_PAGE_SIZE = 6;
 
 export const blogPosts = [
   {
+    slug: "does-the-crichton-estate-have-a-case",
+    title: "Does the Crichton Estate Have a Case?",
+    published: "2026-11-14",
+    author: "Andrew Arrow",
+    summary: "Warner Bros. owns ER. It also promised Michael Crichton a say in its derivatives. The failed revival, The Pitt lawsuit, and what a fair deal could have looked like.",
+  },
+  {
     slug: "adding-crawl-urls-to-sub-yaps",
     title: "Adding crawl URLs to sub-yaps",
     published: "2026-11-04",
