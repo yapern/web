@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#090d17" />
+    <meta name="description" content="NEUSLeeP's researchers published their code. What you can reproduce, what the REM sleep results establish, and why the ultrasound hardware still needs a lab." />
+    <link rel="canonical" href="https://yapern.com/blog/should-you-make-your-own-rem-sleep-patch/" />
+    <link rel="icon" href="/images/favicon.png" type="image/png" />
+    <meta property="og:type" content="article" />
+    <meta property="og:site_name" content="Yapern" />
+    <meta property="og:title" content="Should you make your own REM Sleep Patch?" />
+    <meta property="og:description" content="The NEUSLeeP code is public. Reproducing a simulation, measuring an acoustic field, and improving someone's sleep are three very different projects." />
+    <meta property="og:url" content="https://yapern.com/blog/should-you-make-your-own-rem-sleep-patch/" />
+    <meta property="og:image" content="https://yapern.com/images/blog/should-you-make-your-own-rem-sleep-patch/concentric-array.png" />
+    <meta property="og:image:alt" content="An original schematic of eight concentric ultrasound channels and their different paths to a shared focus in water." />
+    <meta property="article:published_time" content="2026-11-16" />
+    <meta property="article:author" content="Andrew Arrow" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Should you make your own REM Sleep Patch?" />
+    <meta name="twitter:description" content="A look through the NEUSLeeP paper and source code, including the study's fixed night order and the lab equipment outside the patch." />
+    <meta name="twitter:url" content="https://yapern.com/blog/should-you-make-your-own-rem-sleep-patch/" />
+    <meta name="twitter:image" content="https://yapern.com/images/blog/should-you-make-your-own-rem-sleep-patch/concentric-array.png" />
+    <meta name="twitter:image:alt" content="Eight concentric transducer channels share an aperture but have different acoustic path lengths to the focus." />
+    <link rel="stylesheet" href="/yapern.css" />
+    <link rel="stylesheet" href="/blog.css" />
+    <script type="module" src="/src/auth-nav.js"></script>
+    <script type="module" src="/src/create.js"></script>
+    <title>Should you make your own REM Sleep Patch? · Yapern</title>
+  </head>
+  <body class="blog-page">
+    <a class="skip-link" href="#main">Skip to content</a>
+    <!-- site-header -->
+    <main id="main" class="blog-main shell" tabindex="-1">
+      <p class="blog-back"><a href="/blog/">← Blog</a></p>
+      <article class="blog-article" aria-labelledby="article-title">
+        <h1 id="article-title">Should you make your own REM Sleep Patch?</h1>
+        <p class="blog-meta"><time datetime="2026-11-16">November 16, 2026</time> · Andrew Arrow</p>
+
+        <p>A patch that gets you into REM sleep 43 minutes sooner, with another 16 minutes of REM once you’re there, is a pretty good pitch. Those are the numbers in <a href="https://www.sciencedaily.com/releases/2026/11/261116014842.htm">today’s ScienceDaily story</a> about NEUSLeeP, developed by researchers led by UT Austin. Then comes the detail that makes a programmer’s shopping finger twitch: <a href="https://github.com/kevintang725/DARPA-NEUSLEEP">the researchers published their code</a>.</p>
+        <p>There’s MATLAB, Python, an Arduino, and enough device information to start asking practical questions. How much of this can you reproduce? Could you build the sleep monitor first? Is the ultrasound part an unusually ambitious weekend project?</p>
+        <p>I’d happily start with the analysis software. I’d want an acoustics lab involved before building the ultrasound hardware, and I wouldn’t make a homemade version to wear to bed. Reading the paper and the code gives some specific reasons for that judgment, including a complication that matters even if somebody hands you a perfectly manufactured patch.</p>
+
+        <h2>The second night was always the stimulation night</h2>
+        <p>The <a href="https://www.nature.com/articles/s41467-026-73787-6">Nature Communications paper</a>, also indexed on <a href="https://pubmed.ncbi.nlm.nih.gov/42243115/">PubMed</a>, describes 28 overnight-study participants. Two recordings were excluded for extensive noise, leaving 26 people in the sleep analysis. Average REM share rose from 16.3% to 20.9% of sleep, a gain of <strong>4.6 percentage points</strong>. That’s different from a 4.6% relative increase. The authors report about 15.9 additional REM minutes.</p>
+        <p>REM latency means time from falling asleep to the first REM episode. It fell from about 177 to 135 minutes. It doesn’t mean participants fell asleep 43 minutes faster. The figure below shows the reported pooled means, without individual responses or uncertainty intervals. It also preserves a consequential detail of the comparison.</p>
+
+        <figure>
+          <picture>
+            <source media="(max-width: 650px)" srcset="/images/blog/should-you-make-your-own-rem-sleep-patch/sleep-results-mobile.svg" width="420" height="650" />
+            <img src="/images/blog/should-you-make-your-own-rem-sleep-patch/sleep-results.svg" width="960" height="540" alt="Reported means for 26 usable paired recordings: REM sleep share was 16.3% on sham night and 20.9% on stimulation night. REM latency was 177 and 134.7 minutes. Sham was always night one; stimulation was always night two. The charts show group averages, without individual responses or uncertainty intervals." decoding="async" />
+          </picture>
+        </figure>
+
+        <p>Everyone had sham first and ultrasound second. <a href="https://clinicaltrials.gov/study/NCT07190287">The trial registry</a> confirms the nonrandomized order. Its enrollment of 52 covers several study phases; it isn’t the sample size of this overnight comparison. The registry also excludes diagnosed sleep disorders, so don’t read the paper’s “insomnia” group label as a trial treating diagnosed chronic insomnia.</p>
+        <p>With that order, getting accustomed to the room and equipment could contribute to a better second night. Having each person serve as their own control helps with differences between people, but it doesn’t separate stimulation from being there for a second night. The authors acknowledge order and expectancy effects. Their concern was that stimulation might persist and contaminate a later sham night.</p>
+        <p>That’s a reasonable problem to confront, and an unresolved one. A small study can justify a better experiment without establishing that the patch caused the entire improvement. It certainly doesn’t establish that maximizing a nightly REM number will make you healthier.</p>
+
+        <h2>The patch still has cables</h2>
+        <p><a href="https://news.utexas.edu/2026/07/07/get-better-sleep-with-ultrasound-patch-that-boosts-rem-rest/">UT’s announcement</a> shows a soft patch with wires coming out of it. Keep those wires in the mental picture. Wearable describes what sits against the skin; the <a href="https://github.com/kevintang725/DARPA-NEUSLEEP/blob/main/README.md#additional-hardwares">repository’s equipment list</a> includes a Verasonics Vantage 64LE ultrasound system, an EEG amplifier, an oscilloscope, a motorized three-axis system, and MRI equipment.</p>
+        <p>NEUSLeeP combines electrical recording with an eight-channel concentric ultrasound array aimed at the subthalamic nucleus, a deep brain structure involved in wider sleep-related circuits. EEG records scalp electrical activity; EOG records eye movements; EMG records muscle activity. Those are measurements. The ultrasound array supplies the intervention. Combining them on a flexible substrate doesn’t remove the separate problems of acquiring a clean signal and delivering a known acoustic field.</p>
+        <p>The rings are worth looking at. They share a center, but sound from the outer rings has farther to travel to a point on the axis. Relative timing lets their waves reinforce one another at a chosen depth. This original drawing follows the ring geometry in <a href="https://github.com/kevintang725/DARPA-NEUSLEEP/blob/baa5d8bbfba157ea4996a239b4ee2b66294bfc0e/NEUSLeeP/Simulations/BeamProfileSkull.m">the authors’ simulation code</a>; the paths are schematic, in water, and don’t show a measured beam or a human targeting plan.</p>
+
+        <figure>
+          <picture>
+            <source media="(max-width: 650px)" srcset="/images/blog/should-you-make-your-own-rem-sleep-patch/concentric-array-mobile.svg" width="420" height="680" />
+            <img src="/images/blog/should-you-make-your-own-rem-sleep-patch/concentric-array.svg" width="960" height="540" alt="Front view of eight separate concentric transducer rings, beside a section through their center. Representative paths from outer rings to an axial focus are longer than paths from inner rings. Relative channel timing compensates for those distances in a simplified water model. The drawing is not a measured acoustic field." loading="lazy" decoding="async" />
+          </picture>
+        </figure>
+
+        <p>An Arduino appearing in the repository can make this feel familiar. But the README assigns ultrasound control to the Verasonics system. A timing controller doesn’t replace the multichannel equipment driving the transducer. Pricing an Arduino and some electrodes would miss most of the difficult project.</p>
+
+        <h2>A useful first project is already in the repository</h2>
+        <p>Start with <code>NEUSLeeP/Simulations/BeamProfileSkull.m</code>. It uses k-Wave, an acoustic simulation toolbox, to compare propagation in a uniform medium with propagation through modeled skull layers. The script varies skull curvature and computes the location and width of the resulting focus. That gives you something more useful to investigate than whether you can make a piezoelectric element vibrate.</p>
+        <p>The file explicitly implements a two-dimensional approximation of the ring array. That makes it a useful model to study and a poor substitute for an individualized three-dimensional head model. Reproducing a plot means you reproduced that calculation under its assumptions.</p>
+        <p>There’s a similarly instructive dependency in <a href="https://github.com/kevintang725/DARPA-NEUSLEEP/blob/baa5d8bbfba157ea4996a239b4ee2b66294bfc0e/NEUSLeeP/Simulations/ThermalDiffusion.m">the thermal script</a>. Before estimating temperature, it loads a pressure field:</p>
+
+        <pre><code>%% Load Pressure Field
+load('Free-Field -f170.mat');
+[Nr, Ny] = size(p_measured);</code></pre>
+
+        <p>The pressure field is an input. A convincing temperature plot still depends on the right measurement, units, material assumptions, and exposure history. Changing the transducer or its coupling to the surface means you have to establish those inputs again. Copying a script doesn’t copy the calibration.</p>
+        <p>The <a href="https://github.com/kevintang725/DARPA-NEUSLEEP/blob/main/README.md#software-dependencies">documented environment</a> includes MATLAB 2024b, COMSOL 6.0, Python, and EEG and imaging tools. That’s a list for the research project, not a requirement to install everything before reading one script. For this starting point, identify the k-Wave dependency and the particular inputs first. I’ve inspected the source here; I haven’t run the authors’ MATLAB simulations or independently reproduced their experimental results.</p>
+
+        <h2>The skull is part of the apparatus</h2>
+        <p>A working electrical waveform establishes what came out of the driver. An acoustic measurement establishes what the transducer delivered into a particular medium. Neither, by itself, establishes what reaches a particular person’s brain.</p>
+        <p>The <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC12644226/">ITRUSST safety consensus</a> explains why the difference matters. Bone absorbs ultrasound, so thermal assessment must consider the skull and adjacent tissue as well as the intended focus. Skull geometry also changes the transmitted field. The consortium calls for validated models or measurements that account for variation between people; measuring one skull cannot capture that variation.</p>
+        <p>That makes a water tank or phantom a worthwhile destination for a hardware project, provided you have suitable equipment and expertise. A calibrated hydrophone, essentially a microphone for pressure in water, lets you compare the acoustic field with the model. A beam measured there is a bench result. Human use adds anatomical targeting, acoustic and thermal assessment, screening, monitoring, and ethics review. The consensus explicitly says its risk guidance cannot replace ethical evaluation.</p>
+        <p>I wouldn’t turn the paper’s stimulation settings into a home recipe. The missing information is what a different device would deliver through your anatomy, and whether changing your sleep that way is beneficial. A successful compile answers neither question.</p>
+
+        <h2>The version I’d build first</h2>
+        <p>I’d start with an offline sleep-analysis tool and an existing scored overnight recording. Read the signals, produce a sleep-stage timeline, compare it with the reference labels, and inspect where the classifications disagree. You can learn a lot before buying hardware.</p>
+        <p><a href="https://yasa-sleep.org/generated/yasa.SleepStaging.html">YASA</a> provides automatic staging from EEG, with optional eye and muscle channels, plus probabilities for each stage. Its documentation recommends review by a trained scorer, especially for low-confidence epochs and recordings from unusual sensor arrangements. A homemade monitor needs that comparison before its REM totals deserve much trust.</p>
+        <p>There’s a particularly easy software trap here. YASA’s standard staging features include a centered 7.5-minute rolling window, which uses future samples. That’s fine when analyzing last night’s recording. An unmodified offline classifier therefore cannot simply become an instantaneous controller. A live implementation would need different handling and its own validation. Streaming the samples doesn’t make the algorithm causal.</p>
+        <p>If recording hardware becomes useful, <a href="https://brainflow.readthedocs.io/en/stable/SupportedBoards.html">BrainFlow</a> supports acquisition from boards such as the OpenBCI Cyton, along with synthetic and playback sources for developing the software. That would be a separate sensing project; it wouldn’t reproduce NEUSLeeP’s materials or validate its ultrasound effects.</p>
+
+        <div class="article-table" role="region" aria-label="Possible projects and what completing each would establish" tabindex="0">
+          <table>
+            <thead><tr><th scope="col">Project</th><th scope="col">A useful finish line</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">Offline sleep analysis</th><td>Compare predicted stages with a scored recording and inspect the errors.</td></tr>
+              <tr><th scope="row">Acoustic simulation</th><td>Reproduce a field calculation and explain how its assumptions affect it.</td></tr>
+              <tr><th scope="row">Ultrasound bench prototype</th><td>Measure the field in water or a phantom and reconcile it with the model, with lab support.</td></tr>
+              <tr><th scope="row">Human sleep intervention</th><td>Establish safety and benefit through appropriately reviewed, controlled research.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p>For the hardware, I’d contact the researchers before ordering custom parts. The <a href="https://github.com/kevintang725/DARPA-NEUSLEEP/blob/main/README.md#author-information">README lists Kevin Tang and the corresponding investigators</a>. Ask which fabrication files and calibration datasets match the published device, what requires custom manufacture, and whether there’s a research collaboration or sample available. Those answers would tell you more about feasibility than a speculative shopping list.</p>
+        <p>NEUSLeeP is worth taking seriously because its authors made enough public to inspect and question. The fixed night order gives the next sleep study a problem to solve; the simulation code gives an engineer a concrete place to start. I’d take that invitation. But if the goal is better sleep tonight, building a brain-directed ultrasound device means taking on a research program before you know whether the intervention helps. Start with the recording you can check.</p>
+      </article>
+    </main>
+    <footer class="site-footer shell">
+      <a class="brand footer-brand" href="/">yapern<span class="brand-dot">.</span></a>
+      <p>A sub-yap for everything you’re into.</p>
+      <nav aria-label="Footer">
+        <a href="/about/">About</a>
+        <a href="/blog/">Blog</a>
+        <a href="https://github.com/yapern/web">GitHub</a>
+        <a href="https://andrewarrow.dev">Learn to vibe</a>
+        <a href="https://api.yapern.com/docs">API docs <span aria-hidden="true">↗</span></a><a href="/terms">Terms</a><a href="/privacy">Privacy</a>
+      </nav>
+    </footer>
+  </body>
+</html>

@@ -100,7 +100,7 @@ export function boardPageRoutes(server, preview = false, fetcher = fetch) {
 
 function pageRedirects(server) {
   server.middlewares.use((request, response, next) => {
-    const match = request.url?.match(/^\/(about|privacy|terms|download|login|account|backroom|notifications|search|blog|blog\/building-yapern|blog\/turso-vs-layerbase-free-plan-sqlite-systems|blog\/not-a-tavern-a-yapern|blog\/hosted-videos-with-cloudflare-images-streams|blog\/my-17-projects-looking-for-number-18|blog\/my-wellbeing-does-not-depend-on-my-project|blog\/aivs-the-ai-video-studio|blog\/adding-crawl-urls-to-sub-yaps|blog\/does-the-crichton-estate-have-a-case|blog\/how-to-safely-get-4k-planes-down)(\?.*)?$/);
+    const match = request.url?.match(/^\/(about|privacy|terms|download|login|account|backroom|notifications|search|blog|blog\/building-yapern|blog\/turso-vs-layerbase-free-plan-sqlite-systems|blog\/not-a-tavern-a-yapern|blog\/hosted-videos-with-cloudflare-images-streams|blog\/my-17-projects-looking-for-number-18|blog\/my-wellbeing-does-not-depend-on-my-project|blog\/aivs-the-ai-video-studio|blog\/adding-crawl-urls-to-sub-yaps|blog\/does-the-crichton-estate-have-a-case|blog\/how-to-safely-get-4k-planes-down|blog\/should-you-make-your-own-rem-sleep-patch)(\?.*)?$/);
     if (!match) {
       next();
       return;
@@ -154,6 +154,7 @@ export default defineConfig({
         privacy: fileURLToPath(new URL("./privacy/index.html", import.meta.url)),
         terms: fileURLToPath(new URL("./terms/index.html", import.meta.url)),
         blog: fileURLToPath(new URL("./blog/index.html", import.meta.url)),
+        blogRemSleepPatch: fileURLToPath(new URL("./blog/should-you-make-your-own-rem-sleep-patch/index.html", import.meta.url)),
         blogGroundStop: fileURLToPath(new URL("./blog/how-to-safely-get-4k-planes-down/index.html", import.meta.url)),
         blogCrichton: fileURLToPath(new URL("./blog/does-the-crichton-estate-have-a-case/index.html", import.meta.url)),
         blogCrawlUrls: fileURLToPath(new URL("./blog/adding-crawl-urls-to-sub-yaps/index.html", import.meta.url)),

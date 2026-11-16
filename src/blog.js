@@ -2,6 +2,13 @@ export const BLOG_PAGE_SIZE = 6;
 
 export const blogPosts = [
   {
+    slug: "should-you-make-your-own-rem-sleep-patch",
+    title: "Should you make your own REM Sleep Patch?",
+    published: "2026-11-16",
+    author: "Andrew Arrow",
+    summary: "NEUSLeeP’s researchers published their code. What the REM results establish, what you can reproduce, and why the ultrasound hardware still needs a lab.",
+  },
+  {
     slug: "how-to-safely-get-4k-planes-down",
     title: "How to safely get 4k planes down",
     published: "2026-11-14",

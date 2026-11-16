@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="691.2pt" height="388.8pt" viewBox="0 0 691.2 388.8" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <metadata>
+  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <cc:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:format>image/svg+xml</dc:format>
+    <dc:creator>
+     <cc:Agent>
+      <dc:title>Matplotlib v3.11.2, https://matplotlib.org/</dc:title>
+     </cc:Agent>
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M 0 388.8 
+L 691.2 388.8 
+L 691.2 0 
+L 0 0 
+z
+" style="fill: #f7f4ee"/>
+  </g>
+  <g id="axes_1">
+   <g id="patch_2">
+    <path d="M 44.928 287.712 
+L 307.584 287.712 
+L 307.584 124.416 
+L 44.928 124.416 
+z
+" style="fill: #f7f4ee"/>
+   </g>
+   <g id="matplotlib.axis_1">
+    <g id="xtick_1">
+     <g id="line2d_1">
+      <path d="M 44.928 287.712 
+L 44.928 124.416 
+" clip-path="url(#p04fd003b91)" style="fill: none; stroke: #d4d1cb; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_2"/>
+     <g id="text_1">
+      <text style="font-size: 13px; font-family: 'DejaVu Sans', Arial, sans-serif; text-anchor: middle; fill: #505968" x="44.928" y="305.588953" transform="rotate(-0 44.928 305.588953)">0</text>
+     </g>
+    </g>
+    <g id="xtick_2">
+     <g id="line2d_3">
+      <path d="M 132.48 287.712 
+L 132.48 124.416 
+" clip-path="url(#p04fd003b91)" style="fill: none; stroke: #d4d1cb; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_4"/>
+     <g id="text_2">
+      <text style="font-size: 13px; font-family: 'DejaVu Sans', Arial, sans-serif; text-anchor: middle; fill: #505968" x="132.48" y="305.588953" transform="rotate(-0 132.48 305.588953)">10</text>
+     </g>
+    </g>
+    <g id="xtick_3">
+     <g id="line2d_5">
+      <path d="M 220.032 287.712 
+L 220.032 124.416 
+" clip-path="url(#p04fd003b91)" style="fill: none; stroke: #d4d1cb; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_6"/>
+     <g id="text_3">
+      <text style="font-size: 13px; font-family: 'DejaVu Sans', Arial, sans-serif; text-anchor: middle; fill: #505968" x="220.032" y="305.588953" transform="rotate(-0 220.032 305.588953)">20</text>
+     </g>
+    </g>
+    <g id="xtick_4">
+     <g id="line2d_7">
+      <path d="M 307.584 287.712 
+L 307.584 124.416 
+" clip-path="url(#p04fd003b91)" style="fill: none; stroke: #d4d1cb; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_8"/>
+     <g id="text_4">
+      <text style="font-size: 13px; font-family: 'DejaVu Sans', Arial, sans-serif; text-anchor: middle; fill: #505968" x="307.584" y="305.588953" transform="rotate(-0 307.584 305.588953)">30</text>
+     </g>
+    </g>
+    <g id="text_5">
+     <text style="font-size: 13px; font-family: 'DejaVu Sans', Arial, sans-serif; text-anchor: middle; fill: #505968" x="176.256" y="325.588953" transform="rotate(-0 176.256 325.588953)">%</text>
+    </g>
+   </g>
+   <g id="matplotlib.axis_2"/>
+   <g id="patch_3">
+    <path d="M 44.928 287.712 
+L 307.584 287.712 
+" style="fill: none; stroke: #d4d1cb; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="patch_4">
+    <path d="M 44.928 184.709908 
+L 187.63776 184.709908 
+L 187.63776 164.611938 
+L 44.928 164.611938 
+z
+" clip-path="url(#p04fd003b91)" style="fill: #69798a"/>
+   </g>
+   <g id="text_6">
+    <text style="font-size: 13px; font-family: 'DejaVu Sans', Arial, sans-serif; text-anchor: start; fill: #252b35" x="44.928" y="152.277322" transform="rotate(-0 44.928 152.277322)">Night 1 · sham</text>
+   </g>
+   <g id="text_7">
+    <text style="font-weight: 700; font-size: 14px; font-family: 'DejaVu Sans', Arial, sans-serif; text-anchor: start; fill: #252b35" x="194.20416" y="178.297642" transform="rotate(-0 194.20416 178.297642)">16.3%</text>
+   </g>
+   <g id="patch_5">
+    <path d="M 44.928 268.451446 
+L 227.91168 268.451446 
+L 227.91168 248.353477 
+L 44.928 248.353477 
+z
+" clip-path="url(#p04fd003b91)" style="fill: #6b43a6"/>
+   </g>
+   <g id="text_8">
+    <text style="font-size: 13px; font-family: 'DejaVu Sans', Arial, sans-serif; text-anchor: start; fill: #252b35" x="44.928" y="236.018861" transform="rotate(-0 44.928 236.018861)">Night 2 · ultrasound</text>
+   </g>
+   <g id="text_9">
+    <text style="font-weight: 700; font-size: 14px; font-family: 'DejaVu Sans', Arial, sans-serif; text-anchor: start; fill: #252b35" x="234.47808" y="262.03918" transform="rotate(-0 234.47808 262.03918)">20.9%</text>
+   </g>
+   <g id="text_10">
+    <text style="font-weight: 700; font-size: 17px; font-family: 'DejaVu Sans', Arial, sans-serif; text-anchor: start; fill: #252b35" x="44.928" y="94.416" transform="rotate(-0 44.928 94.416)">REM share of sleep</text>
+   </g>
+  </g>
+  <g id="axes_2">
+   <g id="patch_6">
+    <path d="M 390.528 287.712 
+L 653.184 287.712 
+L 653.184 124.416 
+L 390.528 124.416 
+z
+" style="fill: #f7f4ee"/>
+   </g>
+   <g id="matplotlib.axis_3">
+    <g id="xtick_5">
+     <g id="line2d_9">
+      <path d="M 390.528 287.712 
+L 390.528 124.416 
+" clip-path="url(#p85d4511451)" style="fill: none; stroke: #d4d1cb; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_10"/>
+     <g id="text_11">
+      <text style="font-size: 13px; font-family: 'DejaVu Sans', Arial, sans-serif; text-anchor: middle; fill: #505968" x="390.528" y="305.588953" transform="rotate(-0 390.528 305.588953)">0</text>
+     </g>
+    </g>
+    <g id="xtick_6">
+     <g id="line2d_11">
+      <path d="M 456.192 287.712 
+L 456.192 124.416 
+" clip-path="url(#p85d4511451)" style="fill: none; stroke: #d4d1cb; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_12"/>
+     <g id="text_12">
+      <text style="font-size: 13px; font-family: 'DejaVu Sans', Arial, sans-serif; text-anchor: middle; fill: #505968" x="456.192" y="305.588953" transform="rotate(-0 456.192 305.588953)">60</text>
+     </g>
+    </g>
+    <g id="xtick_7">
+     <g id="line2d_13">
+      <path d="M 521.856 287.712 
+L 521.856 124.416 
+" clip-path="url(#p85d4511451)" style="fill: none; stroke: #d4d1cb; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_14"/>
+     <g id="text_13">
+      <text style="font-size: 13px; font-family: 'DejaVu Sans', Arial, sans-serif; text-anchor: middle; fill: #505968" x="521.856" y="305.588953" transform="rotate(-0 521.856 305.588953)">120</text>
+     </g>
+    </g>
+    <g id="xtick_8">
+     <g id="line2d_15">
+      <path d="M 587.52 287.712 
+L 587.52 124.416 
+" clip-path="url(#p85d4511451)" style="fill: none; stroke: #d4d1cb; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_16"/>
+     <g id="text_14">
+      <text style="font-size: 13px; font-family: 'DejaVu Sans', Arial, sans-serif; text-anchor: middle; fill: #505968" x="587.52" y="305.588953" transform="rotate(-0 587.52 305.588953)">180</text>
+     </g>
+    </g>
+    <g id="xtick_9">
+     <g id="line2d_17">
+      <path d="M 653.184 287.712 
+L 653.184 124.416 
+" clip-path="url(#p85d4511451)" style="fill: none; stroke: #d4d1cb; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_18"/>
+     <g id="text_15">
+      <text style="font-size: 13px; font-family: 'DejaVu Sans', Arial, sans-serif; text-anchor: middle; fill: #505968" x="653.184" y="305.588953" transform="rotate(-0 653.184 305.588953)">240</text>
+     </g>
+    </g>
+    <g id="text_16">
+     <text style="font-size: 13px; font-family: 'DejaVu Sans', Arial, sans-serif; text-anchor: middle; fill: #505968" x="521.856" y="325.589969" transform="rotate(-0 521.856 325.589969)">minutes</text>
+    </g>
+   </g>
+   <g id="matplotlib.axis_4"/>
+   <g id="patch_7">
+    <path d="M 390.528 287.712 
+L 653.184 287.712 
+" style="fill: none; stroke: #d4d1cb; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="patch_8">
+    <path d="M 390.528 184.709908 
+L 584.2368 184.709908 
+L 584.2368 164.611938 
+L 390.528 164.611938 
+z
+" clip-path="url(#p85d4511451)" style="fill: #69798a"/>
+   </g>
+   <g id="text_17">
+    <text style="font-size: 13px; font-family: 'DejaVu Sans', Arial, sans-serif; text-anchor: start; fill: #252b35" x="390.528" y="152.277322" transform="rotate(-0 390.528 152.277322)">Night 1 · sham</text>
+   </g>
+   <g id="text_18">
+    <text style="font-weight: 700; font-size: 14px; font-family: 'DejaVu Sans', Arial, sans-serif; text-anchor: start; fill: #252b35" x="590.8032" y="178.298189" transform="rotate(-0 590.8032 178.298189)">177 min</text>
+   </g>
+   <g id="patch_9">
+    <path d="M 390.528 268.451446 
+L 537.94368 268.451446 
+L 537.94368 248.353477 
+L 390.528 248.353477 
+z
+" clip-path="url(#p85d4511451)" style="fill: #6b43a6"/>
+   </g>
+   <g id="text_19">
+    <text style="font-size: 13px; font-family: 'DejaVu Sans', Arial, sans-serif; text-anchor: start; fill: #252b35" x="390.528" y="236.018861" transform="rotate(-0 390.528 236.018861)">Night 2 · ultrasound</text>
+   </g>
+   <g id="text_20">
+    <text style="font-weight: 700; font-size: 14px; font-family: 'DejaVu Sans', Arial, sans-serif; text-anchor: start; fill: #252b35" x="544.51008" y="262.039727" transform="rotate(-0 544.51008 262.039727)">134.7 min</text>
+   </g>
+   <g id="text_21">
+    <text style="font-weight: 700; font-size: 17px; font-family: 'DejaVu Sans', Arial, sans-serif; text-anchor: start; fill: #252b35" x="390.528" y="94.416" transform="rotate(-0 390.528 94.416)">Time from sleep onset to REM</text>
+   </g>
+  </g>
+  <g id="text_22">
+   <text style="font-weight: 700; font-size: 24px; font-family: 'DejaVu Sans', Arial, sans-serif; text-anchor: start; fill: #252b35" x="38.016" y="25.272" transform="rotate(-0 38.016 25.272)">Two nights, in a fixed order</text>
+  </g>
+  <g id="text_23">
+   <text style="font-size: 15px; font-family: 'DejaVu Sans', Arial, sans-serif; text-anchor: start; fill: #505968" x="38.016" y="44.712" transform="rotate(-0 38.016 44.712)">26 usable recordings · reported group means</text>
+  </g>
+  <g id="text_24">
+   <text style="font-size: 13px; font-family: 'DejaVu Sans', Arial, sans-serif; text-anchor: start; fill: #505968" x="38.016" y="353.808" transform="rotate(-0 38.016 353.808)">Means only; individual responses and uncertainty intervals are not shown.</text>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="p04fd003b91">
+   <rect x="44.928" y="124.416" width="262.656" height="163.296"/>
+  </clipPath>
+  <clipPath id="p85d4511451">
+   <rect x="390.528" y="124.416" width="262.656" height="163.296"/>
+  </clipPath>
+ </defs>
+</svg>
